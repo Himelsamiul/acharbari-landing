@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3f8e4"/>
+      <stop offset="1" stop-color="#e4efd0"/>
+    </linearGradient>
+    <linearGradient id="glass2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".15"/>
+    </linearGradient>
+    <clipPath id="jarClip2">
+      <rect x="112" y="150" width="176" height="168" rx="30"/>
+    </clipPath>
+  </defs>
+
+  <rect width="400" height="400" rx="36" fill="url(#bg2)"/>
+  <circle cx="78" cy="86" r="24" fill="#ca8a04" opacity=".18"/>
+  <circle cx="330" cy="70" r="12" fill="#ea580c" opacity=".16"/>
+  <circle cx="322" cy="318" r="28" fill="#65801f" opacity=".14"/>
+
+  <path d="M54 292 q30 -36 66 -30 q-10 42 -66 30z" fill="#84a04c" opacity=".75"/>
+
+  <ellipse cx="200" cy="330" rx="112" ry="17" fill="#3f4d14" opacity=".14"/>
+
+  <!-- jar (simple lid, no cloth for variety) -->
+  <rect x="130" y="104" width="140" height="38" rx="10" fill="#7c2d12"/>
+  <rect x="126" y="128" width="148" height="26" rx="9" fill="#5f3a20"/>
+  <rect x="112" y="148" width="176" height="170" rx="30" fill="#b7c95c"/>
+  <g clip-path="url(#jarClip2)">
+    <rect x="112" y="148" width="176" height="170" fill="#a5b93e"/>
+    <!-- olives -->
+    <ellipse cx="152" cy="196" rx="24" ry="19" fill="#5f7a1e"/>
+    <ellipse cx="214" cy="182" rx="20" ry="16" fill="#719024"/>
+    <ellipse cx="264" cy="210" rx="23" ry="18" fill="#4d661a"/>
+    <ellipse cx="162" cy="262" rx="22" ry="18" fill="#719024"/>
+    <ellipse cx="230" cy="266" rx="26" ry="20" fill="#5f7a1e"/>
+    <ellipse cx="190" cy="224" rx="17" ry="14" fill="#87a63a"/>
+    <ellipse cx="268" cy="290" rx="18" ry="14" fill="#719024"/>
+    <ellipse cx="142" cy="302" rx="16" ry="13" fill="#4d661a"/>
+    <ellipse cx="214" cy="310" rx="19" ry="15" fill="#5f7a1e"/>
+    <!-- olive highlights -->
+    <circle cx="146" cy="190" r="5" fill="#d9e8a6" opacity=".8"/>
+    <circle cx="208" cy="176" r="4" fill="#d9e8a6" opacity=".8"/>
+    <circle cx="224" cy="260" r="5" fill="#d9e8a6" opacity=".8"/>
+    <circle cx="156" cy="256" r="4" fill="#d9e8a6" opacity=".8"/>
+    <!-- brine level -->
+    <rect x="112" y="148" width="176" height="170" fill="url(#glass2)"/>
+    <rect x="128" y="162" width="16" height="140" rx="8" fill="#fff" opacity=".38"/>
+  </g>
+  <rect x="112" y="148" width="176" height="170" rx="30" fill="none" stroke="#fff" stroke-opacity=".65" stroke-width="3"/>
+
+  <rect x="142" y="204" width="116" height="58" rx="12" fill="#fffdf7" stroke="#65801f" stroke-width="3"/>
+  <text x="200" y="230" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="15" font-weight="bold" fill="#3f4d14">OLIVE</text>
+  <text x="200" y="249" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="11" fill="#65801f">জলপাই আচার</text>
+
+  <!-- chili accent -->
+  <path d="M318 250 q34 8 40 40 q-34 -4 -44 -32z" fill="#dc2626"/>
+  <path d="M356 292 q6 6 12 4" stroke="#3f4d14" stroke-width="5" fill="none" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="bg6" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff6dd"/>
+      <stop offset="1" stop-color="#fde5ae"/>
+    </linearGradient>
+    <linearGradient id="glass6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".12"/>
+    </linearGradient>
+    <clipPath id="jarClip6"><rect x="120" y="172" width="160" height="140" rx="26"/></clipPath>
+  </defs>
+
+  <rect width="400" height="400" rx="36" fill="url(#bg6)"/>
+  <circle cx="70" cy="90" r="20" fill="#f59e0b" opacity=".22"/>
+  <circle cx="336" cy="76" r="12" fill="#d97706" opacity=".2"/>
+  <circle cx="60" cy="316" r="24" fill="#b45309" opacity=".12"/>
+
+  <ellipse cx="200" cy="328" rx="108" ry="16" fill="#7c2d12" opacity=".14"/>
+
+  <!-- honey jar -->
+  <rect x="140" y="148" width="120" height="26" rx="9" fill="#5f3a20"/>
+  <rect x="146" y="132" width="108" height="18" rx="7" fill="#7c2d12"/>
+  <rect x="120" y="172" width="160" height="140" rx="26" fill="#e9a41c"/>
+  <g clip-path="url(#jarClip6)">
+    <rect x="120" y="172" width="160" height="140" fill="#e0940a"/>
+    <path d="M120 220 q40 -14 80 0 q40 14 80 0 l0 92 l-160 0z" fill="#f2b33c"/>
+    <path d="M120 252 q40 -12 80 0 q40 12 80 0 l0 60 l-160 0z" fill="#f7c45a"/>
+    <rect x="120" y="172" width="160" height="140" fill="url(#glass6)"/>
+    <rect x="136" y="186" width="13" height="112" rx="6.5" fill="#fff" opacity=".4"/>
+  </g>
+  <rect x="120" y="172" width="160" height="140" rx="26" fill="none" stroke="#fff" stroke-opacity=".65" stroke-width="3"/>
+
+  <rect x="150" y="218" width="100" height="54" rx="12" fill="#fffdf7" stroke="#e0940a" stroke-width="3"/>
+  <text x="200" y="242" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" fill="#7c2d12">HONEY</text>
+  <text x="200" y="261" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="11" fill="#b45309">সুন্দরবনের মধু</text>
+
+  <!-- honey dipper -->
+  <g transform="rotate(-24 316 236)">
+    <rect x="311" y="180" width="10" height="70" rx="5" fill="#b98243"/>
+    <ellipse cx="316" cy="262" rx="22" ry="26" fill="#c99544"/>
+    <path d="M294 258 h44 M294 268 h44" stroke="#a87630" stroke-width="4"/>
+  </g>
+  <!-- drip -->
+  <path d="M282 288 q6 16 0 26 q-8 -10 0 -26z" fill="#f2b33c"/>
+  <!-- bee accent -->
+  <g transform="translate(84 190)">
+    <ellipse cx="0" cy="0" rx="12" ry="8" fill="#f2b33c"/>
+    <path d="M-4 -7 h8 M-5 0 h10 M-4 7 h8" stroke="#5c3410" stroke-width="2.6"/>
+    <ellipse cx="-3" cy="-10" rx="7" ry="4" fill="#fff" opacity=".8" transform="rotate(-24 -3 -10)"/>
+    <circle cx="11" cy="-1" r="4.4" fill="#5c3410"/>
+  </g>
+</svg>

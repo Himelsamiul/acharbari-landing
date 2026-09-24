@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="bg5" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff8e6"/>
+      <stop offset="1" stop-color="#fbeecb"/>
+    </linearGradient>
+    <linearGradient id="glass5" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".14"/>
+    </linearGradient>
+    <clipPath id="jarClip5"><rect x="116" y="168" width="168" height="148" rx="26"/></clipPath>
+  </defs>
+
+  <rect width="400" height="400" rx="36" fill="url(#bg5)"/>
+  <circle cx="72" cy="84" r="22" fill="#f59e0b" opacity=".2"/>
+  <circle cx="338" cy="80" r="13" fill="#ca8a04" opacity=".2"/>
+  <circle cx="326" cy="314" r="27" fill="#d97706" opacity=".13"/>
+
+  <ellipse cx="200" cy="330" rx="112" ry="16" fill="#7c2d12" opacity=".14"/>
+
+  <!-- ghee jar: squat round -->
+  <rect x="136" y="142" width="128" height="28" rx="9" fill="#8a5a28"/>
+  <rect x="142" y="126" width="116" height="18" rx="7" fill="#a16207"/>
+  <rect x="116" y="168" width="168" height="148" rx="26" fill="#f3c34e"/>
+  <g clip-path="url(#jarClip5)">
+    <rect x="116" y="168" width="168" height="148" fill="#eeb62e"/>
+    <!-- golden liquid waves -->
+    <path d="M116 226 q42 -18 84 0 q42 18 84 0 l0 90 l-168 0z" fill="#f7cf5f"/>
+    <path d="M116 258 q42 -16 84 0 q42 16 84 0 l0 58 l-168 0z" fill="#f9d977"/>
+    <circle cx="160" cy="216" r="6" fill="#fff" opacity=".5"/>
+    <circle cx="238" cy="204" r="4" fill="#fff" opacity=".45"/>
+    <rect x="116" y="168" width="168" height="148" fill="url(#glass5)"/>
+    <rect x="132" y="182" width="14" height="120" rx="7" fill="#fff" opacity=".4"/>
+  </g>
+  <rect x="116" y="168" width="168" height="148" rx="26" fill="none" stroke="#fff" stroke-opacity=".65" stroke-width="3"/>
+
+  <rect x="146" y="216" width="108" height="56" rx="12" fill="#fffdf7" stroke="#d97706" stroke-width="3"/>
+  <text x="200" y="241" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="14" font-weight="bold" fill="#7c2d12">DESHI GHEE</text>
+  <text x="200" y="260" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="11" fill="#b45309">ঘরে ভাঙা ঘি</text>
+
+  <!-- wooden spoon with ghee drop -->
+  <g transform="rotate(28 316 220)">
+    <ellipse cx="316" cy="220" rx="20" ry="30" fill="#b98243"/>
+    <ellipse cx="316" cy="218" rx="12" ry="20" fill="#d9a35f"/>
+    <rect x="310" y="248" width="12" height="86" rx="6" fill="#b98243"/>
+  </g>
+  <circle cx="288" cy="176" r="9" fill="#f9d977" stroke="#eeb62e" stroke-width="2"/>
+</svg>

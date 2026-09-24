@@ -1,0 +1,1873 @@
+/* ============================================================
+   Custom shims: mini-jQuery + mini-Swiper
+   (replaces jquery-3.6.3.min.js and swiper-bundle.min.js —
+    only the features this page actually uses, ~6 KB total)
+   ============================================================ */
+(function () {
+    'use strict';
+
+    /* ---------------- mini-jQuery ---------------- */
+    function Q(sel, ctx) {
+        if (!(this instanceof Q)) return new Q(sel, ctx);
+        var root = (ctx && ctx[0]) ? ctx[0] : (ctx instanceof Element ? ctx : document);
+        this.nodes = [];
+        try {
+            if (typeof sel === 'string') {
+                this.nodes = Array.prototype.slice.call(root.querySelectorAll(sel));
+            } else if (sel) {
+                this.nodes = sel.nodes ? sel.nodes.slice()
+                    : (sel.length !== undefined ? Array.prototype.slice.call(sel) : [sel]);
+            }
+        } catch (e) { this.nodes = []; }
+    }
+
+    Q.prototype = {
+        each: function (fn) { this.nodes.forEach(fn); return this; },
+        on: function (types, arg2, arg3) {
+            var selector = null, handler = arg2;
+            if (typeof arg2 === 'string') { selector = arg2; handler = arg3; }
+            types.split(/\s+/).forEach(function (t) {
+                if (!t) return;
+                this.nodes.forEach(function (node) {
+                    node.addEventListener(t, function (e) {
+                        if (selector) {
+                            var target = e.target.closest(selector);
+                            if (target && node.contains(target)) handler.call(target, e);
+                        } else {
+                            handler.call(node, e);
+                        }
+                    });
+                });
+            }, this);
+            return this;
+        },
+        html: function (v) {
+            if (v === undefined) return this.nodes[0] ? this.nodes[0].innerHTML : '';
+            this.nodes.forEach(function (n) { n.innerHTML = v; });
+            return this;
+        },
+        attr: function (name, val) {
+            if (val === undefined) return this.nodes[0] ? this.nodes[0].getAttribute(name) : undefined;
+            this.nodes.forEach(function (n) { n.setAttribute(name, val); });
+            return this;
+        },
+        val: function (v) {
+            if (v === undefined) return this.nodes[0] ? this.nodes[0].value : undefined;
+            this.nodes.forEach(function (n) { n.value = v; });
+            return this;
+        },
+        data: function (key) {
+            var n = this.nodes[0];
+            if (!n) return undefined;
+            var v = n.getAttribute('data-' + key);
+            try { return JSON.parse(v); } catch (e) { return v; }
+        },
+        addClass: function (c) { this.nodes.forEach(function (n) { n.classList.add(c); }); return this; },
+        removeClass: function (c) { this.nodes.forEach(function (n) { n.classList.remove(c); }); return this; },
+        empty: function () { this.nodes.forEach(function (n) { n.innerHTML = ''; }); return this; },
+        offset: function () {
+            var n = this.nodes[0];
+            if (!n) return null;
+            var r = n.getBoundingClientRect();
+            return { top: r.top + window.scrollY, left: r.left + window.scrollX };
+        },
+        animate: function (props, dur) {
+            if (props.scrollTop !== undefined) {
+                var start = window.scrollY, end = props.scrollTop, t0 = performance.now();
+                dur = dur || 300;
+                (function step(t) {
+                    var p = Math.min(1, (t - t0) / dur);
+                    window.scrollTo(0, start + (end - start) * p);
+                    if (p < 1) requestAnimationFrame(step);
+                })(t0);
+            }
+            return this;
+        }
+    };
+
+    Q.ajax = function (opts) {
+        var method = (opts.type || opts.method || 'GET').toUpperCase();
+        var url = opts.url;
+        var init = { method: method, headers: { 'X-Requested-With': 'XMLHttpRequest' } };
+        if (opts.data) {
+            var qs = Object.keys(opts.data).map(function (k) {
+                var v = opts.data[k];
+                if (typeof v === 'object') v = JSON.stringify(v);
+                return encodeURIComponent(k) + '=' + encodeURIComponent(v);
+            }).join('&');
+            if (method === 'GET') url += (url.indexOf('?') > -1 ? '&' : '?') + qs;
+            else { init.body = qs; init.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'; }
+        }
+        var ok = typeof opts.success === 'function' ? opts.success : function () { };
+        var fail = typeof opts.error === 'function' ? opts.error : function () { };
+        fetch(url, init)
+            .then(function (r) { return r.text(); })
+            .then(function (text) {
+                if (opts.dataType === 'json') { try { ok(JSON.parse(text)); } catch (e) { ok(text); } }
+                else ok(text);
+            })
+            .catch(fail);
+    };
+
+    Q.ready = function (fn) { fn(); };
+    Q.prototype.ready = function (fn) { fn(); return this; };
+    window.jQuery = window.$ = Q;
+
+    /* ---------------- mini-Swiper ----------------
+       Supports: slidesPerView (fraction ok), spaceBetween, loop,
+       autoplay{delay}, pagination{el, clickable}, breakpoints,
+       pointer/touch swipe. */
+    function Swiper(container, opts) {
+        if (typeof container === 'string') container = document.querySelector(container);
+        if (container) container.__swiperInit = (container.__swiperInit || 0) + 1;
+        if (!container) return;
+        var wrap = container.querySelector('.swiper-wrapper');
+        if (!wrap) return;
+        var slides = Array.prototype.slice.call(wrap.children);
+        if (!slides.length) return;
+        opts = opts || {};
+
+        var self = this;
+        var index = 0;
+        var perView = 1, gap = opts.spaceBetween || 0, slideW = 0;
+        var timer = null;
+        var vpWidth = container.clientWidth || window.innerWidth;
+
+        // saved-page artifacts: clear old inline transforms/widths
+        wrap.style.removeProperty('transform');
+        wrap.style.removeProperty('transition-duration');
+        slides.forEach(function (s) {
+            s.style.removeProperty('width');
+            s.style.removeProperty('margin-right');
+            s.classList.remove('swiper-slide-prev', 'swiper-slide-active', 'swiper-slide-next');
+        });
+
+        function resolveOpts() {
+            var o = { slidesPerView: opts.slidesPerView || 1, spaceBetween: opts.spaceBetween || 0 };
+            var bps = opts.breakpoints || {};
+            Object.keys(bps).map(Number).sort(function (a, b) { return a - b; }).forEach(function (w) {
+                if (vpWidth >= w) {
+                    if (bps[w].slidesPerView !== undefined) o.slidesPerView = bps[w].slidesPerView;
+                    if (bps[w].spaceBetween !== undefined) o.spaceBetween = bps[w].spaceBetween;
+                }
+            });
+            return o;
+        }
+
+        function layout() {
+            vpWidth = container.clientWidth || window.innerWidth;
+            var o = resolveOpts();
+            perView = Math.min(o.slidesPerView, slides.length);
+            gap = o.spaceBetween;
+            slideW = (container.clientWidth - gap * (Math.ceil(perView) - 1)) / perView;
+            slides.forEach(function (s) {
+                s.style.width = slideW + 'px';
+                s.style.marginRight = gap + 'px';
+                s.style.flexShrink = '0';
+            });
+            if (index > maxIndex()) index = maxIndex();
+            apply();
+        }
+
+        function maxIndex() { return Math.max(0, slides.length - Math.ceil(perView)); }
+
+        function apply() {
+            wrap.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)';
+            wrap.style.transform = 'translate3d(' + (-index * (slideW + gap)) + 'px,0,0)';
+            slides.forEach(function (s, i) { s.classList.toggle('swiper-slide-active', i === index); });
+            if (bullets) {
+                bullets.forEach(function (b, i) {
+                    b.classList.toggle('swiper-pagination-bullet-active', i === Math.min(index, bullets.length - 1));
+                });
+            }
+        }
+
+        this.slideTo = function (i) {
+            index = Math.max(0, Math.min(i, maxIndex()));
+            apply();
+        };
+
+        // pagination
+        var bullets = [];
+        var pagEl = (opts.pagination && opts.pagination.el)
+            ? (document.querySelector(opts.pagination.el) || container.querySelector('.swiper-pagination'))
+            : container.querySelector('.swiper-pagination');
+        if (pagEl) {
+            pagEl.innerHTML = '';
+            var nPages = Math.max(1, slides.length - Math.ceil(perView) + 1);
+            for (var i = 0; i < nPages; i++) {
+                var b = document.createElement('button');
+                b.className = 'swiper-pagination-bullet';
+                b.type = 'button';
+                b.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+                (function (idx) {
+                    b.addEventListener('click', function () { self.slideTo(idx); restart(); });
+                })(i);
+                pagEl.appendChild(b);
+                bullets.push(b);
+            }
+        }
+
+        // swipe
+        var startX = null, dragging = false;
+        wrap.addEventListener('pointerdown', function (e) {
+            startX = e.clientX; dragging = true; stop();
+            wrap.style.transition = 'none';
+        });
+        window.addEventListener('pointermove', function (e) {
+            if (!dragging) return;
+            var dx = e.clientX - startX;
+            wrap.style.transform = 'translate3d(' + (-index * (slideW + gap) + dx) + 'px,0,0)';
+        });
+        window.addEventListener('pointerup', function (e) {
+            if (!dragging) return;
+            dragging = false;
+            var dx = e.clientX - startX;
+            wrap.style.transition = '';
+            if (Math.abs(dx) > 40) self.slideTo(index + (dx < 0 ? 1 : -1));
+            else self.slideTo(index);
+            restart();
+        });
+
+        // autoplay
+        function stop() { if (timer) { clearInterval(timer); timer = null; } }
+        function restart() {
+            if (!opts.autoplay || !opts.autoplay.delay) return;
+            stop();
+            timer = setInterval(function () {
+                self.slideTo(index >= maxIndex() ? 0 : index + 1);
+            }, opts.autoplay.delay);
+        }
+
+        layout();
+        restart();
+        var rTimer = null;
+        function relayout() { clearTimeout(rTimer); rTimer = setTimeout(layout, 150); }
+        window.addEventListener('resize', relayout);
+        window.addEventListener('orientationchange', relayout);
+        if (typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(relayout).observe(container);
+        }
+    }
+
+    window.Swiper = Swiper;
+})();
+
+
+function addToCartFromRow(productId) {
+    var cb = document.querySelector('#cart-row-' + productId + ' input[type="checkbox"]');
+    if (cb && !cb.checked) {
+        cb.checked = true;
+    }
+    toggleProductFromCart(productId, true);
+}
+
+function changeVariant(productId, sizeId, colorId) {
+    var sizes = {};
+    var colors = {};
+    if (sizeId) sizes[productId] = parseInt(sizeId);
+    if (colorId) colors[productId] = parseInt(colorId);
+    var selectedIds = [];
+    document.querySelectorAll('.lp-cart-row input[type="checkbox"]:checked').forEach(function (cb) {
+        var row = cb.closest('.lp-cart-row');
+        if (row) {
+            var pid = row.id.replace('cart-row-', '');
+            selectedIds.push(parseInt(pid));
+        }
+    });
+    if (selectedIds.indexOf(productId) === -1) {
+        selectedIds.push(productId);
+        var cb = document.querySelector('#cart-row-' + productId + ' input[type="checkbox"]');
+        if (cb) cb.checked = true;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "/cart/bulk-add",
+        data: {
+            product_ids: selectedIds,
+            sizes: sizes,
+            colors: colors,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (data) {
+            if (data) {
+                $(".cartlist").html(data);
+                cart_count();
+            }
+        }
+    });
+}
+
+$('.cart_increment').on('click', function () {
+    var id = $(this).data('id');
+    if (id) {
+        $.ajax({
+            type: "GET", data: { 'id': id },
+            url: "/cart/increment",
+            success: function (data) { if (data) { $(".cartlist").html(data); cart_count(); } }
+        });
+    }
+});
+
+$('.cart_decrement').on('click', function () {
+    var id = $(this).data('id');
+    if (id) {
+        $.ajax({
+            type: "GET", data: { 'id': id },
+            url: "/cart/decrement",
+            success: function (data) { if (data) { $(".cartlist").html(data); cart_count(); } }
+        });
+    }
+});
+
+function cart_count() {
+    $.ajax({
+        type: "GET", url: "/cart/count",
+        success: function (data) { if (data) { $("#cart-qty").html(data); } else { $("#cart-qty").empty(); } }
+    });
+}
+
+;
+function updateAdvanceBoxForProduct(productId) {
+    var box = document.getElementById('landing-advance-box');
+    var note = document.getElementById('landing-advance-note');
+    var codWrap = document.getElementById('cod-option-wrapper');
+    var paymentCod = document.getElementById('payment_cod');
+
+    var card = document.querySelector('.product-card[data-product-id="' + productId + '"]');
+    var advance = card ? parseFloat(card.getAttribute('data-advance') || '0') : 0;
+    if (isNaN(advance)) advance = 0;
+
+    var hasAdvance = advance > 0;
+    var cartEl = document.querySelector('.lp-cart-wrapper[data-has-digital-only]');
+    var isDigitalOnly = cartEl && cartEl.getAttribute('data-has-digital-only') === '1';
+    var hasPhysical = !isDigitalOnly;
+
+    // COD: শুধুমাত্র ফিজিক্যাল প্রোডাক্ট ও অগ্রিম ছাড়া প্রোডাক্টে দেখাবে
+    if (codWrap) {
+        if (hasAdvance || !hasPhysical) {
+            codWrap.classList.add('hidden');
+            if (paymentCod && paymentCod.checked) {
+                var firstOnline = document.querySelector('#payment-methods-grid input[name="payment_method"]:not(#payment_cod)');
+                if (firstOnline) { firstOnline.checked = true; }
+            }
+        } else {
+            codWrap.classList.remove('hidden');
+            if (paymentCod) paymentCod.checked = true;
+        }
+    }
+
+    if (!hasAdvance) {
+        if (box) box.classList.add('hidden');
+        if (note) note.classList.add('hidden');
+        return;
+    }
+
+    var grandTextEl = document.querySelector('#grand_total strong');
+    var grandVal = 0;
+    if (grandTextEl) {
+        grandVal = parseFloat((grandTextEl.innerText || '').replace(/[^\d.]/g, '')) || 0;
+    }
+    var due = Math.max(0, grandVal - advance);
+
+    if (document.getElementById('landing-advance-amount')) {
+        document.getElementById('landing-advance-amount').innerText = '৳ ' + advance.toFixed(2);
+    }
+    if (document.getElementById('landing-due-amount')) {
+        document.getElementById('landing-due-amount').innerText = '৳ ' + due.toFixed(2);
+    }
+    if (document.getElementById('landing-advance-note-amount')) {
+        document.getElementById('landing-advance-note-amount').innerText = '৳ ' + advance.toFixed(2);
+    }
+    if (box) box.classList.remove('hidden');
+    if (note) note.classList.remove('hidden');
+}
+
+function submitCoupon() {
+    var code = document.getElementById('coupon_input') ? document.getElementById('coupon_input').value : '';
+    if (code) {
+        document.getElementById('hidden_coupon_code').value = code;
+        document.getElementById('coupon-form').submit();
+    } else {
+        alert('Please enter a coupon code');
+    }
+}
+
+// Update the cart and highlight the selected card (campaign-style)
+// ===== Landing Products Data (for tracking) =====
+window.landingProducts = {
+};
+
+// ===== Cart Mark Checkbox Handler =====
+function toggleProductFromCart(productId, isChecked) {
+    var row = document.getElementById('cart-row-' + productId);
+    if (row) {
+        row.classList.toggle('unchecked', !isChecked);
+    }
+    // Collect all checked product IDs from cart
+    var selectedIds = [];
+    document.querySelectorAll('.lp-cart-row input[type="checkbox"]:checked').forEach(function (cb) {
+        var r = cb.closest('.lp-cart-row');
+        if (r) {
+            var pid = r.id.replace('cart-row-', '');
+            selectedIds.push(parseInt(pid));
+        }
+    });
+
+    $.ajax({
+        type: "POST",
+        url: "/cart/bulk-add",
+        data: {
+            product_ids: selectedIds.length > 0 ? selectedIds : [0],
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (data) {
+            if (data) {
+                $(".cartlist").html(data);
+                cart_count();
+                updateAreaVisibility();
+            }
+        }
+    });
+}
+
+function updateAreaVisibility() {
+    var cartEl = document.querySelector('.lp-cart-wrapper');
+    var areaEmpty = document.getElementById('landing-area-empty');
+    var areaDigital = document.getElementById('landing-area-digital');
+    var areaPhysicalWrap = document.getElementById('landing-area-physical-wrap');
+    var areaSelectWrap = document.getElementById('landing-area-select-wrap');
+    var freeDeliveryWrap = document.getElementById('landing-free-delivery-wrap');
+    var areaSelect = document.getElementById('area');
+    var areaInput = document.getElementById('landing_area_input');
+    if (cartEl && areaEmpty && areaDigital && areaPhysicalWrap) {
+        var isEmpty = cartEl.getAttribute('data-cart-empty') === '1';
+        var isDigitalOnly = cartEl.getAttribute('data-has-digital-only') === '1';
+        var isFree = cartEl.getAttribute('data-has-all-free-delivery') === '1';
+        areaEmpty.classList.add('hidden');
+        areaDigital.classList.add('hidden');
+        areaPhysicalWrap.classList.remove('hidden');
+        areaSelectWrap.classList.toggle('hidden', isFree);
+        freeDeliveryWrap.classList.toggle('hidden', !isFree);
+        if (areaSelect) areaSelect.toggleAttribute('required', !isFree);
+        if (areaInput) areaInput.value = isFree ? 'free_shipping' : (areaSelect ? areaSelect.value : 'free_shipping');
+    }
+}
+
+function updateAdvanceBoxMultiProduct(productIds) {
+    var box = document.getElementById('landing-advance-box');
+    var note = document.getElementById('landing-advance-note');
+    var codWrap = document.getElementById('cod-option-wrapper');
+    var paymentCod = document.getElementById('payment_cod');
+
+    var totalAdvance = 0;
+    var hasAnyPhysical = false;
+    var hasAnyAdvance = false;
+
+    productIds.forEach(function (pid) {
+        var card = document.querySelector('.product-card[data-product-id="' + pid + '"]');
+        if (card) {
+            var adv = parseFloat(card.getAttribute('data-advance') || '0');
+            if (isNaN(adv)) adv = 0;
+            totalAdvance += adv;
+            if (adv > 0) hasAnyAdvance = true;
+            hasAnyPhysical = true;
+        }
+    });
+
+    // COD: only if physical product and no advance
+    if (codWrap) {
+        if (hasAnyAdvance || !hasAnyPhysical) {
+            codWrap.classList.add('hidden');
+            if (paymentCod && paymentCod.checked) {
+                var firstOnline = document.querySelector('#payment-methods-grid input[name="payment_method"]:not(#payment_cod)');
+                if (firstOnline) { firstOnline.checked = true; }
+            }
+        } else {
+            codWrap.classList.remove('hidden');
+            if (paymentCod) paymentCod.checked = true;
+        }
+    }
+
+    if (!hasAnyAdvance) {
+        if (box) box.classList.add('hidden');
+        if (note) note.classList.add('hidden');
+        return;
+    }
+
+    var grandTextEl = document.querySelector('#grand_total strong');
+    var grandVal = 0;
+    if (grandTextEl) {
+        grandVal = parseFloat((grandTextEl.innerText || '').replace(/[^\d.]/g, '')) || 0;
+    }
+    var due = Math.max(0, grandVal - totalAdvance);
+
+    if (document.getElementById('landing-advance-amount')) {
+        document.getElementById('landing-advance-amount').innerText = '৳ ' + totalAdvance.toFixed(2);
+    }
+    if (document.getElementById('landing-due-amount')) {
+        document.getElementById('landing-due-amount').innerText = '৳ ' + due.toFixed(2);
+    }
+    if (document.getElementById('landing-advance-note-amount')) {
+        document.getElementById('landing-advance-note-amount').innerText = '৳ ' + totalAdvance.toFixed(2);
+    }
+    if (box) box.classList.remove('hidden');
+    if (note) note.classList.remove('hidden');
+}
+
+// ===== Incomplete Order System (Landing Checkout) =====
+var landingCartItems = [];
+var landingBaseSubtotal = 0;
+var landingDiscount = 0;
+var landingIncompleteTimer;
+var landingIsSubmitting = false;
+
+function landingCheckFreeDelivery(items) {
+    var list = items || landingCartItems;
+    for (var i = 0; i < list.length; i++) {
+        var item = list[i];
+        if (item.is_digital == 1) continue;
+        if (item.free_delivery != 1) return false;
+    }
+    return true;
+}
+
+function saveLandingIncompleteOrder() {
+    if (landingIsSubmitting) return;
+    if (landingIncompleteTimer) clearTimeout(landingIncompleteTimer);
+
+    landingIncompleteTimer = setTimeout(function () {
+        var name = document.getElementById('name') ? document.getElementById('name').value.trim() : '';
+        var phone = document.getElementById('phone') ? document.getElementById('phone').value.trim() : '';
+        var address = document.getElementById('address') ? document.getElementById('address').value.trim() : '';
+        if (!name || !phone || !address) return;
+
+        var itemsToSend = landingCartItems;
+        var cartEl = document.querySelector('.lp-cart-wrapper[data-cart-items]');
+        if (cartEl && cartEl.getAttribute('data-cart-items')) {
+            try {
+                var parsed = JSON.parse(cartEl.getAttribute('data-cart-items'));
+                if (parsed && parsed.length) itemsToSend = parsed;
+            } catch (e) { }
+        }
+
+        var areaEl = document.getElementById('area');
+        var shippingCharge = 0;
+        if (areaEl && areaEl.options && areaEl.options[areaEl.selectedIndex]) {
+            var opt = areaEl.options[areaEl.selectedIndex];
+            if (opt.getAttribute('data-charge')) {
+                shippingCharge = parseFloat(opt.getAttribute('data-charge')) || 0;
+            }
+        }
+        if (landingCheckFreeDelivery(itemsToSend)) shippingCharge = 0;
+        var total = (landingBaseSubtotal + shippingCharge - landingDiscount).toFixed(2);
+        if (cartEl && cartEl.getAttribute('data-grand')) {
+            try {
+                var g = parseFloat(cartEl.getAttribute('data-grand'));
+                if (!isNaN(g)) total = g.toFixed(2);
+            } catch (e) { }
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/incomplete-order/store');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : 'xUCZgiihBezSd99HFloc5A3POiIfMNSLGOVjHPsO');
+        xhr.send(JSON.stringify({
+            name: name,
+            phone: phone,
+            address: address,
+            items: itemsToSend,
+            total_amount: total
+        }));
+    }, 2000);
+}
+
+$(document).ready(function () {
+    $('#landing-checkout-form input, #landing-checkout-form select, #landing-checkout-form textarea').on('input change', function () {
+        if ($(this).attr('name') !== 'payment_method') saveLandingIncompleteOrder();
+    });
+
+    $("#area").on("change", function () {
+        var areaInput = document.getElementById('landing_area_input');
+        if (areaInput) areaInput.value = $(this).val();
+        saveLandingIncompleteOrder();
+        var id = $(this).val();
+        $.ajax({
+            type: "GET",
+            data: { id: id },
+            url: "/shipping-charge",
+            dataType: "html",
+            success: function (response) {
+                $('.cartlist').html(response);
+                // Shipping change affects grand total; recompute due if advance visible
+                var selectedIds = [];
+                document.querySelectorAll('input[name="landing_products[]"]:checked').forEach(function (cb) {
+                    selectedIds.push(parseInt(cb.value));
+                });
+                if (selectedIds.length > 0) {
+                    updateAdvanceBoxMultiProduct(selectedIds);
+                }
+            }
+        });
+    });
+
+    // payment validation (required on submit)
+    $(document).on('submit', 'form#landing-checkout-form', function (e) {
+        var paymentMethod = $('input[name="payment_method"]:checked', this).val();
+        if (!paymentMethod) {
+            e.preventDefault();
+            $('#payment-error').removeClass('hidden');
+            $('html, body').animate({ scrollTop: $('#payment-error').offset().top - 120 }, 300);
+            return false;
+        }
+        $('#payment-error').addClass('hidden');
+
+        // Incomplete order: stop saving when form is submitting
+        landingIsSubmitting = true;
+        if (landingIncompleteTimer) { clearTimeout(landingIncompleteTimer); landingIncompleteTimer = null; }
+    });
+
+    $(document).on('change', 'input[name="payment_method"]', function () {
+        $('#payment-error').addClass('hidden');
+    });
+
+    // Cart loads automatically via AJAX - no default product selection needed
+
+    // Swiper init for product slider
+    if (typeof Swiper !== 'undefined') {
+        new Swiper('.product-swiper', {
+            slidesPerView: 1.2,
+            spaceBetween: 12,
+            loop: false,
+            autoplay: {
+                delay: 3500,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.product-swiper .swiper-pagination',
+                clickable: true,
+            },
+            breakpoints: {
+                640: { slidesPerView: 2.2 },
+                768: { slidesPerView: 3 },
+                1024: { slidesPerView: 4 }
+            }
+        });
+
+        // Swiper for customer reviews - পুরো স্ক্রিন জুড়ে, অটো স্লাইড
+        var reviewsEl = document.querySelector('.reviews-swiper');
+        if (reviewsEl) {
+            var reviewCount = 5;
+            var reviewLoop = reviewCount > 1;
+            new Swiper('.reviews-swiper', {
+                slidesPerView: 1,
+                spaceBetween: 16,
+                loop: reviewLoop,
+                autoplay: reviewLoop ? { delay: 4000, disableOnInteraction: false } : false,
+                pagination: {
+                    el: '.reviews-swiper .swiper-pagination',
+                    clickable: true,
+                },
+                breakpoints: {
+                    640: { slidesPerView: Math.min(2, reviewCount), spaceBetween: 20 },
+                    768: { slidesPerView: Math.min(3, reviewCount), spaceBetween: 20 },
+                    1024: { slidesPerView: Math.min(4, reviewCount), spaceBetween: 24 }
+                }
+            });
+        }
+    }
+
+    // Mini product strip left/right slide buttons
+    const miniStrip = document.getElementById('mini-product-strip');
+    if (miniStrip) {
+        const step = 180;
+        const prevBtn = document.querySelector('.mini-product-nav-prev');
+        const nextBtn = document.querySelector('.mini-product-nav-next');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function () {
+                miniStrip.scrollBy({ left: -step, behavior: 'smooth' });
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function () {
+                miniStrip.scrollBy({ left: step, behavior: 'smooth' });
+            });
+        }
+    }
+});
+
+;
+function openVideoModal(embedUrl) {
+    var modal = document.getElementById('videoModal');
+    var iframe = document.getElementById('videoIframe');
+    iframe.src = embedUrl;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeVideoModal(e) {
+    if (e && e.target !== document.getElementById('videoModal') && e.type !== 'click') return;
+    var modal = document.getElementById('videoModal');
+    var iframe = document.getElementById('videoIframe');
+    iframe.src = '';
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+}
+
+// ESC key to close
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closeVideoModal(); closeLightbox(); }
+});
+
+;
+function openTrackModal() {
+    document.getElementById('trackModal').classList.remove('hidden');
+    document.getElementById('trackModal').classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+function closeTrackModal() {
+    document.getElementById('trackModal').classList.add('hidden');
+    document.getElementById('trackModal').classList.remove('flex');
+    document.body.style.overflow = '';
+}
+function closeTrackResult() {
+    document.getElementById('trackResultModal').classList.add('hidden');
+    document.getElementById('trackResultModal').classList.remove('flex');
+    document.body.style.overflow = '';
+}
+
+function doTrack() {
+    var phone = document.getElementById('trackPhone').value.trim();
+    var invoice = document.getElementById('trackInvoice').value.trim();
+    var errBox = document.getElementById('trackFormError');
+    var btn = document.getElementById('trackBtn');
+
+    errBox.classList.add('hidden');
+    errBox.textContent = '';
+
+    if (!phone && !invoice) {
+        errBox.textContent = 'মোবাইল নাম্বার অথবা ইনভয়েস আইডি দিন।';
+        errBox.classList.remove('hidden');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> খুঁজছি...';
+
+    var url = '/customer/order-track/json?';
+    if (phone) url += 'phone=' + encodeURIComponent(phone);
+    if (invoice) url += (phone ? '&' : '') + 'invoice_id=' + encodeURIComponent(invoice);
+
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> ট্র্যাক করুন';
+
+            if (!data.success) {
+                errBox.textContent = data.message;
+                errBox.classList.remove('hidden');
+                return;
+            }
+
+            renderTrackResult(data.orders);
+            closeTrackModal();
+            document.getElementById('trackResultModal').classList.remove('hidden');
+            document.getElementById('trackResultModal').classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        })
+        .catch(function () {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> ট্র্যাক করুন';
+            errBox.textContent = 'কানেকশন সমস্যা। আবার চেষ্টা করুন।';
+            errBox.classList.remove('hidden');
+        });
+}
+
+function renderTrackResult(orders) {
+    var body = document.getElementById('trackResultBody');
+    body.innerHTML = '';
+
+    orders.forEach(function (o) {
+        var statusColor = 'var(--ds-primary)';
+
+        var itemsHtml = o.items.map(function (item) {
+            return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f1f1;">'
+                + '<img src="' + item.image + '" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #eee;" alt="">'
+                + '<div style="flex:1;">'
+                + '<div style="font-size:13px;font-weight:600;color:#333;">' + item.name + '</div>'
+                + (item.size ? '<span style="font-size:10px;background:#f0f0f0;padding:1px 5px;border-radius:3px;margin-right:4px;">Size: ' + item.size + '</span>' : '')
+                + (item.color ? '<span style="font-size:10px;background:#f0f0f0;padding:1px 5px;border-radius:3px;">Color: ' + item.color + '</span>' : '')
+                + '</div>'
+                + '<div style="text-align:right;font-size:13px;">'
+                + '<strong>' + (item.price * item.qty).toLocaleString() + ' ৳</strong>'
+                + '<div style="font-size:11px;color:#888;">' + item.price + ' × ' + item.qty + '</div>'
+                + '</div></div>';
+        }).join('');
+
+        var discountRow = o.discount > 0
+            ? '<div style="display:flex;justify-content:space-between;font-size:13px;color:#e53e3e;margin-bottom:4px;"><span>ছাড়</span><span>(-) ' + Number(o.discount).toLocaleString() + ' ৳</span></div>'
+            : '';
+
+        var card = '<div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;margin-bottom:0;">'
+            + '<div style="background:var(--ds-primary);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;">'
+            + '<div>'
+            + '<div style="color:#fff;font-weight:700;font-size:15px;">Invoice #' + o.invoice_id + '</div>'
+            + '<div style="color:rgba(255,255,255,0.75);font-size:11px;margin-top:2px;">' + o.date + '</div>'
+            + '</div>'
+            + '<span style="background:#FACC15;color:#000;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;">' + o.status + '</span>'
+            + '</div>'
+            + '<div style="padding:14px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;border-bottom:1px solid #f1f1f1;">'
+            + '<div style="display:flex;gap:8px;align-items:flex-start;">'
+            + '<div style="width:34px;height:34px;background:var(--ds-primary);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;"><i class="fa-solid fa-user"></i></div>'
+            + '<div><div style="font-size:10px;text-transform:uppercase;color:#999;font-weight:700;letter-spacing:.5px;">কাস্টমার</div>'
+            + '<div style="font-size:13px;font-weight:600;color:#333;">' + o.customer_name + '</div>'
+            + '<div style="font-size:12px;color:#666;">' + o.customer_phone + '</div></div></div>'
+            + '<div style="display:flex;gap:8px;align-items:flex-start;">'
+            + '<div style="width:34px;height:34px;background:var(--ds-primary);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;"><i class="fa-solid fa-map-pin"></i></div>'
+            + '<div><div style="font-size:10px;text-transform:uppercase;color:#999;font-weight:700;letter-spacing:.5px;">ঠিকানা</div>'
+            + '<div style="font-size:13px;font-weight:600;color:#333;">' + o.area + '</div>'
+            + '<div style="font-size:12px;color:#666;">' + o.address + '</div></div></div>'
+            + '</div>'
+            + '<div style="padding:14px 18px;">'
+            + '<div style="font-size:12px;font-weight:700;color:#333;border-bottom:2px solid #f1f1f1;padding-bottom:6px;margin-bottom:4px;">অর্ডার আইটেম</div>'
+            + itemsHtml
+            + '</div>'
+            + '<div style="background:#fafafa;padding:12px 18px;border-top:1px solid #f1f1f1;">'
+            + '<div style="max-width:240px;margin-left:auto;">'
+            + '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;margin-bottom:4px;"><span>সাবটোটাল</span><span>' + Number(o.subtotal).toLocaleString() + ' ৳</span></div>'
+            + '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;margin-bottom:4px;"><span>ডেলিভারি চার্জ</span><span>(+) ' + Number(o.shipping_charge).toLocaleString() + ' ৳</span></div>'
+            + discountRow
+            + '<div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:var(--ds-primary);border-top:1px solid #e1e1e1;padding-top:8px;margin-top:4px;"><span>মোট</span><span>' + Number(o.grand_total).toLocaleString() + ' ৳</span></div>'
+            + '</div></div>'
+            + '</div>';
+
+        body.innerHTML += card;
+    });
+}
+
+// ESC to close tracking modals
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closeTrackModal(); closeTrackResult(); closeComplaintModal(); }
+});
+
+// ========== Complaint Modal Functions ==========
+function openComplaintModal() {
+    var modal = document.getElementById('complaintModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+function closeComplaintModal() {
+    var modal = document.getElementById('complaintModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+    // Reset form
+    document.getElementById('complaintForm').reset();
+    document.getElementById('complaintSuccess').classList.add('hidden');
+    document.getElementById('complaintError').classList.add('hidden');
+    document.getElementById('complaintBtnText').textContent = 'কমপ্লেইন পাঠান';
+    document.getElementById('complaintSubmitBtn').disabled = false;
+}
+
+function submitComplaint() {
+    var form = document.getElementById('complaintForm');
+    var name = document.getElementById('c_name').value.trim();
+    var phone = document.getElementById('c_phone').value.trim();
+    var desc = document.getElementById('c_description').value.trim();
+    var errBox = document.getElementById('complaintError');
+    var sucBox = document.getElementById('complaintSuccess');
+
+    // Client-side validation
+    errBox.classList.add('hidden');
+    if (!name) { errBox.textContent = 'নাম লিখুন।'; errBox.classList.remove('hidden'); return; }
+    if (!phone) { errBox.textContent = 'মোবাইল নম্বর লিখুন।'; errBox.classList.remove('hidden'); return; }
+    if (!desc) { errBox.textContent = 'কমপ্লেইনের বিবরণ লিখুন।'; errBox.classList.remove('hidden'); return; }
+
+    var btn = document.getElementById('complaintSubmitBtn');
+    var btnT = document.getElementById('complaintBtnText');
+    btn.disabled = true;
+    btnT.textContent = 'পাঠানো হচ্ছে...';
+
+    var formData = new FormData(form);
+
+    fetch('/complaint-store', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : 'xUCZgiihBezSd99HFloc5A3POiIfMNSLGOVjHPsO'
+        },
+        body: formData
+    })
+        .then(function (res) {
+            if (res.ok) {
+                // Show success
+                form.classList.add('hidden');
+                sucBox.classList.remove('hidden');
+            } else {
+                return res.json().then(function (data) {
+                    var msg = data.message || 'কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।';
+                    if (data.errors) {
+                        var msgs = Object.values(data.errors).flat();
+                        msg = msgs.join(' ');
+                    }
+                    errBox.textContent = msg;
+                    errBox.classList.remove('hidden');
+                    btn.disabled = false;
+                    btnT.textContent = 'কমপ্লেইন পাঠান';
+                });
+            }
+        })
+        .catch(function () {
+            errBox.textContent = 'নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।';
+            errBox.classList.remove('hidden');
+            btn.disabled = false;
+            btnT.textContent = 'কমপ্লেইন পাঠান';
+        });
+}
+// ========== End Complaint Modal Functions ==========
+
+;
+// Lightbox
+var lbPhotos = [];
+var lbIndex = 0;
+
+
+function openLightbox(src, caption) {
+    lbIndex = lbPhotos.findIndex(function (p) { return p.src === src; });
+    if (lbIndex < 0) lbIndex = 0;
+    showLightbox();
+}
+function showLightbox() {
+    var lb = document.getElementById('lightbox');
+    if (!lb || !lbPhotos.length) return;
+    document.getElementById('lightboxImg').src = lbPhotos[lbIndex].src;
+    document.getElementById('lightboxCaption').textContent = lbPhotos[lbIndex].caption;
+    lb.classList.remove('hidden');
+    lb.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+    var lb = document.getElementById('lightbox');
+    if (!lb) return;
+    lb.classList.add('hidden');
+    lb.classList.remove('flex');
+    document.body.style.overflow = '';
+}
+function prevPhoto(e) {
+    e.stopPropagation();
+    lbIndex = (lbIndex - 1 + lbPhotos.length) % lbPhotos.length;
+    showLightbox();
+}
+function nextPhoto(e) {
+    e.stopPropagation();
+    lbIndex = (lbIndex + 1) % lbPhotos.length;
+    showLightbox();
+}
+
+;
+document.getElementById("chatToggle").addEventListener("click", function () {
+    document.getElementById("chatOptions").classList.toggle("show");
+});
+
+;
+(function () {
+    // --- scroll reveal: legacy cards + aurora v2 components ---
+    var targets = document.querySelectorAll(
+        'section.py-16 .grid > .bg-white, #order-form .grid > div, .reviews-swiper .swiper-slide > div, section.py-16 .bg-white.p-6'
+    );
+    targets.forEach(function (el, i) {
+        el.classList.add('rv');
+        el.style.setProperty('--rvd', (i % 4) * 90 + 'ms');
+    });
+
+    // aurora v2 reveal set with spring pop for cards
+    var v2CardSet = '.ds-product-card, .ds-bento-card, .ds-step, .ds-faq, .ds-seller-card';
+    var v2Targets = document.querySelectorAll(
+        ['.ds-sec-head', '.ds-filter-wrap', v2CardSet,
+         '.ds-hero-copy > *', '.ds-hero-visual', '.ds-stats',
+         '.ds-dashboard-mockup', '.ds-seller-stat-card', '.ds-cta'].join(',')
+    );
+    var seen = new Set(targets);
+    v2Targets.forEach(function (el) {
+        if (seen.has(el)) return;
+        seen.add(el);
+        el.classList.add(el.matches(v2CardSet) ? 'rv2-pop' : 'rv2');
+    });
+    // stagger siblings inside each grid/parent
+    v2Targets.forEach(function (el) {
+        var sibs = el.parentElement ? Array.prototype.indexOf.call(el.parentElement.children, el) : 0;
+        el.style.setProperty('--rvd', (sibs % 6) * 80 + 'ms');
+    });
+
+    var all = Array.from(seen);
+    if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+                if (e.isIntersecting) {
+                    e.target.classList.add('in');
+                    io.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        all.forEach(function (el) { io.observe(el); });
+    } else {
+        all.forEach(function (el) { el.classList.add('in') });
+    }
+
+    // --- sticky mobile CTA: show after hero, hide when order form visible ---
+    var cta = document.getElementById('stickyCta');
+    var hero = document.querySelector('section.bg-primary');
+    var form = document.getElementById('order-form');
+    function updateCta() {
+        if (!cta) return;
+        var pastHero = hero && hero.getBoundingClientRect().bottom < 0;
+        var nearForm = form && form.getBoundingClientRect().top < window.innerHeight * 0.5;
+        cta.classList.toggle('show', pastHero && !nearForm);
+    }
+    window.addEventListener('scroll', updateCta, { passive: true });
+    updateCta();
+})();
+
+// ===== HERO SLIDERS: rotating headline + image slideshow =====
+(function () {
+    function initHeroTextSlider() {
+        var slider = document.getElementById('heroH1Slider');
+        if (!slider) return;
+        var slides = slider.querySelectorAll('.hslide');
+        if (slides.length < 2) return;
+        var idx = 0;
+        setInterval(function () {
+            var cur = slides[idx];
+            cur.classList.remove('active');
+            cur.classList.add('exit-left');
+            (function (el) {
+                setTimeout(function () { el.classList.remove('exit-left'); }, 780);
+            })(cur);
+            idx = (idx + 1) % slides.length;
+            slides[idx].classList.add('active');
+        }, 5000);
+    }
+
+    function initHeroImgSlider() {
+        var wrap = document.getElementById('heroImgSlider');
+        var dots = document.getElementById('heroImgDots');
+        if (!wrap) return;
+        var imgs = wrap.querySelectorAll('.himg');
+        if (imgs.length < 2) return;
+        var idx = 0, timer = null;
+
+        function show(i) {
+            imgs[idx].classList.remove('active');
+            idx = (i + imgs.length) % imgs.length;
+            imgs[idx].classList.add('active');
+            if (dots) {
+                dots.querySelectorAll('button').forEach(function (b, bi) {
+                    b.classList.toggle('active', bi === idx);
+                });
+            }
+        }
+        function restart() {
+            if (timer) clearInterval(timer);
+            timer = setInterval(function () { show(idx + 1); }, 4200);
+        }
+        window.goHeroImg = function (i) { show(i); restart(); };
+        restart();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            initHeroTextSlider();
+            initHeroImgSlider();
+        });
+    } else {
+        initHeroTextSlider();
+        initHeroImgSlider();
+    }
+})();
+
+// ===== PAYMENT METHOD UI SYNC (checkout) =====
+(function () {
+    function syncPayUI() {
+        var grid = document.getElementById('payment-methods-grid');
+        if (!grid) return;
+        grid.querySelectorAll('label.pay-opt').forEach(function (l) {
+            var r = l.querySelector('input[type="radio"]');
+            l.classList.toggle('sel', !!(r && r.checked));
+        });
+        var note = document.getElementById('payOnlineNote');
+        if (note) {
+            var checked = grid.querySelector('input[name="payment_method"]:checked');
+            var online = !!(checked && checked.value !== 'cod');
+            note.style.display = online ? 'flex' : 'none';
+        }
+    }
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.name === 'payment_method') syncPayUI();
+    });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncPayUI);
+    } else {
+        syncPayUI();
+    }
+})();
+
+// toggle online payment options visibility
+function toggleOnlinePay() {
+    var btn = document.getElementById('onlinePayToggle');
+    var wrap = document.getElementById('onlinePayWrap');
+    if (!btn || !wrap) return;
+    var open = wrap.classList.toggle('open');
+    btn.classList.toggle('open', open);
+}
+
+
+// ===== RATING BARS + PROMISE CARD SPOTLIGHT =====
+(function () {
+    function initRatingBars() {
+        var wrap = document.querySelector('.rating-summary');
+        var fills = document.querySelectorAll('.rs-fill');
+        if (!wrap || !fills.length) return;
+        function run() {
+            fills.forEach(function (f, i) {
+                setTimeout(function () {
+                    f.style.width = (f.getAttribute('data-w') || 0) + '%';
+                }, i * 130);
+            });
+        }
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) {
+                    if (en.isIntersecting) { run(); io.disconnect(); }
+                });
+            }, { threshold: 0.35 });
+            io.observe(wrap);
+        } else { run(); }
+    }
+    function initCardSpotlight() {
+        document.querySelectorAll('.ds-seller-section .ds-bento-card').forEach(function (card) {
+            card.addEventListener('mousemove', function (e) {
+                var r = card.getBoundingClientRect();
+                card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+                card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+            });
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { initRatingBars(); initCardSpotlight(); });
+    } else { initRatingBars(); initCardSpotlight(); }
+})();
+
+// ===== 2026 DESIGN SYSTEM INTERACTIVE LOGIC =====
+
+// 1. Sticky CTA & Header scroll shadow
+(function () {
+    var cta = document.getElementById('stickyCta');
+    var hero = document.querySelector('.ds-hero') || document.querySelector('section.bg-primary');
+    var form = document.getElementById('order-form');
+    var header = document.getElementById('dsHeader');
+
+    function updateScrollState() {
+        if (cta) {
+            var pastHero = hero && hero.getBoundingClientRect().bottom < 0;
+            var nearForm = form && form.getBoundingClientRect().top < window.innerHeight * 0.5;
+            cta.classList.toggle('show', pastHero && !nearForm);
+        }
+        if (header) {
+            header.classList.toggle('scrolled', window.scrollY > 20);
+        }
+
+        // Section Scroll Spy
+        var sections = ['ds-products', 'ds-why', 'ds-reviews', 'ds-faq'];
+        var currentSec = '';
+        sections.forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) {
+                var rect = el.getBoundingClientRect();
+                if (rect.top <= 160 && rect.bottom >= 100) {
+                    currentSec = id;
+                }
+            }
+        });
+        if (currentSec) {
+            document.querySelectorAll('.ds-nav-pill, .ds-mob-link').forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (href === '#' + currentSec) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    window.addEventListener('scroll', updateScrollState, { passive: true });
+    updateScrollState();
+})();
+
+// 2. Seller Hub Dashboard Tab Switcher
+window.switchSellerTab = function (tabName) {
+    var buttons = document.querySelectorAll('.ds-mockup-tab-btn');
+    buttons.forEach(function (btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+    });
+
+    var panels = {
+        'analytics': document.getElementById('sellerTabAnalytics'),
+        'listing': document.getElementById('sellerTabListing'),
+        'payout': document.getElementById('sellerTabPayout')
+    };
+
+    Object.keys(panels).forEach(function (key) {
+        if (panels[key]) {
+            panels[key].classList.toggle('active', key === tabName);
+        }
+    });
+};
+
+// 3. Universal Category Filter Logic
+document.addEventListener('DOMContentLoaded', function () {
+    var filterBtns = document.querySelectorAll('.ds-filter-btn');
+    var productCards = document.querySelectorAll('.ds-product-card');
+
+    filterBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            filterBtns.forEach(function (b) { b.classList.remove('active'); });
+            this.classList.add('active');
+
+            var filter = this.getAttribute('data-filter');
+
+            productCards.forEach(function (card) {
+                var category = card.getAttribute('data-category');
+                if (filter === 'all' || category === filter) {
+                    card.style.display = 'flex';
+                    setTimeout(function () {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 50);
+                } else {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(16px)';
+                    setTimeout(function () {
+                        card.style.display = 'none';
+                    }, 250);
+                }
+            });
+        });
+    });
+});
+
+// 4. Product Quick View Database & Modal (bilingual: bn + en)
+window.quickViewProducts = {
+    1: {
+        title: "খাঁটি আমের কুচি আচার (৫০০ গ্রাম) — খাঁটি সরিষার তেলে",
+        title_en: "Authentic Mango Kuchi Achar (500g) — in pure mustard oil",
+        category: "আচার", category_en: "Pickles",
+        price: "৳৪৫০", price_en: "৳450",
+        oldPrice: "৳৬০০", oldPrice_en: "৳600",
+        discount: "-২৫%", discount_en: "-25%",
+        img: "assets/img/prod_mango.jpg",
+        desc: "মৌসুমি কাঁচা আম ও বিশুদ্ধ মসলায় ঘরে তৈরি খাঁটি কুচি আচার। খাঁটি সরিষার তেলে ভরা, কোনো প্রিজারভেটিভ বা কেমিক্যাল ছাড়াই ১২ মাস পর্যন্ত ভালো থাকে। প্রতিটি জার হাতে সিল করা।",
+        desc_en: "Homemade authentic kuchi achar made with seasonal raw mangoes and pure spices. Packed in premium mustard oil — stays good up to 12 months with no preservatives or chemicals. Every jar is hand-sealed."
+    },
+    2: {
+        title: "হাতে তৈরি জলপাই আচার (৪০০ গ্রাম) — ঠাকুমার রেসিপিতে",
+        title_en: "Handmade Jalpai Olive Pickle (400g) — Thakumar recipe",
+        category: "আচার", category_en: "Pickles",
+        price: "৳৩৮০", price_en: "৳380",
+        oldPrice: "৳৪৫০", oldPrice_en: "৳450",
+        discount: "-১৫%", discount_en: "-15%",
+        img: "assets/img/prod_jalpai.jpg",
+        desc: "দেশি জলপাই ও ঐতিহ্যবাহী ঠাকুমার রেসিপিতে হাতে তৈরি। হালকা টক-মিষ্টি স্বাদে পুরো পরিবারের প্রিয়। ভাত, পরোটা কিংবা নাস্তার সঙ্গে দুর্দান্ত।",
+        desc_en: "Handmade from deshi jalpai olives following a traditional family recipe. A light sweet-and-tangy taste the whole family loves. Perfect with rice, paratha or snacks."
+    },
+    3: {
+        title: "স্পেশাল মিক্সড আচার প্যাক (৩ প্রকার) — আম, জলপাই ও মরিচ",
+        title_en: "Special Mixed Pickle Pack (3 Varieties) — mango, olive & chili",
+        category: "আচার", category_en: "Pickles",
+        price: "৳৬৫০", price_en: "৳650",
+        oldPrice: "৳৯০০", oldPrice_en: "৳900",
+        discount: "-২৮%", discount_en: "-28%",
+        img: "assets/img/prod_mix.jpg",
+        desc: "তিনটি আলাদা সিল করা জারে আমের কুচি, জলপাই ও হট মরিচ আচার। উপহার দেওয়ার জন্য বা নিজে স্বাদ বেছে খাওয়ার জন্য পারফেক্ট কম্বো প্যাক।",
+        desc_en: "Three separately sealed jars — mango kuchi, jalpai and hot chili achar. A perfect combo pack for gifting or for tasting a bit of everything yourself."
+    },
+    4: {
+        title: "তেঁতুল ঝোল টক-ঝাল চাটনি (৩৫০ গ্রাম) — খিচুড়ি ও নাস্তার সঙ্গী",
+        title_en: "Tetul Jhol Tangy Chutney (350g) — perfect with khichuri & snacks",
+        category: "চাটনি", category_en: "Chutney",
+        price: "৳২৯০", price_en: "৳290",
+        oldPrice: "৳৩৯০", oldPrice_en: "৳390",
+        discount: "-২৬%", discount_en: "-26%",
+        img: "assets/img/prod_chutney.jpg",
+        desc: "দেশি তেঁতুলের ঘন ঝোল চাটনি — টক-ঝাল-মিষ্টির নিখুঁত ব্যালেন্স। খিচুড়ি, বিরিয়ানি কিংবা সিঙাড়া-পুরির সঙ্গে সবার প্রিয়। কোনো কেমিক্যাল বা কালার নেই।",
+        desc_en: "Thick tamarind chutney with a perfect tangy-hot-sweet balance. Everyone's favourite with khichuri, biryani or singara-puri. No chemicals or colour added."
+    },
+    5: {
+        title: "ঘরে ভাঙা খাঁটি দেশি ঘি (৫০০ মিলি) — গ্রামের গরুর দুধের সর",
+        title_en: "Pure Homemade Deshi Ghee (500ml) — from village cow milk",
+        category: "মধু ও ঘি", category_en: "Honey & Ghee",
+        price: "৳১,১৯০", price_en: "৳1,190",
+        oldPrice: "৳১,৪০০", oldPrice_en: "৳1,400",
+        discount: "-১৫%", discount_en: "-15%",
+        img: "assets/img/prod_ghee.jpg",
+        desc: "গ্রামের গরুর দুধের সর থেকে ঐতিহ্যবাহী পদ্ধতিতে ঘরে ভাঙা খাঁটি দেশি ঘি। সেই চেনা ঘ্রাণ আর স্বাদ — ভাত, খিচুড়ি বা পায়েসে এক চামচই যথেষ্ট।",
+        desc_en: "Pure deshi ghee churned at home from village cow milk cream using the traditional method. That familiar aroma and taste — one spoon is enough on rice, khichuri or payesh."
+    },
+    6: {
+        title: "সুন্দরবনের খাঁটি কাঁচা মধু (১ কেজি) — ল্যাব টেস্টেড, চিনি মুক্ত",
+        title_en: "Pure Raw Sundarban Honey (1kg) — lab-tested, no sugar added",
+        category: "মধু ও ঘি", category_en: "Honey & Ghee",
+        price: "৳৯৯০", price_en: "৳990",
+        oldPrice: "৳১,২৫০", oldPrice_en: "৳1,250",
+        discount: "-২০%", discount_en: "-20%",
+        img: "assets/img/prod_honey.jpg",
+        desc: "সুন্দরবনের খলিসা ও কেওড়া ফুলের ১০০% খাঁটি কাঁচা মধু। কোনো প্রকার চিনি বা কেমিক্যাল মুক্ত ল্যাব-টেস্টেড খাঁটি মধু সরাসরি মৌয়ালদের কাছ থেকে আপনার ঘরে।",
+        desc_en: "100% pure raw honey from the khalsena and keora flowers of the Sundarbans. Lab-tested with no sugar or chemicals — collected directly from honey hunters to your home."
+    }
+};
+
+var currentQvProductId = null;
+
+window.openQuickView = function (productId) {
+    var prod = window.quickViewProducts[productId];
+    if (!prod) return;
+
+    var en = (window.AB && AB.lang === 'en');
+    function pick(bn, enVal) { return en ? (enVal || bn) : bn; }
+
+    currentQvProductId = productId;
+    document.getElementById('qvModalTitle').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + pick(prod.category, prod.category_en);
+    document.getElementById('qvModalName').textContent = pick(prod.title, prod.title_en);
+    document.getElementById('qvModalCategory').textContent = pick(prod.category, prod.category_en);
+    document.getElementById('qvModalPrice').textContent = pick(prod.price, prod.price_en);
+    document.getElementById('qvModalOldPrice').textContent = pick(prod.oldPrice, prod.oldPrice_en);
+    document.getElementById('qvModalDiscount').textContent = pick(prod.discount, prod.discount_en);
+    document.getElementById('qvModalDesc').textContent = pick(prod.desc, prod.desc_en);
+    document.getElementById('qvModalImg').src = prod.img;
+
+    var modal = document.getElementById('quickViewModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+window.closeQuickViewModal = function () {
+    var modal = document.getElementById('quickViewModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+};
+
+window.orderFromQuickView = function () {
+    closeQuickViewModal();
+    if (currentQvProductId) {
+        selectProductForOrder(currentQvProductId);
+    } else {
+        var form = document.getElementById('order-form');
+        if (form) form.scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
+window.selectProductForOrder = function (productId) {
+    if (typeof addToCartFromRow === 'function') {
+        try { addToCartFromRow(productId); } catch (e) { }
+    }
+    var form = document.getElementById('order-form');
+    if (form) {
+        form.scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
+// 5. Seller Waitlist Modal Functions
+window.openSellerWaitlistModal = function () {
+    var modal = document.getElementById('sellerWaitlistModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+window.closeSellerWaitlistModal = function () {
+    var modal = document.getElementById('sellerWaitlistModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+};
+
+window.submitSellerWaitlist = function (e) {
+    e.preventDefault();
+    var name = document.getElementById('seller_name').value.trim();
+    var shop = document.getElementById('seller_shop').value.trim();
+    var phone = document.getElementById('seller_phone').value.trim();
+
+    if (!name || !shop || !phone) {
+        alert('অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন।');
+        return;
+    }
+
+    var form = document.getElementById('sellerWaitlistForm');
+    var successBox = document.getElementById('sellerSuccessMsg');
+
+    if (form) form.style.display = 'none';
+    if (successBox) successBox.classList.remove('hidden');
+};
+
+// Mobile Menu Toggle
+window.toggleMobileNav = function () {
+    var drawer = document.getElementById('mobileNavDrawer');
+    var btn = document.getElementById('mobileNavToggle');
+    if (drawer) {
+        var isOpen = drawer.classList.toggle('open');
+        if (btn) {
+            var BARS = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+            var XMARK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+            btn.innerHTML = isOpen ? XMARK : BARS;
+        }
+    }
+};
+
+// ESC to close quickview & seller modal & mobile nav
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        closeQuickViewModal();
+        closeSellerWaitlistModal();
+        var drawer = document.getElementById('mobileNavDrawer');
+        if (drawer && drawer.classList.contains('open')) {
+            window.toggleMobileNav();
+        }
+    }
+});
+
+// 6. Merchant Ecosystem & AI Seller Hub Logic
+(function () {
+    function toBengaliNumerals(numStr) {
+        var bnMap = { '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪', '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯' };
+        return numStr.toString().replace(/[0-9]/g, function (w) {
+            return bnMap[w] || w;
+        });
+    }
+
+    // Tab switcher function
+    window.switchSellerTab = function (tabId) {
+        var tabs = document.querySelectorAll('.ds-mockup-tab-btn');
+        tabs.forEach(function (btn) {
+            if (btn.getAttribute('data-tab') === tabId) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        var panels = document.querySelectorAll('.ds-tab-panel');
+        panels.forEach(function (panel) {
+            panel.classList.remove('active');
+        });
+
+        var targetPanelId = 'sellerTab' + tabId.charAt(0).toUpperCase() + tabId.slice(1);
+        if (tabId === 'ai-copilot') targetPanelId = 'sellerTabAiCopilot';
+
+        var targetPanel = document.getElementById(targetPanelId);
+        if (targetPanel) {
+            targetPanel.classList.add('active');
+        }
+    };
+
+    // Neural Particle Canvas Simulation
+    function initNeuralCanvas() {
+        var canvas = document.getElementById('neuralCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        var width = canvas.width = canvas.parentElement.offsetWidth || window.innerWidth;
+        var height = canvas.height = canvas.parentElement.offsetHeight || 600;
+
+        function resize() {
+            if (!canvas.parentElement) return;
+            width = canvas.width = canvas.parentElement.offsetWidth;
+            height = canvas.height = canvas.parentElement.offsetHeight;
+        }
+        window.addEventListener('resize', resize);
+
+        var particles = [];
+        var particleCount = Math.min(Math.floor(width / 22), 45);
+
+        for (var i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.6,
+                vy: (Math.random() - 0.5) * 0.6,
+                radius: Math.random() * 2 + 1.2,
+                alpha: Math.random() * 0.5 + 0.3
+            });
+        }
+
+        function animate() {
+            // read theme colors live so the admin theme switcher applies here too
+            var cs = getComputedStyle(document.documentElement);
+            var accentRgb = cs.getPropertyValue('--ds-accent-rgb').trim() || '234, 88, 12';
+            var limeRgb = cs.getPropertyValue('--ds-lime-rgb').trim() || '202, 138, 4';
+
+            ctx.clearRect(0, 0, width, height);
+
+            for (var i = 0; i < particles.length; i++) {
+                var p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0) p.x = width;
+                if (p.x > width) p.x = 0;
+                if (p.y < 0) p.y = height;
+                if (p.y > height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(' + accentRgb + ', ' + p.alpha + ')';
+                ctx.fill();
+
+                for (var j = i + 1; j < particles.length; j++) {
+                    var p2 = particles[j];
+                    var dx = p.x - p2.x;
+                    var dy = p.y - p2.y;
+                    var dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 130) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        var lineAlpha = (1 - dist / 130) * 0.25;
+                        ctx.strokeStyle = 'rgba(' + limeRgb + ', ' + lineAlpha + ')';
+                        ctx.lineWidth = 0.8;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
+    // Scroll-triggered counter animation for #sellerCounters
+    function initSellerCountersAnimation() {
+        var countersContainer = document.getElementById('sellerCounters');
+        if (!countersContainer) return;
+
+        var animated = false;
+
+        function startCounterAnimation() {
+            if (animated) return;
+            animated = true;
+
+            var statVals = countersContainer.querySelectorAll('.ds-stat-val');
+            statVals.forEach(function (el) {
+                var target = parseFloat(el.getAttribute('data-target') || '0');
+                var type = el.getAttribute('data-counter-type');
+                var startTime = performance.now();
+                var duration = 1600;
+
+                function update(now) {
+                    var elapsed = now - startTime;
+                    var progress = Math.min(elapsed / duration, 1);
+                    var easeProgress = 1 - Math.pow(1 - progress, 3);
+                    var currentVal = target * easeProgress;
+                    var bn = !(window.AB && AB.lang === 'en');
+                    var num = function (s) { return bn ? toBengaliNumerals(s) : s; };
+
+                    if (type === 'currency') {
+                        var formattedStr = Math.floor(currentVal).toLocaleString('en-US');
+                        el.textContent = '৳' + num(formattedStr);
+                    } else if (type === 'percent') {
+                        el.textContent = num(currentVal.toFixed(1)) + '%';
+                    } else if (type === 'unit') {
+                        el.textContent = num(Math.floor(currentVal).toString()) + (bn ? 'টি' : ' pcs');
+                    }
+
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    }
+                }
+                requestAnimationFrame(update);
+            });
+        }
+
+        if ('IntersectionObserver' in window) {
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        startCounterAnimation();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.2 });
+            observer.observe(countersContainer);
+        } else {
+            startCounterAnimation();
+        }
+    }
+    // Live Order Ticker Simulation
+    function initLiveOrderTicker() {
+        var tickerText = document.getElementById('dsLiveTickerText');
+        if (!tickerText) return;
+
+        var simulatedOrders = {
+            bn: [
+                '⚡ লাইভ অর্ডার সিঙ্ক: তানভীর (ঢাকা) - ৳৪৫০ • আমের কুচি আচার',
+                '⚡ লাইভ অর্ডার সিঙ্ক: সুমাইয়া (সিলেট) - ৳৬৫০ • মিক্সড আচার প্যাক',
+                '⚡ লাইভ অর্ডার সিঙ্ক: রাইসুল (চট্টগ্রাম) - ৳৯৯০ • সুন্দরবনের মধু',
+                '⚡ লাইভ অর্ডার সিঙ্ক: নুসরাত (রাজশাহী) - ৳১,১৯০ • দেশি ঘি',
+                '⚡ লাইভ অর্ডার সিঙ্ক: ফাহিম (বগুড়া) - ৳২৯০ • তেঁতুল চাটনি'
+            ],
+            en: [
+                '⚡ Live order sync: Tanvir (Dhaka) - ৳450 • Mango Kuchi Achar',
+                '⚡ Live order sync: Sumaiya (Sylhet) - ৳650 • Mixed Pickle Pack',
+                '⚡ Live order sync: Raisul (Chattogram) - ৳990 • Sundarban Honey',
+                '⚡ Live order sync: Nusrat (Rajshahi) - ৳1,190 • Deshi Ghee',
+                '⚡ Live order sync: Fahim (Bogura) - ৳290 • Tamarind Chutney'
+            ]
+        };
+
+        var index = 0;
+        setInterval(function () {
+            index = (index + 1) % simulatedOrders.bn.length;
+            tickerText.style.transition = 'opacity 0.3s ease';
+            tickerText.style.opacity = '0';
+            setTimeout(function () {
+                var list = (window.AB && AB.lang === 'en') ? simulatedOrders.en : simulatedOrders.bn;
+                tickerText.textContent = list[index];
+                tickerText.style.opacity = '1';
+            }, 300);
+        }, 4000);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            initNeuralCanvas();
+            initSellerCountersAnimation();
+            initLiveOrderTicker();
+        });
+    } else {
+        initNeuralCanvas();
+        initSellerCountersAnimation();
+        initLiveOrderTicker();
+    }
+})();
+
+
+// ===== sticky CTA ↔ chat FAB coordination (mobile) =====
+// When the sticky order bar is visible, body gets .sticky-cta-on so the
+// floating chat button lifts above it (see style.css fix layer).
+(function () {
+    var cta = document.getElementById('stickyCta');
+    if (!cta || typeof MutationObserver === 'undefined') return;
+    var sync = function () {
+        document.body.classList.toggle('sticky-cta-on', cta.classList.contains('show'));
+    };
+    new MutationObserver(sync).observe(cta, { attributes: true, attributeFilter: ['class'] });
+    sync();
+})();
+
+// ===== LOCAL DEMO CART (static template — no server needed) =====
+// Overrides the earlier server-AJAX versions of toggleProductFromCart /
+// submitCoupon so the checkout section works fully in the static preview.
+(function () {
+    var cart = {};            // { pid: { qty } }
+    var coupon = null;        // { code, pct }
+    var COUPONS = { 'ACHAR10': 10, 'achar10': 10 };
+
+    function prodData(pid) { return (window.quickViewProducts || {})[pid] || null; }
+    function bnToNum(s) {
+        var out = String(s || '').replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); });
+        var n = parseFloat(out.replace(/[^\d.]/g, ''));
+        return isNaN(n) ? 0 : n;
+    }
+    function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+    function ids() { return Object.keys(cart); }
+
+    function deliveryCharge() {
+        if (!ids().length) return 0;
+        var sel = document.getElementById('area');
+        if (sel && sel.options && sel.options[sel.selectedIndex]) {
+            var opt = sel.options[sel.selectedIndex];
+            var c = parseFloat(opt.getAttribute('data-charge'));
+            if (!isNaN(c)) return c;
+        }
+        return 80;
+    }
+
+    function render() {
+        var wrap = document.querySelector('.lp-cart-wrapper');
+        var emptyEl = document.getElementById('lpCartEmpty');
+        var countEl = document.getElementById('cart-item-count-label');
+        if (!wrap) return;
+
+        var en = (window.AB && AB.lang === 'en');
+        function L(bn, enStr) { return en ? enStr : bn; }
+        function prodField(pid, bnKey, enKey) {
+            var p = prodData(pid);
+            if (!p) return '';
+            return en ? (p[enKey] || p[bnKey]) : p[bnKey];
+        }
+
+        var list = ids();
+        var subtotal = 0;
+        var rowsHtml = '';
+        list.forEach(function (pid) {
+            var p = prodData(pid);
+            if (!p) return;
+            var unit = bnToNum(en ? (p.price_en || p.price) : p.price);
+            var qty = cart[pid].qty;
+            subtotal += unit * qty;
+            rowsHtml += '<div class="lp-cart-row" id="cart-row-' + pid + '">' +
+                '<input type="checkbox" checked onchange="toggleProductFromCart(' + pid + ', this.checked)">' +
+                '<div class="lp-cart-product"><img src="' + esc(p.img) + '" alt="">' +
+                '<div class="lp-cart-product-name">' + esc(prodField(pid, 'title', 'title_en')) + '</div></div>' +
+                '<div class="lp-cart-qty-box">' +
+                '<button type="button" class="lp-cart-qty-btn" onclick="landingCartQty(' + pid + ',-1)">−</button>' +
+                '<span class="lp-cart-qty-val">' + qty + '</span>' +
+                '<button type="button" class="lp-cart-qty-btn" onclick="landingCartQty(' + pid + ',1)">+</button>' +
+                '</div>' +
+                '<div style="text-align:end;font-weight:700">৳ ' + fmt(unit * qty) + '</div>' +
+                '</div>';
+        });
+
+        var discount = coupon ? Math.round(subtotal * coupon.pct / 100) : 0;
+        var ship = deliveryCharge();
+        var grand = Math.max(0, subtotal - discount) + (list.length ? ship : 0);
+
+        var discountRow = coupon
+            ? '<div class="lp-cart-total-row"><span>' + L('ডিসকাউন্ট', 'Discount') + ' (' + esc(coupon.code) + ')</span><span style="color:var(--ds-primary)">− ৳ ' + fmt(discount) + '</span></div>'
+            : '';
+
+        wrap.innerHTML =
+            '<div class="lp-cart-header"><div class="text-center">' + L('মার্ক', 'Mark') + '</div><div>' + L('প্রোডাক্ট', 'Product') + '</div><div class="text-center">' + L('পরিমাণ', 'Qty') + '</div><div class="text-end">' + L('মূল্য', 'Price') + '</div></div>' +
+            (rowsHtml || '') +
+            '<div class="lp-cart-totals">' +
+            '<div class="lp-cart-total-row"><span>' + L('মোট', 'Subtotal') + '</span><span id="net_total">৳ <strong>' + fmt(subtotal) + '</strong></span></div>' +
+            discountRow +
+            '<div class="lp-cart-total-row"><span>' + L('ডেলিভারি চার্জ', 'Delivery Charge') + '</span><span id="cart_shipping_cost">৳ <strong>' + (list.length ? fmt(ship) : 0) + '</strong></span></div>' +
+            '<div class="lp-cart-total-row final"><span>' + L('সর্বমোট', 'Grand Total') + '</span><span id="grand_total">৳ <strong>' + fmt(grand) + '</strong></span></div>' +
+            '</div>';
+
+        wrap.setAttribute('data-cart-empty', list.length ? '0' : '1');
+        wrap.setAttribute('data-cart-items', JSON.stringify(list.map(function (pid) { return { id: parseInt(pid, 10), qty: cart[pid].qty }; })));
+        wrap.setAttribute('data-subtotal', String(subtotal));
+        wrap.setAttribute('data-grand', String(grand));
+
+        if (emptyEl) emptyEl.hidden = list.length > 0;
+        if (countEl) countEl.textContent = list.length
+            ? (list.length + (en ? ' item(s)' : ' টি পণ্য'))
+            : L('খালি', 'Empty');
+
+        // delivery area placeholder vs select
+        var ae = document.getElementById('landing-area-empty');
+        var ap = document.getElementById('landing-area-physical-wrap');
+        if (ae && ap) {
+            ae.classList.toggle('hidden', list.length > 0);
+            ap.classList.toggle('hidden', list.length === 0);
+        }
+        var sel = document.getElementById('area');
+        if (sel) sel.toggleAttribute('required', list.length > 0);
+
+        try { landingCartItems = list.map(function (pid) { return parseInt(pid, 10); }); } catch (e) { }
+    }
+
+    // keep cart labels in sync when the language is switched
+    document.addEventListener('ab:lang', function () { render(); });
+
+    window.landingCartQty = function (pid, delta) {
+        if (!cart[pid]) return;
+        cart[pid].qty = Math.max(1, Math.min(10, cart[pid].qty + delta));
+        render();
+    };
+
+    window.toggleProductFromCart = function (productId, isChecked) {
+        productId = parseInt(productId, 10);
+        if (isChecked) {
+            if (!cart[productId]) cart[productId] = { qty: 1 };
+        } else {
+            delete cart[productId];
+        }
+        render();
+    };
+
+    window.addToCartFromRow = function (productId) {
+        window.toggleProductFromCart(productId, true);
+    };
+
+    window.submitCoupon = function () {
+        var input = document.getElementById('coupon_input');
+        var msg = document.getElementById('couponMsg');
+        var code = input ? input.value.trim() : '';
+        if (!msg) return;
+        msg.hidden = false;
+        if (!code) {
+            msg.className = 'lp-coupon-msg err';
+            msg.textContent = AB.t('কুপন কোড লিখে আবার চেষ্টা করুন।', 'Please enter a coupon code and try again.');
+            return;
+        }
+        if (coupon && coupon.code.toUpperCase() === code.toUpperCase()) {
+            coupon = null;
+            msg.className = 'lp-coupon-msg ok';
+            msg.textContent = AB.t('কুপনটি সরানো হয়েছে।', 'Coupon removed.');
+            render();
+            return;
+        }
+        if (COUPONS[code]) {
+            coupon = { code: code.toUpperCase(), pct: COUPONS[code] };
+            msg.className = 'lp-coupon-msg ok';
+            msg.textContent = AB.t('কুপন প্রয়োগ হয়েছে — ' + COUPONS[code] + '% ডিসকাউন্ট!', 'Coupon applied — ' + COUPONS[code] + '% discount!');
+        } else {
+            coupon = null;
+            msg.className = 'lp-coupon-msg err';
+            msg.textContent = AB.t('কুপনটি প্রযোজ্য নয়। (ডেমো কুপন: ACHAR10)', 'Coupon not valid. (Demo coupon: ACHAR10)');
+        }
+        render();
+    };
+
+    // delivery area change → recalc totals
+    var areaSel = document.getElementById('area');
+    if (areaSel) areaSel.addEventListener('change', render);
+
+    // real order submit: serialize cart into hidden input, form POSTs to Laravel
+    var form = document.getElementById('landing-checkout-form');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            if (!ids().length) {
+                e.preventDefault();
+                var old = document.getElementById('lpOrderSuccess');
+                if (old) old.remove();
+                var banner = document.createElement('div');
+                banner.id = 'lpOrderSuccess';
+                banner.className = 'lp-order-success';
+                banner.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ' + AB.t('কার্ট খালি — অন্তত একটি প্রোডাক্ট যোগ করুন।', 'Cart is empty — add at least one product.');
+                form.parentNode.insertBefore(banner, form);
+                banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            // fill hidden inputs for the server
+            var itemsInput = document.getElementById('cart_items_input');
+            if (itemsInput) {
+                itemsInput.value = JSON.stringify(ids().map(function (pid) {
+                    return { id: parseInt(pid, 10), qty: cart[pid].qty };
+                }));
+            }
+            var couponInput = document.getElementById('coupon_input');
+            if (couponInput && !couponInput.name) couponInput.name = 'coupon_code';
+            // natural form POST → server recalculates everything securely
+        });
+    }
+
+    render();
+})();

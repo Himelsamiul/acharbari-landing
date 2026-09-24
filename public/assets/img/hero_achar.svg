@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 640" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#431407"/>
+      <stop offset=".55" stop-color="#5f2510"/>
+      <stop offset="1" stop-color="#7c2d12"/>
+    </linearGradient>
+    <linearGradient id="table" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a5a28"/>
+      <stop offset="1" stop-color="#5f3a20"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".32" r=".75">
+      <stop offset="0" stop-color="#fbbf24" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hglass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".1"/>
+    </linearGradient>
+    <clipPath id="hA"><rect x="330" y="200" width="240" height="230" rx="34"/></clipPath>
+    <clipPath id="hB"><rect x="120" y="260" width="150" height="170" rx="26"/></clipPath>
+    <clipPath id="hC"><rect x="630" y="252" width="160" height="178" rx="27"/></clipPath>
+  </defs>
+
+  <rect width="900" height="640" fill="url(#wall)"/>
+  <rect width="900" height="640" fill="url(#glow)"/>
+
+  <!-- wall shelf line + hanging lights -->
+  <circle cx="180" cy="52" r="26" fill="#fbbf24" opacity=".5"/>
+  <path d="M180 0 l0 30" stroke="#3a1d08" stroke-width="4"/>
+  <circle cx="720" cy="76" r="22" fill="#fbbf24" opacity=".42"/>
+  <path d="M720 0 l0 56" stroke="#3a1d08" stroke-width="4"/>
+  <circle cx="470" cy="30" r="16" fill="#f59e0b" opacity=".35"/>
+
+  <!-- table -->
+  <rect x="0" y="430" width="900" height="210" fill="url(#table)"/>
+  <rect x="0" y="430" width="900" height="14" fill="#a9743a"/>
+  <path d="M60 500 h220 M330 560 h260 M680 505 h170" stroke="#4a2c14" stroke-width="4" opacity=".5" stroke-linecap="round"/>
+
+  <!-- scattered spices on table -->
+  <circle cx="300" cy="480" r="7" fill="#dc2626"/>
+  <circle cx="318" cy="492" r="6" fill="#ea580c"/>
+  <circle cx="560" cy="540" r="7" fill="#fbbf24"/>
+  <circle cx="578" cy="552" r="5" fill="#ca8a04"/>
+  <circle cx="620" cy="472" r="6" fill="#dc2626"/>
+
+  <!-- ===== CENTER HERO JAR: mango kuchi achar with cloth ===== -->
+  <ellipse cx="450" cy="446" rx="150" ry="20" fill="#2a1105" opacity=".45"/>
+  <rect x="356" y="168" width="188" height="36" rx="11" fill="#4a2c14"/>
+  <rect x="330" y="200" width="240" height="230" rx="34" fill="#f09f2e"/>
+  <g clip-path="url(#hA)">
+    <rect x="330" y="200" width="240" height="230" fill="#e0870c"/>
+    <circle cx="392" cy="262" r="30" fill="#fbbf24"/>
+    <circle cx="472" cy="244" r="25" fill="#fcd34d"/>
+    <circle cx="534" cy="278" r="28" fill="#f59e0b"/>
+    <circle cx="404" cy="348" r="27" fill="#fcd34d"/>
+    <circle cx="488" cy="352" r="32" fill="#fbbf24"/>
+    <circle cx="452" cy="300" r="21" fill="#fde68a"/>
+    <circle cx="540" cy="396" r="21" fill="#f59e0b"/>
+    <circle cx="378" cy="406" r="20" fill="#fbbf24"/>
+    <circle cx="462" cy="412" r="24" fill="#fcd34d"/>
+    <circle cx="420" cy="260" r="4.5" fill="#7c2d12" opacity=".55"/>
+    <circle cx="510" cy="320" r="4.5" fill="#7c2d12" opacity=".55"/>
+    <circle cx="390" cy="310" r="4" fill="#7c2d12" opacity=".5"/>
+    <circle cx="480" cy="390" r="4" fill="#7c2d12" opacity=".5"/>
+    <rect x="330" y="200" width="240" height="230" fill="url(#hglass)"/>
+    <rect x="352" y="218" width="20" height="190" rx="10" fill="#fff" opacity=".34"/>
+  </g>
+  <rect x="330" y="200" width="240" height="230" rx="34" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="4"/>
+
+  <!-- label -->
+  <rect x="368" y="288" width="164" height="66" rx="14" fill="#fffdf7" stroke="#d97706" stroke-width="4"/>
+  <text x="450" y="317" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#7c2d12">ACHARBARI</text>
+  <text x="450" y="340" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="12" fill="#b45309">১০০% খাঁটি দেশি আচার</text>
+
+  <!-- cloth cover -->
+  <path d="M344 174 q13 -32 106 -32 q93 0 106 32 q-33 19 -106 19 q-73 0 -106 -19z" fill="#fef3c7" stroke="#d97706" stroke-width="3.5"/>
+  <path d="M344 174 l212 0 M382 156 l6 36 M450 142 l0 50 M518 156 l-6 36" stroke="#e7a94f" stroke-width="3" fill="none"/>
+  <ellipse cx="450" cy="196" rx="118" ry="12" fill="none" stroke="#b45309" stroke-width="7"/>
+
+  <!-- ===== LEFT JAR: olive achar ===== -->
+  <ellipse cx="195" cy="438" rx="95" ry="15" fill="#2a1105" opacity=".4"/>
+  <rect x="138" y="232" width="114" height="30" rx="9" fill="#4a2c14"/>
+  <rect x="120" y="260" width="150" height="170" rx="26" fill="#b7c95c"/>
+  <g clip-path="url(#hB)">
+    <rect x="120" y="260" width="150" height="170" fill="#a5b93e"/>
+    <ellipse cx="158" cy="300" rx="21" ry="17" fill="#5f7a1e"/>
+    <ellipse cx="212" cy="290" rx="17" ry="14" fill="#719024"/>
+    <ellipse cx="238" cy="330" rx="20" ry="16" fill="#4d661a"/>
+    <ellipse cx="164" cy="352" rx="19" ry="15" fill="#719024"/>
+    <ellipse cx="220" cy="366" rx="22" ry="17" fill="#5f7a1e"/>
+    <ellipse cx="190" cy="322" rx="14" ry="11" fill="#87a63a"/>
+    <ellipse cx="240" cy="402" rx="15" ry="12" fill="#719024"/>
+    <ellipse cx="152" cy="404" rx="13" ry="11" fill="#4d661a"/>
+    <circle cx="152" cy="295" r="4.5" fill="#d9e8a6" opacity=".85"/>
+    <circle cx="206" cy="285" r="3.5" fill="#d9e8a6" opacity=".85"/>
+    <circle cx="214" cy="361" r="4.5" fill="#d9e8a6" opacity=".85"/>
+    <rect x="120" y="260" width="150" height="170" fill="url(#hglass)"/>
+    <rect x="134" y="274" width="13" height="140" rx="6.5" fill="#fff" opacity=".32"/>
+  </g>
+  <rect x="120" y="260" width="150" height="170" rx="26" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="3"/>
+  <rect x="146" y="322" width="98" height="46" rx="10" fill="#fffdf7" stroke="#65801f" stroke-width="3"/>
+  <text x="195" y="343" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" fill="#3f4d14">OLIVE</text>
+  <text x="195" y="360" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="10" fill="#65801f">জলপাই আচার</text>
+
+  <!-- ===== RIGHT JAR: honey ===== -->
+  <ellipse cx="710" cy="438" rx="100" ry="15" fill="#2a1105" opacity=".4"/>
+  <rect x="652" y="226" width="116" height="28" rx="9" fill="#4a2c14"/>
+  <rect x="630" y="252" width="160" height="178" rx="27" fill="#e9a41c"/>
+  <g clip-path="url(#hC)">
+    <rect x="630" y="252" width="160" height="178" fill="#e0940a"/>
+    <path d="M630 300 q40 -14 80 0 q40 14 80 0 l0 130 l-160 0z" fill="#f2b33c"/>
+    <path d="M630 336 q40 -12 80 0 q40 12 80 0 l0 94 l-160 0z" fill="#f7c45a"/>
+    <rect x="630" y="252" width="160" height="178" fill="url(#hglass)"/>
+    <rect x="646" y="268" width="14" height="146" rx="7" fill="#fff" opacity=".34"/>
+  </g>
+  <rect x="630" y="252" width="160" height="178" rx="27" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="3"/>
+  <rect x="656" y="316" width="108" height="48" rx="10" fill="#fffdf7" stroke="#e0940a" stroke-width="3"/>
+  <text x="710" y="338" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" fill="#7c2d12">HONEY</text>
+  <text x="710" y="355" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="10" fill="#b45309">সুন্দরবনের মধু</text>
+
+  <!-- honey dipper leaning -->
+  <g transform="rotate(18 816 330)">
+    <rect x="810" y="250" width="12" height="90" rx="6" fill="#b98243"/>
+    <ellipse cx="816" cy="356" rx="26" ry="30" fill="#c99544"/>
+    <path d="M790 350 h52 M790 362 h52" stroke="#a87630" stroke-width="5"/>
+  </g>
+
+  <!-- chili + mango leaf accents -->
+  <path d="M96 452 q46 10 56 52 q-46 -6 -60 -40z" fill="#dc2626"/>
+  <path d="M152 508 q10 10 20 8" stroke="#3f4d14" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M580 250 q40 -44 90 -38 q-12 52 -90 38z" fill="#84a04c" opacity=".8"/>
+  <path d="M60 340 q30 -38 66 -32 q-10 46 -66 32z" fill="#a3b86a" opacity=".6"/>
+</svg>

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff1e0"/>
+      <stop offset="1" stop-color="#fbdfc0"/>
+    </linearGradient>
+    <linearGradient id="glass3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".12"/>
+    </linearGradient>
+    <clipPath id="cA"><rect x="52" y="196" width="104" height="120" rx="22"/></clipPath>
+    <clipPath id="cB"><rect x="148" y="168" width="118" height="148" rx="26"/></clipPath>
+    <clipPath id="cC"><rect x="262" y="204" width="100" height="112" rx="20"/></clipPath>
+  </defs>
+
+  <rect width="400" height="400" rx="36" fill="url(#bg3)"/>
+  <circle cx="66" cy="80" r="20" fill="#dc2626" opacity=".14"/>
+  <circle cx="342" cy="86" r="14" fill="#d97706" opacity=".2"/>
+  <path d="M40 236 q22 -28 52 -24 q-8 34 -52 24z" fill="#84a04c" opacity=".6"/>
+
+  <ellipse cx="204" cy="330" rx="150" ry="17" fill="#7c2d12" opacity=".13"/>
+
+  <!-- LEFT small jar: red chili mix -->
+  <rect x="66" y="160" width="76" height="38" rx="8" fill="#5f3a20"/>
+  <rect x="52" y="196" width="104" height="120" rx="22" fill="#d34b1e"/>
+  <g clip-path="url(#cA)">
+    <circle cx="86" cy="240" r="14" fill="#ea580c"/>
+    <circle cx="124" cy="232" r="12" fill="#f97316"/>
+    <circle cx="96" cy="282" r="13" fill="#f97316"/>
+    <circle cx="130" cy="288" r="11" fill="#ea580c"/>
+    <rect x="52" y="196" width="104" height="120" fill="url(#glass3)"/>
+  </g>
+  <rect x="52" y="196" width="104" height="120" rx="22" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2.5"/>
+  <rect x="68" y="238" width="72" height="34" rx="8" fill="#fffdf7" stroke="#ea580c" stroke-width="2"/>
+  <text x="104" y="260" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="11" font-weight="bold" fill="#7c2d12">CHILI</text>
+
+  <!-- CENTER big jar: mixed achar with cloth cover -->
+  <rect x="162" y="140" width="90" height="30" rx="8" fill="#5f3a20"/>
+  <rect x="148" y="168" width="118" height="148" rx="26" fill="#e8a53d"/>
+  <g clip-path="url(#cB)">
+    <circle cx="182" cy="216" r="17" fill="#fbbf24"/>
+    <circle cx="232" cy="206" r="14" fill="#5f7a1e"/>
+    <circle cx="216" cy="252" r="18" fill="#dc2626"/>
+    <circle cx="172" cy="266" r="15" fill="#b7c95c"/>
+    <circle cx="242" cy="286" r="15" fill="#f59e0b"/>
+    <circle cx="188" cy="300" r="13" fill="#fcd34d"/>
+    <circle cx="152" cy="296" r="11" fill="#5f7a1e"/>
+    <circle cx="252" cy="238" r="10" fill="#fcd34d"/>
+    <rect x="148" y="168" width="118" height="148" fill="url(#glass3)"/>
+    <rect x="162" y="182" width="12" height="118" rx="6" fill="#fff" opacity=".35"/>
+  </g>
+  <rect x="148" y="168" width="118" height="148" rx="26" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="3"/>
+  <rect x="166" y="228" width="82" height="40" rx="9" fill="#fffdf7" stroke="#d97706" stroke-width="2.5"/>
+  <text x="207" y="247" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="12" font-weight="bold" fill="#7c2d12">MIXED</text>
+  <text x="207" y="262" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="9" fill="#b45309">৩ প্রকার</text>
+  <!-- cloth -->
+  <path d="M156 144 q7 -20 60 -20 q53 0 60 20 q-19 11 -60 11 q-41 0 -60 -11z" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <ellipse cx="207" cy="154" rx="66" ry="7" fill="none" stroke="#b45309" stroke-width="4"/>
+
+  <!-- RIGHT small jar: honey -->
+  <rect x="274" y="170" width="76" height="36" rx="8" fill="#5f3a20"/>
+  <rect x="262" y="204" width="100" height="112" rx="20" fill="#f0b73f"/>
+  <g clip-path="url(#cC)">
+    <rect x="262" y="226" width="100" height="90" fill="#e59d14"/>
+    <rect x="262" y="226" width="100" height="90" fill="url(#glass3)"/>
+    <rect x="274" y="234" width="10" height="74" rx="5" fill="#fff" opacity=".4"/>
+  </g>
+  <rect x="262" y="204" width="100" height="112" rx="20" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2.5"/>
+  <rect x="276" y="240" width="72" height="34" rx="8" fill="#fffdf7" stroke="#e59d14" stroke-width="2"/>
+  <text x="312" y="262" text-anchor="middle" font-family="Verdana, DejaVu Sans, sans-serif" font-size="11" font-weight="bold" fill="#7c2d12">HONEY</text>
+
+  <!-- floating chili + mango slice -->
+  <path d="M330 150 q30 6 36 34 q-30 -2 -40 -26z" fill="#dc2626"/>
+  <path d="M60 160 q4 -22 24 -30 q10 18 -6 34 q-12 4 -18 -4z" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+</svg>
