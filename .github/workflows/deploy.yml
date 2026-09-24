@@ -1,0 +1,83 @@
+name: Deploy to khorak.shop (Laravel)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, openssl, pdo_mysql, fileinfo, curl, tokenizer
+          coverage: none
+
+      - name: Install production dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Prepare public entry files
+        run: |
+          # deployed layout: Laravel root = public_html → adjust index.php paths
+          sed "s|'../vendor/autoload.php'|'./vendor/autoload.php'|; s|'/../bootstrap/app.php'|'./bootstrap/app.php'|" public/index.php > deploy-index.php
+          # combined .htaccess: block sensitive dirs + Laravel front controller
+          { echo "# --- block sensitive app directories ---"
+            echo "<IfModule mod_rewrite.c>"
+            echo "RewriteEngine On"
+            echo "RewriteRule ^(app|bootstrap|config|database|routes|tests|resources|vendor)/ - [F,L]"
+            echo "</IfModule>"
+            echo "<FilesMatch \"^\.env$|^composer\.(json|lock)$|^\.gitignore$\">"
+            echo "Require all denied"
+            echo "</FilesMatch>"
+            cat public/.htaccess
+          } > deploy-htaccess
+          mkdir -p _deploy_public
+          cp deploy-index.php _deploy_public/index.php
+          cp deploy-htaccess _deploy_public/.htaccess
+
+      - name: Upload application (root) via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: khorak.shop
+          username: deploy@khorak.shop
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          local-dir: ./
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.github*
+            **/.netlify*
+            **/_backup_original*
+            **/.cpanel.yml
+            **/.env
+            **/node_modules/**
+            **/tests/**
+            **/public/index.php
+            **/public/.htaccess
+            **/_deploy_public/**
+
+      - name: Upload public entry files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: khorak.shop
+          username: deploy@khorak.shop
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          local-dir: ./_deploy_public/
+          server-dir: ./
+          state-name: entry_files_state.json
+          dangerous-clean-slate: false
+
+      - name: Remove legacy static files on server
+        run: |
+          curl -s --ftp-pasv -u "deploy@khorak.shop:${{ secrets.FTP_PASSWORD }}" -Q "-DELE public_html/index.html" ftp://khorak.shop/ || true
+          curl -s --ftp-pasv -u "deploy@khorak.shop:${{ secrets.FTP_PASSWORD }}" -Q "-DELE public_html/products.html" ftp://khorak.shop/ || true
+          curl -s --ftp-pasv -u "deploy@khorak.shop:${{ secrets.FTP_PASSWORD }}" -Q "-DELE public_html/admin.html" ftp://khorak.shop/ || true
+          echo "legacy static files removed"

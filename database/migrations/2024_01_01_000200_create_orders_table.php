@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('payment_method', 20)->default('cod');
             $table->decimal('subtotal', 10, 2)->default(0);
             $table->decimal('discount', 10, 2)->default(0);
+            $table->decimal('vat_total', 10, 2)->default(0);
             $table->string('coupon_code', 30)->nullable();
             $table->decimal('shipping_cost', 10, 2)->default(0);
             $table->decimal('total', 10, 2)->default(0);

@@ -148,6 +148,9 @@
             @if ($order->discount > 0)
                 <div class="sum-row"><span>ডিসকাউন্ট {{ $order->coupon_code }}</span><span>−৳{{ number_format($order->discount) }}</span></div>
             @endif
+            @if ($order->vat_total > 0)
+                <div class="sum-row"><span>ভ্যাট</span><span>৳{{ number_format($order->vat_total) }}</span></div>
+            @endif
             <div class="sum-row"><span>ডেলিভারি চার্জ</span><span>৳{{ number_format($order->shipping_cost) }}</span></div>
             <div class="sum-row total"><span>সর্বমোট ({{ strtoupper($order->payment_method) }})</span>
                 <span>৳{{ number_format($order->total) }}</span></div>

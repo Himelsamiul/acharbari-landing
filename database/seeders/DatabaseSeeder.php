@@ -10,6 +10,27 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Categories
+        foreach ([
+            ['আচার', 'Pickles', 'pickle'],
+            ['মধু ও ঘি', 'Honey & Ghee', 'pure'],
+            ['চাটনি', 'Chutney', 'chaatni'],
+        ] as [$name, $nameEn, $key]) {
+            \App\Models\Category::updateOrCreate(['key' => $key], ['name' => $name, 'name_en' => $nameEn]);
+        }
+
+        // Brands
+        \App\Models\Brand::updateOrCreate(['name' => 'আচারবাড়ি']);
+        \App\Models\Brand::updateOrCreate(['name' => 'গ্রাম ভাণ্ডার']);
+
+        // Site settings defaults
+        \App\Models\Setting::setMany([
+            'brand_bn1' => 'আচার', 'brand_bn2' => 'বাড়ি',
+            'brand_en1' => 'Achar', 'brand_en2' => 'Bari',
+            'logo_path' => '',
+            'theme_id' => 'spice',
+        ]);
+
         // Admin user
         \App\Models\User::updateOrCreate(
             ['email' => 'admin@khorak.shop'],
@@ -106,8 +127,16 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        foreach ($products as $p) {
-            Product::updateOrCreate(['slug' => $p['slug']], $p);
-        }
+        \App\Models\Product::upsert(
+            array_map(function ($i, $p) {
+                $p['brand'] = 'আচারবাড়ি';
+                $p['unit'] = in_array($p['category_key'], ['pickle', 'chaatni']) ? 'gm' : 'ml';
+                $p['stock'] = 60 + $i * 15;
+                $p['barcode'] = 'ABP-' . str_pad((string)($i + 1), 4, '0', STR_PAD_LEFT);
+                return $p;
+            }, array_keys($products), $products),
+            ['slug'],
+            ['name', 'name_en', 'category', 'category_en', 'category_key', 'brand', 'unit', 'stock', 'barcode', 'price', 'old_price', 'discount_bn', 'discount_en', 'image', 'rating', 'reviews_count', 'stock_badge', 'stock_badge_en', 'description', 'description_en', 'sort_order']
+        );
     }
 }

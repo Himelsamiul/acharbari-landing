@@ -269,8 +269,10 @@
                 btn.classList.toggle('on', btn.getAttribute('data-lang-btn') === self.lang);
             });
 
-            // brand name depends on language
-            this.applyBrand();
+            // brand name depends on language (server-rendered pages handle their own)
+            if (window.AB_MODE !== 'server') {
+                this.applyBrand();
+            }
             document.dispatchEvent(new CustomEvent('ab:lang'));
         },
 

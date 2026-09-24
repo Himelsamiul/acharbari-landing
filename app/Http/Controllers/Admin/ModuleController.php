@@ -8,7 +8,6 @@ class ModuleController extends Controller
 {
     /**
      * Draft modules — template pages ready for future development.
-     * Each entry renders a "coming soon" screen inside the admin panel.
      */
     public static array $modules = [
         'customers' => [
@@ -51,7 +50,7 @@ class ModuleController extends Controller
             'icon' => 'fa-brands fa-facebook',
             'color' => '#1877F2',
             'desc' => 'ফেসবুক অ্যাড কনভার্সন ট্র্যাকিং — PageView, AddToCart, Purchase ইভেন্ট।',
-            'features' => ['Pixel ID সেটআপ', 'অটো ইভেন্ট ফায়ার', 'কনভার্সন ট্র্যাকিং'],
+            'features' => ['Pixel ID সেটআপ', 'অটো ইভেন্ট ফায়ার', 'noscript fallback', 'কনভার্সন ট্র্যাকিং'],
         ],
         'ganalytics' => [
             'name' => 'Google Analytics 4',
@@ -64,29 +63,15 @@ class ModuleController extends Controller
             'name' => 'Google Tag Manager',
             'icon' => 'fa-solid fa-tags',
             'color' => '#246FDB',
-            'desc' => 'কোড ছাড়াই সব মার্কেটিং ট্যাগ ও পিক্সেল ম্যানেজ করুন।',
+            'desc' => 'কোড ছাড়াই সব মার্কেটিং ট্যাগ ম্যানেজ করুন।',
             'features' => ['Container ID সেটআপ', 'ট্যাগ ম্যানেজমেন্ট', 'ওয়ার্কস্পেস সাপোর্ট'],
         ],
         'tiktok' => [
             'name' => 'TikTok Pixel',
             'icon' => 'fa-brands fa-tiktok',
             'color' => '#FE2C55',
-            'desc' => 'টিকটক অ্যাড পারফরম্যান্স ও কনভার্সন ট্র্যাকিং।',
+            'desc' => 'টিকটক অ্যাড পারফরম্যান্স ট্র্যাকিং।',
             'features' => ['Pixel Code সেটআপ', 'কনভার্সন ইভেন্ট', 'ক্যাম্পেইন অপটিমাইজেশন'],
-        ],
-        'seo' => [
-            'name' => 'SEO Settings',
-            'icon' => 'fa-solid fa-magnifying-glass-chart',
-            'color' => '#dc2626',
-            'desc' => 'Meta title (৫০-৮০), description (১৬০-৩০০) ও keywords — Google SERP প্রিভিউ সহ।',
-            'features' => ['Meta Title + কাউন্টার', 'Meta Description', 'Keywords ম্যানেজার', 'Google SERP প্রিভিউ'],
-        ],
-        'sitemap' => [
-            'name' => 'Sitemap জেনারেটর',
-            'icon' => 'fa-solid fa-sitemap',
-            'color' => '#059669',
-            'desc' => 'সাইটের সব পেজ ও প্রোডাক্ট নিয়ে sitemap.xml জেনারেট ও ডাউনলোড।',
-            'features' => ['অটো-জেনারেট', 'কপি ও ডাউনলোড', 'সার্চ কনসোলে জমা দেওয়ার গাইড'],
         ],
     ];
 

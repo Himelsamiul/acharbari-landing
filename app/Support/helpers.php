@@ -28,6 +28,8 @@ if (!function_exists('buildQuickView')) {
                 'img' => asset($p->image),
                 'desc' => $p->description,
                 'desc_en' => $p->description_en,
+                'vat_percent' => (float) $p->vat_percent,
+                'stock' => (int) $p->stock,
             ]];
         })->all();
     }

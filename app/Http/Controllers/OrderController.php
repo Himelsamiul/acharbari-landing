@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CustomerNotification;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderNotification;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -31,19 +34,26 @@ class OrderController extends Controller
         $products = Product::whereIn('id', $productIds)->where('is_active', true)->get()->keyBy('id');
 
         $subtotal = 0;
+        $vatTotal = 0;
         $lines = [];
         foreach ($items as $item) {
             $product = $products[(int) $item['id']] ?? null;
             if (! $product) continue;
             $qty = max(1, min(20, (int) ($item['qty'] ?? 1)));
+            if ($product->stock > 0 && $qty > $product->stock) {
+                $qty = (int) $product->stock;
+            }
             $line = $product->price * $qty;
+            $vat = round($line * (float) $product->vat_percent / 100, 2);
             $subtotal += $line;
+            $vatTotal += $vat;
             $lines[] = [
                 'product_id' => $product->id,
                 'product_name' => $product->name,
                 'price' => $product->price,
                 'quantity' => $qty,
                 'line_total' => $line,
+                'vat_percent' => (float) $product->vat_percent,
             ];
         }
 
@@ -51,7 +61,7 @@ class OrderController extends Controller
             return back()->withErrors(['items' => 'প্রোডাক্ট পাওয়া যায়নি — আবার চেষ্টা করুন।']);
         }
 
-        // Coupon (demo): ACHAR10 = 10% off
+        // Coupon (demo): ACHAR10 = 10% off on subtotal
         $discount = 0;
         $couponCode = null;
         $code = strtoupper(trim($data['coupon_code'] ?? ''));
@@ -61,9 +71,9 @@ class OrderController extends Controller
         }
 
         $shipping = $data['area'] === 'inside' ? 80 : 150;
-        $total = max(0, $subtotal - $discount) + $shipping;
+        $total = max(0, $subtotal - $discount) + $vatTotal + $shipping;
 
-        $order = DB::transaction(function () use ($data, $lines, $subtotal, $discount, $couponCode, $shipping, $total) {
+        $order = DB::transaction(function () use ($data, $lines, $subtotal, $discount, $couponCode, $vatTotal, $shipping, $total) {
             $order = Order::create([
                 'order_code' => 'AB-' . strtoupper(uniqid()),
                 'customer_name' => $data['customer_name'],
@@ -74,6 +84,7 @@ class OrderController extends Controller
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'coupon_code' => $couponCode,
+                'vat_total' => $vatTotal,
                 'shipping_cost' => $shipping,
                 'total' => $total,
                 'status' => 'pending',
@@ -81,10 +92,38 @@ class OrderController extends Controller
 
             foreach ($lines as $line) {
                 $order->items()->create($line);
+
+                // stock management: decrement sold quantity
+                Product::where('id', $line['product_id'])->decrement('stock', $line['quantity']);
             }
+
+            // admin notification (bell in admin panel)
+            OrderNotification::create(['order_id' => $order->id]);
+
+            // customer notification (visible on tracking page)
+            CustomerNotification::create([
+                'order_id' => $order->id,
+                'title' => 'অর্ডার গৃহীত হয়েছে',
+                'message' => 'আপনার অর্ডার #' . $order->order_code . ' সফলভাবে গৃহীত হয়েছে — আমাদের প্রতিনিধি শীঘ্রই কল করবেন।',
+            ]);
 
             return $order;
         });
+
+        // order confirmation mail (uses log driver until SMTP is configured)
+        try {
+            Mail::raw(
+                "নতুন অর্ডার #{$order->order_code}\n"
+                . "কাস্টমার: {$order->customer_name} ({$order->phone})\n"
+                . "মোট: ৳" . number_format($order->total) . "\n"
+                . "ট্র্যাকিং কোড: {$order->order_code}",
+                function ($message) {
+                    $message->to('admin@khorak.shop')->subject('নতুন অর্ডার — আচারবাড়ি');
+                }
+            );
+        } catch (\Throwable $e) {
+            report($e); // SMTP configured না থাকলেও order flow থামবে না
+        }
 
         return redirect()->route('order.success', $order->order_code);
     }
@@ -93,5 +132,22 @@ class OrderController extends Controller
     {
         $order = Order::where('order_code', $code)->with('items')->firstOrFail();
         return view('order-success', compact('order'));
+    }
+
+    /** Public order tracking: by tracking code or phone */
+    public function track(Request $request)
+    {
+        $order = null;
+        $query = trim((string) $request->query('q', $request->input('q', '')));
+
+        if ($query !== '') {
+            $order = Order::with('items')
+                ->where('order_code', $query)
+                ->orWhere('phone', $query)
+                ->latest()
+                ->first();
+        }
+
+        return view('track', compact('order', 'query'));
     }
 }

@@ -9,15 +9,21 @@ class Order extends Model
     protected $fillable = [
         'order_code', 'customer_name', 'phone', 'address', 'area',
         'payment_method', 'subtotal', 'discount', 'coupon_code',
-        'shipping_cost', 'total', 'status',
+        'vat_total', 'shipping_cost', 'total', 'status',
     ];
 
     protected $casts = [
         'subtotal' => 'float',
         'discount' => 'float',
+        'vat_total' => 'float',
         'shipping_cost' => 'float',
         'total' => 'float',
     ];
+
+    public function notifications()
+    {
+        return $this->hasMany(CustomerNotification::class);
+    }
 
     public function items()
     {

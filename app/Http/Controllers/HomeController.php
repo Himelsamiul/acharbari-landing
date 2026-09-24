@@ -8,7 +8,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $products = Product::active()->get();
+        $products = Product::active()->orderByDesc('is_featured')->get();
 
         return view('home', ['products' => $products, 'qv' => buildQuickView($products)]);
     }

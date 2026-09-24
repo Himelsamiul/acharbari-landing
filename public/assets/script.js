@@ -1731,7 +1731,13 @@ document.addEventListener('keydown', function (e) {
 
         var discount = coupon ? Math.round(subtotal * coupon.pct / 100) : 0;
         var ship = deliveryCharge();
-        var grand = Math.max(0, subtotal - discount) + (list.length ? ship : 0);
+        var vatTotal = 0;
+        list.forEach(function (pid) {
+            var p = prodData(pid);
+            if (!p) return;
+            vatTotal += bnToNum(p.price) * cart[pid].qty * (parseFloat(p.vat_percent) || 0) / 100;
+        });
+        var grand = Math.max(0, subtotal - discount) + Math.round(vatTotal) + (list.length ? ship : 0);
 
         var discountRow = coupon
             ? '<div class="lp-cart-total-row"><span>' + L('ডিসকাউন্ট', 'Discount') + ' (' + esc(coupon.code) + ')</span><span style="color:var(--ds-primary)">− ৳ ' + fmt(discount) + '</span></div>'
