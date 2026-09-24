@@ -38,6 +38,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::delete('/products/{product}', [Admin\ProductController::class, 'destroy'])->name('admin.products.destroy');
 
     Route::get('/taxonomy', [Admin\TaxonomyController::class, 'index'])->name('admin.taxonomy');
+    Route::get('/modules/{module}', [Admin\ModuleController::class, 'show'])->name('admin.module');
     Route::post('/taxonomy/category', [Admin\TaxonomyController::class, 'storeCategory'])->name('admin.taxonomy.category.store');
     Route::delete('/taxonomy/category/{category}', [Admin\TaxonomyController::class, 'destroyCategory'])->name('admin.taxonomy.category.destroy');
     Route::post('/taxonomy/brand', [Admin\TaxonomyController::class, 'storeBrand'])->name('admin.taxonomy.brand.store');

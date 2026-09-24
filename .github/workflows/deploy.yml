@@ -75,9 +75,3 @@ jobs:
           state-name: entry_files_state.json
           dangerous-clean-slate: false
 
-      - name: Remove legacy static files on server
-        run: |
-          curl -s --ftp-pasv -u "deploy@khorak.shop:${{ secrets.FTP_PASSWORD }}" -Q "-DELE public_html/index.html" ftp://khorak.shop/ || true
-          curl -s --ftp-pasv -u "deploy@khorak.shop:${{ secrets.FTP_PASSWORD }}" -Q "-DELE public_html/products.html" ftp://khorak.shop/ || true
-          curl -s --ftp-pasv -u "deploy@khorak.shop:${{ secrets.FTP_PASSWORD }}" -Q "-DELE public_html/admin.html" ftp://khorak.shop/ || true
-          echo "legacy static files removed"
