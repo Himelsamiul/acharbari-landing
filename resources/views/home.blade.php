@@ -578,8 +578,6 @@
                         <form id="landing-checkout-form" action="{{ route('order.store') }}" method="POST" class="p-6">
                             @csrf
                             <input type="hidden" name="items" id="cart_items_input">
-                            @csrf
-                                autocomplete="off">
                             <input type="hidden" name="landing_checkout" value="1">
 
                             <div class="space-y-4">

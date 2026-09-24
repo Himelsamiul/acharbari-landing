@@ -99,6 +99,16 @@
         }
         .a-input::placeholder { color: rgba(255,255,255,.45); }
         .a-input:focus { border-color: #a3e635; box-shadow: 0 0 0 4px rgba(163,230,53,.16); }
+        .pass-wrap { position: relative; }
+        .pass-wrap .a-input { padding-right: 46px; }
+        .pass-eye {
+            position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+            width: 34px; height: 34px; border: none; border-radius: 9px;
+            background: transparent; color: rgba(255,255,255,.6);
+            cursor: pointer; font-size: 14px;
+            transition: color .2s, background .2s;
+        }
+        .pass-eye:hover { color: #a3e635; background: rgba(255,255,255,.08); }
         .a-btn {
             display: flex; align-items: center; justify-content: center; gap: 8px;
             width: 100%;
@@ -151,12 +161,25 @@
             @csrf
             <div class="a-field">
                 <label>ইমেইল</label>
-                <input class="a-input" type="email" name="email" value="{{ old('email', 'admin@khorak.shop') }}" placeholder="admin@khorak.shop" required autofocus>
+                <input class="a-input" type="email" name="email" value="{{ old('email') }}" placeholder="admin@khorak.shop" required autofocus>
             </div>
             <div class="a-field">
                 <label>পাসওয়ার্ড</label>
-                <input class="a-input" type="password" name="password" value="{{ old('password', 'admin123') }}" placeholder="••••••••" required>
+                <div class="pass-wrap">
+                    <input class="a-input" type="password" name="password" id="loginPassword" value="{{ old('password') }}" placeholder="••••••••" required>
+                    <button type="button" class="pass-eye" onclick="togglePass()" aria-label="পাসওয়ার্ড দেখুন">
+                        <i class="fa-solid fa-eye" id="passEye"></i>
+                    </button>
+                </div>
             </div>
+            <script>
+                function togglePass() {
+                    var input = document.getElementById('loginPassword');
+                    var eye = document.getElementById('passEye');
+                    if (input.type === 'password') { input.type = 'text'; eye.className = 'fa-solid fa-eye-slash'; }
+                    else { input.type = 'password'; eye.className = 'fa-solid fa-eye'; }
+                }
+            </script>
             <label class="remember-row">
                 <input type="checkbox" name="remember" checked> মনে রাখুন
             </label>

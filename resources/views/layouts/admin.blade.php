@@ -66,6 +66,26 @@
         .side-link:hover { background: rgba(255,255,255,.08); color: #fff; }
         .side-link.active { background: rgba(16,185,129,.28); color: #fff; box-shadow: inset 3px 0 0 #a3e635; }
         .side-foot { border-top: 1px solid rgba(255,255,255,.12); padding-top: 12px; }
+        .side-group-label {
+            font-size: 9.5px;
+            font-weight: 800;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.38);
+            padding: 16px 14px 6px;
+        }
+        .side-group-label:first-child { padding-top: 4px; }
+        .draft-tag {
+            margin-left: auto;
+            font-size: 8.5px;
+            font-weight: 800;
+            letter-spacing: .5px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: rgba(251,191,36,.18);
+            color: #fbbf24;
+            border: 1px solid rgba(251,191,36,.35);
+        }
 
         .main-wrap { flex: 1; padding: 24px 28px; max-width: 1160px; }
         .topbar {
@@ -250,7 +270,22 @@
                 <div class="side-group-label">সাধারণ</div>
                 <a class="side-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-gauge-high"></i> ড্যাশবোর্ড</a>
                 <a class="side-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}"><i class="fa-solid fa-boxes-stacked"></i> অর্ডারসমূহ</a>
+                <a class="side-link {{ request()->routeIs('admin.module', request()->route('module') === 'customers') ? 'active' : '' }}" href="{{ route('admin.module', 'customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->route('module') === 'suppliers' ? 'active' : '' }}" href="{{ route('admin.module', 'suppliers') }}"><i class="fa-solid fa-truck-field"></i> সাপ্লায়ার <span class="draft-tag">ড্রাফট</span></a>
                 <a class="side-link {{ request()->routeIs('admin.products') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
+                <a class="side-link {{ request()->route('module') === 'coupons' ? 'active' : '' }}" href="{{ route('admin.module', 'coupons') }}"><i class="fa-solid fa-ticket"></i> কুপন <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->route('module') === 'reviews' ? 'active' : '' }}" href="{{ route('admin.module', 'reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ <span class="draft-tag">ড্রাফট</span></a>
+
+                <div class="side-group-label">মার্কেটিং ও ট্র্যাকিং</div>
+                <a class="side-link {{ request()->route('module') === 'payments' ? 'active' : '' }}" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->route('module') === 'fbpixel' ? 'active' : '' }}" href="{{ route('admin.module', 'fbpixel') }}"><i class="fa-brands fa-facebook"></i> Facebook Pixel <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->route('module') === 'ganalytics' ? 'active' : '' }}" href="{{ route('admin.module', 'ganalytics') }}"><i class="fa-solid fa-chart-line"></i> Google Analytics <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->route('module') === 'tagmanager' ? 'active' : '' }}" href="{{ route('admin.module', 'tagmanager') }}"><i class="fa-solid fa-tags"></i> Tag Manager <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->route('module') === 'tiktok' ? 'active' : '' }}" href="{{ route('admin.module', 'tiktok') }}"><i class="fa-brands fa-tiktok"></i> TikTok Pixel <span class="draft-tag">ড্রাফট</span></a>
+
+                <div class="side-group-label">SEO</div>
+                <a class="side-link {{ request()->route('module') === 'seo' ? 'active' : '' }}" href="{{ route('admin.module', 'seo') }}"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO Settings <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->route('module') === 'sitemap' ? 'active' : '' }}" href="{{ route('admin.module', 'sitemap') }}"><i class="fa-solid fa-sitemap"></i> Sitemap <span class="draft-tag">ড্রাফট</span></a>
 
                 <div class="side-group-label">অ্যাকাউন্ট</div>
                 <a class="side-link" href="{{ url('/') }}" target="_blank"><i class="fa-solid fa-globe"></i> সাইট দেখুন</a>
@@ -281,6 +316,9 @@
                 <a class="side-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-gauge-high"></i> ড্যাশবোর্ড</a>
                 <a class="side-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}"><i class="fa-solid fa-boxes-stacked"></i> অর্ডার</a>
                 <a class="side-link {{ request()->routeIs('admin.products') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
+                <a class="side-link" href="{{ route('admin.module', 'customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>
+                <a class="side-link" href="{{ route('admin.module', 'seo') }}"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO</a>
+                <a class="side-link" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট</a>
             </nav>
 
             @if (session('success'))

@@ -612,21 +612,8 @@ $(document).ready(function () {
         });
     });
 
-    // payment validation (required on submit)
-    $(document).on('submit', 'form#landing-checkout-form', function (e) {
-        var paymentMethod = $('input[name="payment_method"]:checked', this).val();
-        if (!paymentMethod) {
-            e.preventDefault();
-            $('#payment-error').removeClass('hidden');
-            $('html, body').animate({ scrollTop: $('#payment-error').offset().top - 120 }, 300);
-            return false;
-        }
-        $('#payment-error').addClass('hidden');
+    // (payment validation moved to the modern handler below)
 
-        // Incomplete order: stop saving when form is submitting
-        landingIsSubmitting = true;
-        if (landingIncompleteTimer) { clearTimeout(landingIncompleteTimer); landingIncompleteTimer = null; }
-    });
 
     $(document).on('change', 'input[name="payment_method"]', function () {
         $('#payment-error').addClass('hidden');
@@ -1856,6 +1843,17 @@ document.addEventListener('keydown', function (e) {
                 banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
+            // payment method check (vanilla — reliable)
+            var payErr = document.getElementById('payment-error');
+            var payChecked = form.querySelector('input[name="payment_method"]:checked');
+            if (!payChecked) {
+                e.preventDefault();
+                if (payErr) payErr.classList.remove('hidden');
+                payErr && payErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            if (payErr) payErr.classList.add('hidden');
+
             // fill hidden inputs for the server
             var itemsInput = document.getElementById('cart_items_input');
             if (itemsInput) {

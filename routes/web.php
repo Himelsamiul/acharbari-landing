@@ -28,4 +28,5 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/orders/{order}/status', [Admin\OrderController::class, 'updateStatus'])->name('admin.orders.status');
     Route::delete('/orders/{order}', [Admin\OrderController::class, 'destroy'])->name('admin.orders.destroy');
     Route::get('/products', [Admin\ProductController::class, 'index'])->name('admin.products.index');
+    Route::get('/modules/{module}', [Admin\ModuleController::class, 'show'])->name('admin.module');
 });
