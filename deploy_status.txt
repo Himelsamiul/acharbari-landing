@@ -1,0 +1,1 @@
+in_progress		Fix admin.module route, add VAT/stock/featured, tracking page, brand/…	Deploy to khorak.shop (Laravel)	main	push	36094974194	21m54s	2026-09-25T04:34:10Z
