@@ -36,7 +36,7 @@
     <!-- Font Awesome 6.5.1 (fonts inlined as base64 — works via file:// too) -->
     <link rel="stylesheet" href="{{ asset('assets/fontawesome.min.css?v=5') }}">
 
-    <link rel="stylesheet" href="{{ asset('assets/style.css?v=23') }}">
+    <link rel="stylesheet" href="{{ asset('assets/style.css?v=24') }}">
     @include('partials.seo-meta')
     @include('partials.theme-vars')
     @include('partials.pixels')

@@ -10,7 +10,7 @@
         <div class="ds-container ds-hero-grid">
             <div class="ds-hero-copy">
                 <span class="ds-chip-hero">
-                    🌶️ <span data-en="Finest village-made taste — Cash on Delivery">গ্রামবাংলার সেরা স্বাদ — ক্যাশ অন ডেলিভারিতে</span>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> <span data-en="Finest village-made taste — Cash on Delivery">গ্রামবাংলার সেরা স্বাদ — ক্যাশ অন ডেলিভারিতে</span>
                 </span>
                 <h1 class="ds-h1" id="heroH1Slider">
                     <span class="hslide active">
@@ -34,7 +34,7 @@
                 <div class="ds-hero-cta">
                     <button class="ds-btn ds-btn-lg"
                         onclick="document.getElementById('order-form').scrollIntoView({behavior:'smooth'})">
-                        <i class="fa-solid fa-cart-shopping"></i> <span data-en="Order Now">এখনই অর্ডার করুন</span>
+                        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> <span data-en="Order Now">এখনই অর্ডার করুন</span>
                     </button>
                     <a class="ds-btn ds-btn-ghost ds-btn-lg" href="{{ route('products') }}">
                         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5h8"/><path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"/><path d="M5 10h14"/><path d="M9.5 14.5h5"/></svg> <span data-en="Browse All Products">সব প্রোডাক্ট দেখুন</span>
@@ -47,7 +47,7 @@
                         <span data-en="Happy Customers">সন্তুষ্ট গ্রাহক</span>
                     </div>
                     <div>
-                        <strong>৪.৯ <i class="fa-solid fa-star"></i></strong>
+                        <strong>৪.৯ <svg class="ds-star" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></strong>
                         <span data-en="Customer Rating">কাস্টমার রেটিং</span>
                     </div>
                     <div>
@@ -70,7 +70,7 @@
                         <img class="himg" src="{{ asset('assets/img/prod_honey.jpg') }}" alt="আচারবাড়ি — সুন্দরবনের মধু" loading="lazy">
                         <img class="himg" src="{{ asset('assets/img/spice_box.jpg') }}" alt="আচারবাড়ি — মসলার ডাব্বা" loading="lazy">
                         <span class="ds-tag-flash">
-                            <i class="fa-solid fa-fire text-amber-400"></i> <span data-en="Fresh Batch Live">নতুন ব্যাচ এসেছে</span>
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> <span data-en="Fresh Batch Live">নতুন ব্যাচ এসেছে</span>
                         </span>
                         <div class="hero-img-dots" id="heroImgDots">
                             <button class="active" aria-label="Slide 1" onclick="goHeroImg(0)"></button>
@@ -81,14 +81,14 @@
                     </div>
                     <!-- Floating Trust Badges -->
                     <div class="ds-float-badge ds-float-badge-top">
-                        <i class="fa-solid fa-truck-fast"></i>
+                        <span class="ds-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></span>
                         <div>
                             <strong data-en="In 24-72 Hours">২৪-৭২ ঘণ্টায়</strong>
                             <span data-en="Home Delivery">হোম ডেলিভারি</span>
                         </div>
                     </div>
                     <div class="ds-float-badge ds-float-badge-bottom">
-                        <i class="fa-solid fa-shield-halved"></i>
+                        <span class="ds-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span>
                         <div>
                             <strong data-en="100% Authentic">১০০% খাঁটি</strong>
                             <span data-en="Check before you pay">দেখে বুঝে পেমেন্ট</span>
@@ -102,19 +102,19 @@
     <!-- ================= TRUST MARQUEE ================= -->
     <div class="ds-marquee" aria-hidden="true">
         <div class="ds-marquee-track">
-            <span class="ds-marquee-item"><i class="fa-solid fa-truck"></i> <span data-en="Home delivery across Bangladesh">সারা বাংলাদেশে হোম ডেলিভারি</span></span>
-            <span class="ds-marquee-item"><i class="fa-solid fa-money-bill-wave"></i> <span data-en="Pay after checking the parcel (Cash on Delivery)">পণ্য বুঝে টাকা দিন (ক্যাশ অন ডেলিভারি)</span></span>
-            <span class="ds-marquee-item"><i class="fa-solid fa-jar"></i> <span data-en="Broken jar? Free replacement guarantee">ভাঙা জারে ফ্রি রিপ্লেসমেন্ট গ্যারান্টি</span></span>
-            <span class="ds-marquee-item"><i class="fa-solid fa-leaf"></i> <span data-en="100% natural — no preservatives or chemicals">১০০% প্রাকৃতিক — প্রিজারভেটিভ ও কেমিক্যাল মুক্ত</span></span>
-            <span class="ds-marquee-item"><i class="fa-solid fa-heart"></i> <span data-en="Handcrafted in small batches with love">ছোট ব্যাচে ভালোবাসা দিয়ে হাতে তৈরি</span></span>
-            <span class="ds-marquee-item"><i class="fa-solid fa-headset"></i> <span data-en="24/7 dedicated customer support">২৪/৭ ডেডিকেটেড কাস্টমার সাপোর্ট</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg> <span data-en="Home delivery across Bangladesh">সারা বাংলাদেশে হোম ডেলিভারি</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg> <span data-en="Pay after checking the parcel (Cash on Delivery)">পণ্য বুঝে টাকা দিন (ক্যাশ অন ডেলিভারি)</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5h8"/><path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"/><path d="M5 10h14"/><path d="M9.5 14.5h5"/></svg> <span data-en="Broken jar? Free replacement guarantee">ভাঙা জারে ফ্রি রিপ্লেসমেন্ট গ্যারান্টি</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> <span data-en="100% natural — no preservatives or chemicals">১০০% প্রাকৃতিক — প্রিজারভেটিভ ও কেমিক্যাল মুক্ত</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> <span data-en="Handcrafted in small batches with love">ছোট ব্যাচে ভালোবাসা দিয়ে হাতে তৈরি</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3v-5a9 9 0 0 1 18 0v5h-3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/><path d="M21 16v2a4 4 0 0 1-4 4h-5"/></svg> <span data-en="24/7 dedicated customer support">২৪/৭ ডেডিকেটেড কাস্টমার সাপোর্ট</span></span>
             <!-- Duplicate for infinite seamless scroll -->
-            <span class="ds-marquee-item"><i class="fa-solid fa-truck"></i> <span data-en="Home delivery across Bangladesh">সারা বাংলাদেশে হোম ডেলিভারি</span></span>
-            <span class="ds-marquee-item"><i class="fa-solid fa-money-bill-wave"></i> <span data-en="Pay after checking the parcel (Cash on Delivery)">পণ্য বুঝে টাকা দিন (ক্যাশ অন ডেলিভারি)</span></span>
-            <span class="ds-marquee-item"><i class="fa-solid fa-jar"></i> <span data-en="Broken jar? Free replacement guarantee">ভাঙা জারে ফ্রি রিপ্লেসমেন্ট গ্যারান্টি</span></span>
-            <span class="ds-marquee-item"><i class="fa-solid fa-leaf"></i> <span data-en="100% natural — no preservatives or chemicals">১০০% প্রাকৃতিক — প্রিজারভেটিভ ও কেমিক্যাল মুক্ত</span></span>
-            <span class="ds-marquee-item"><i class="fa-solid fa-heart"></i> <span data-en="Handcrafted in small batches with love">ছোট ব্যাচে ভালোবাসা দিয়ে হাতে তৈরি</span></span>
-            <span class="ds-marquee-item"><i class="fa-solid fa-headset"></i> <span data-en="24/7 dedicated customer support">২৪/৭ ডেডিকেটেড কাস্টমার সাপোর্ট</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg> <span data-en="Home delivery across Bangladesh">সারা বাংলাদেশে হোম ডেলিভারি</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg> <span data-en="Pay after checking the parcel (Cash on Delivery)">পণ্য বুঝে টাকা দিন (ক্যাশ অন ডেলিভারি)</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5h8"/><path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"/><path d="M5 10h14"/><path d="M9.5 14.5h5"/></svg> <span data-en="Broken jar? Free replacement guarantee">ভাঙা জারে ফ্রি রিপ্লেসমেন্ট গ্যারান্টি</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> <span data-en="100% natural — no preservatives or chemicals">১০০% প্রাকৃতিক — প্রিজারভেটিভ ও কেমিক্যাল মুক্ত</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> <span data-en="Handcrafted in small batches with love">ছোট ব্যাচে ভালোবাসা দিয়ে হাতে তৈরি</span></span>
+            <span class="ds-marquee-item"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3v-5a9 9 0 0 1 18 0v5h-3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/><path d="M21 16v2a4 4 0 0 1-4 4h-5"/></svg> <span data-en="24/7 dedicated customer support">২৪/৭ ডেডিকেটেড কাস্টমার সাপোর্ট</span></span>
         </div>
     </div>
 
@@ -259,7 +259,7 @@
             <div class="ds-steps">
                 <div class="ds-step">
                     <span class="ds-step-n">১</span>
-                    <i class="fa-solid fa-jar"></i>
+                    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5h8"/><path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"/><path d="M5 10h14"/><path d="M9.5 14.5h5"/></svg>
                     <h3 data-en="Pick Your Favourite Jar">পছন্দের জার নির্বাচন</h3>
                     <p data-en="Select your favourite pickle, honey or ghee and fill in the simple form below with your name and address.">আপনার পছন্দের আচার, মধু বা ঘি সিলেক্ট করে নিচের সহজ ফর্মটিতে নাম ও ঠিকানা পূরণ করুন।</p>
                 </div>
@@ -538,7 +538,7 @@
                                     <div id="payment-methods-grid" class="space-y-2">
                                         <div id="cod-option-wrapper">
                                             <label class="pay-opt sel" style="--pbc:var(--ds-primary)">
-                                                <span class="pay-ic"><i class="fa-solid fa-truck"></i></span>
+                                                <span class="pay-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></span>
                                                 <span class="pay-tx">
                                                     <b data-en="Cash On Delivery">ক্যাশ অন ডেলিভারি</b>
                                                     <small data-en="Check the parcel first, then pay">আগে পার্সেল দেখুন, তারপর টাকা দিন</small>
@@ -599,8 +599,8 @@
 
                                 <div class="lp-trust-row">
                                     <span><i class="fa-solid fa-shield-halved"></i> <span data-en="Secure order">নিরাপদ অর্ডার</span></span>
-                                    <span><i class="fa-solid fa-money-bill-wave"></i> <span data-en="Pay after checking">দেখে টাকা দিন</span></span>
-                                    <span><i class="fa-solid fa-jar"></i> <span data-en="Broken jar? Free replacement">ভাঙা জারে ফ্রি রিপ্লেসমেন্ট</span></span>
+                                    <span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg> <span data-en="Pay after checking">দেখে টাকা দিন</span></span>
+                                    <span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5h8"/><path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"/><path d="M5 10h14"/><path d="M9.5 14.5h5"/></svg> <span data-en="Broken jar? Free replacement">ভাঙা জারে ফ্রি রিপ্লেসমেন্ট</span></span>
                                 </div>
                             </div>
                         </form>

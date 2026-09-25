@@ -6258,6 +6258,53 @@ section[id], #order-form { scroll-margin-top: 96px; }
     color: #ffffff;
 }
 
+/* 4c. Hero stroke icons (chip, CTA, stats, flash tag, float badges, marquee) */
+.ds-chip-hero svg {
+    color: #f59e0b;
+    flex-shrink: 0;
+}
+
+.ds-btn svg {
+    flex-shrink: 0;
+}
+
+.ds-stats .ds-star {
+    color: #f59e0b;
+    vertical-align: -2px;
+}
+
+.ds-tag-flash svg {
+    color: #fbbf24;
+    flex-shrink: 0;
+}
+
+/* float badges reuse the .ds-ic chip, compacted */
+.ds-float-badge .ds-ic {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    margin-bottom: 0;
+}
+
+.ds-float-badge .ds-ic svg {
+    width: 20px;
+    height: 20px;
+}
+
+.ds-float-badge .ds-ic::after {
+    top: 5px;
+    right: 6px;
+    width: 4px;
+    height: 4px;
+}
+
+.ds-marquee-item svg {
+    color: var(--ds-lime-neon);
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+}
+
 .ds-step > i {
     display: grid;
     place-items: center;
