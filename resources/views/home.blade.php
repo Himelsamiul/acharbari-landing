@@ -78,6 +78,12 @@
                             <button aria-label="Slide 3" onclick="goHeroImg(2)"></button>
                             <button aria-label="Slide 4" onclick="goHeroImg(3)"></button>
                         </div>
+                        <button type="button" class="hero-arrow hero-arrow-prev" aria-label="Previous slide">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <button type="button" class="hero-arrow hero-arrow-next" aria-label="Next slide">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
                     </div>
                     <!-- Floating Trust Badges -->
                     <div class="ds-float-badge ds-float-badge-top">

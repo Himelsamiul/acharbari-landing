@@ -6476,7 +6476,57 @@ details.ds-faq[open] summary i { transform: rotate(180deg); }
 }
 .hero-img-dots button.active {
     width: 26px;
-    background: #ffffff;
+    background: linear-gradient(90deg, #ffffff, var(--ds-lime-neon));
+}
+
+/* hero slider arrows — glassy, appear on hover */
+.hero-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) scale(0.85);
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    color: #ffffff;
+    cursor: pointer;
+    z-index: 4;
+    opacity: 0;
+    box-shadow: 0 10px 26px -8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.3s ease;
+}
+
+.hero-arrow-prev { left: 14px; }
+.hero-arrow-next { right: 14px; }
+
+.ds-hero-card:hover .hero-arrow,
+.hero-arrow:focus-visible {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+}
+
+.hero-arrow:hover {
+    background: rgba(255, 255, 255, 0.32);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.hero-arrow:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* touch devices: arrows always visible, slightly smaller */
+@media (hover: none) {
+    .hero-arrow {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+        width: 36px;
+        height: 36px;
+    }
 }
 
 /* ============================================================

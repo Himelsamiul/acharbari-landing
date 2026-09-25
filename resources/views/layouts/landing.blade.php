@@ -36,7 +36,7 @@
     <!-- Font Awesome 6.5.1 (fonts inlined as base64 — works via file:// too) -->
     <link rel="stylesheet" href="{{ asset('assets/fontawesome.min.css?v=5') }}">
 
-    <link rel="stylesheet" href="{{ asset('assets/style.css?v=25') }}">
+    <link rel="stylesheet" href="{{ asset('assets/style.css?v=26') }}">
     @include('partials.seo-meta')
     @include('partials.theme-vars')
     @include('partials.pixels')
@@ -408,4 +408,12 @@
     </div>
 
     <!-- ================= FLOATING CHAT WIDGET ================= -->
-    
+
+    <!-- ================= PAGE SCRIPTS ================= -->
+    <script src="{{ asset('assets/brand.js?v=1') }}" defer></script>
+    <script src="{{ asset('assets/script.js?v=1') }}" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.AB) AB.applyLang();
+        });
+    </script>

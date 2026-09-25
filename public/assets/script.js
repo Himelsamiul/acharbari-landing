@@ -299,33 +299,35 @@ function changeVariant(productId, sizeId, colorId) {
     });
 }
 
-$('.cart_increment').on('click', function () {
-    var id = $(this).data('id');
-    if (id) {
-        $.ajax({
-            type: "GET", data: { 'id': id },
-            url: "/cart/increment",
-            success: function (data) { if (data) { $(".cartlist").html(data); cart_count(); } }
-        });
-    }
-});
-
-$('.cart_decrement').on('click', function () {
-    var id = $(this).data('id');
-    if (id) {
-        $.ajax({
-            type: "GET", data: { 'id': id },
-            url: "/cart/decrement",
-            success: function (data) { if (data) { $(".cartlist").html(data); cart_count(); } }
-        });
-    }
-});
-
-function cart_count() {
-    $.ajax({
-        type: "GET", url: "/cart/count",
-        success: function (data) { if (data) { $("#cart-qty").html(data); } else { $("#cart-qty").empty(); } }
+if (window.jQuery) {
+    $('.cart_increment').on('click', function () {
+        var id = $(this).data('id');
+        if (id) {
+            $.ajax({
+                type: "GET", data: { 'id': id },
+                url: "/cart/increment",
+                success: function (data) { if (data) { $(".cartlist").html(data); cart_count(); } }
+            });
+        }
     });
+
+    $('.cart_decrement').on('click', function () {
+        var id = $(this).data('id');
+        if (id) {
+            $.ajax({
+                type: "GET", data: { 'id': id },
+                url: "/cart/decrement",
+                success: function (data) { if (data) { $(".cartlist").html(data); cart_count(); } }
+            });
+        }
+    });
+
+    function cart_count() {
+        $.ajax({
+            type: "GET", url: "/cart/count",
+            success: function (data) { if (data) { $("#cart-qty").html(data); } else { $("#cart-qty").empty(); } }
+        });
+    }
 }
 
 ;
@@ -583,7 +585,7 @@ function saveLandingIncompleteOrder() {
     }, 2000);
 }
 
-$(document).ready(function () {
+if (window.jQuery) { $(document).ready(function () {
     $('#landing-checkout-form input, #landing-checkout-form select, #landing-checkout-form textarea').on('input change', function () {
         if ($(this).attr('name') !== 'payment_method') saveLandingIncompleteOrder();
     });
@@ -682,7 +684,7 @@ $(document).ready(function () {
             });
         }
     }
-});
+}); }
 
 ;
 function openVideoModal(embedUrl) {
@@ -958,9 +960,13 @@ function nextPhoto(e) {
 }
 
 ;
-document.getElementById("chatToggle").addEventListener("click", function () {
-    document.getElementById("chatOptions").classList.toggle("show");
-});
+(function () {
+    var chatToggleBtn = document.getElementById("chatToggle");
+    if (chatToggleBtn) chatToggleBtn.addEventListener("click", function () {
+        var opts = document.getElementById("chatOptions");
+        if (opts) opts.classList.toggle("show");
+    });
+})();
 
 ;
 (function () {
@@ -1044,6 +1050,7 @@ document.getElementById("chatToggle").addEventListener("click", function () {
     function initHeroImgSlider() {
         var wrap = document.getElementById('heroImgSlider');
         var dots = document.getElementById('heroImgDots');
+        var card = wrap ? wrap.closest('.ds-hero-card') : null;
         if (!wrap) return;
         var imgs = wrap.querySelectorAll('.himg');
         if (imgs.length < 2) return;
@@ -1059,11 +1066,56 @@ document.getElementById("chatToggle").addEventListener("click", function () {
                 });
             }
         }
+        function next() { show(idx + 1); }
+        function prev() { show(idx - 1); }
         function restart() {
             if (timer) clearInterval(timer);
-            timer = setInterval(function () { show(idx + 1); }, 4200);
+            timer = setInterval(function () { next(); }, 4200);
         }
+        function stop() { if (timer) clearInterval(timer); timer = null; }
+
         window.goHeroImg = function (i) { show(i); restart(); };
+        window.heroImgNext = next;
+        window.heroImgPrev = prev;
+
+        // arrow buttons
+        var nextBtn = wrap.querySelector('.hero-arrow-next');
+        var prevBtn = wrap.querySelector('.hero-arrow-prev');
+        if (nextBtn) nextBtn.addEventListener('click', function (e) { e.stopPropagation(); next(); restart(); });
+        if (prevBtn) prevBtn.addEventListener('click', function (e) { e.stopPropagation(); prev(); restart(); });
+
+        // pause auto-play while hovering the card (desktop)
+        if (card) {
+            card.addEventListener('mouseenter', stop);
+            card.addEventListener('mouseleave', restart);
+        }
+
+        // touch swipe
+        var touchX = null, touchY = null;
+        wrap.addEventListener('touchstart', function (e) {
+            touchX = e.touches[0].clientX;
+            touchY = e.touches[0].clientY;
+            stop();
+        }, { passive: true });
+        wrap.addEventListener('touchend', function (e) {
+            if (touchX === null) return;
+            var dx = e.changedTouches[0].clientX - touchX;
+            var dy = e.changedTouches[0].clientY - touchY;
+            if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+                if (dx < 0) next(); else prev();
+            }
+            touchX = null;
+            restart();
+        }, { passive: true });
+
+        // keyboard arrows when the hero card is on screen
+        document.addEventListener('keydown', function (e) {
+            if (!card || e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+            var r = card.getBoundingClientRect();
+            if (r.bottom < 0 || r.top > window.innerHeight) return;
+            if (e.key === 'ArrowRight') next(); else prev();
+        });
+
         restart();
     }
 
