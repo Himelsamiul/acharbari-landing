@@ -3337,14 +3337,14 @@ body {
 }
 
 .ds-float-badge-top {
-    top: 28px;
-    left: -28px;
+    top: 20px;
+    right: 20px;
     animation-delay: 0s;
 }
 
 .ds-float-badge-bottom {
-    bottom: -18px;
-    right: -20px;
+    bottom: 18px;
+    right: 18px;
     animation-delay: 1.5s;
 }
 
@@ -3362,11 +3362,34 @@ body {
 
 @media (max-width: 600px) {
     .ds-float-badge-top {
-        left: -10px;
+        top: 12px;
+        right: 12px;
     }
 
     .ds-float-badge-bottom {
-        right: -10px;
+        bottom: 12px;
+        right: 12px;
+        padding: 9px 13px;
+        gap: 9px;
+    }
+
+    .ds-float-badge .ds-ic {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+    }
+
+    .ds-float-badge .ds-ic svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    .ds-float-badge strong {
+        font-size: 13px;
+    }
+
+    .ds-float-badge span {
+        font-size: 11px;
     }
 }
 
