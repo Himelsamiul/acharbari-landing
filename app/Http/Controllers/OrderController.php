@@ -61,13 +61,16 @@ class OrderController extends Controller
             return back()->withErrors(['items' => 'প্রোডাক্ট পাওয়া যায়নি — আবার চেষ্টা করুন।']);
         }
 
-        // Coupon (demo): ACHAR10 = 10% off on subtotal
+        // Coupon: percent off subtotal, validated against the active coupons table
         $discount = 0;
         $couponCode = null;
         $code = strtoupper(trim($data['coupon_code'] ?? ''));
-        if ($code === 'ACHAR10') {
-            $discount = round($subtotal * 0.10);
-            $couponCode = 'ACHAR10';
+        if ($code !== '') {
+            $coupon = \App\Models\Coupon::valid($code);
+            if ($coupon) {
+                $discount = round($subtotal * $coupon->percent / 100);
+                $couponCode = $coupon->code;
+            }
         }
 
         $shipping = $data['area'] === 'inside' ? 80 : 150;
@@ -134,20 +137,20 @@ class OrderController extends Controller
         return view('order-success', compact('order'));
     }
 
-    /** Public order tracking: by tracking code or phone */
+    /** Public order tracking: requires BOTH tracking code and phone (privacy) */
     public function track(Request $request)
     {
-        $order = null;
-        $query = trim((string) $request->query('q', $request->input('q', '')));
+        $code = strtoupper(trim((string) $request->query('code', '')));
+        $phone = trim((string) $request->query('phone', ''));
 
-        if ($query !== '') {
+        $order = null;
+        if ($code !== '' && $phone !== '') {
             $order = Order::with('items')
-                ->where('order_code', $query)
-                ->orWhere('phone', $query)
-                ->latest()
+                ->where('order_code', $code)
+                ->where('phone', $phone)
                 ->first();
         }
 
-        return view('track', compact('order', 'query'));
+        return view('track', compact('order', 'code', 'phone'));
     }
 }

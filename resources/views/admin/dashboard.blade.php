@@ -78,4 +78,33 @@
             </table>
         @endif
     </div>
+    @php
+        $seoDone = collect($seoChecks)->where('ok', true)->count();
+        $seoTotal = count($seoChecks);
+        $seoPct = round($seoDone / max(1, $seoTotal) * 100);
+    @endphp
+    <div class="card">
+        <h3><i class="fa-solid fa-magnifying-glass-chart"></i> SEO চেকলিস্ট</h3>
+        <p class="desc">
+            স্কোর: <b>{{ $seoPct }}%</b> ({{ $seoDone }}/{{ $seoTotal }}) —
+            <span style="display:inline-block;width:130px;height:8px;border-radius:99px;background:rgba(5,150,105,.12);vertical-align:middle;margin-left:6px;overflow:hidden">
+                <span style="display:block;height:100%;width:{{ $seoPct }}%;border-radius:99px;background:linear-gradient(90deg,#059669,#10b981)"></span>
+            </span>
+        </p>
+        <div class="seo-checks">
+            @foreach ($seoChecks as $c)
+                <a href="{{ $c['url'] }}" class="seo-check {{ $c['ok'] ? 'ok' : '' }}">
+                    <i class="fa-solid {{ $c['ok'] ? 'fa-circle-check' : 'fa-circle-xmark' }}"></i>
+                    <span>{{ $c['label'] }}</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+
+    <style>
+        .seo-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 8px; }
+        .seo-check { display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 700; color: #b45309; background: rgba(217,119,6,.07); border: 1px solid rgba(217,119,6,.18); padding: 9px 13px; border-radius: 10px; text-decoration: none; transition: transform .15s; }
+        .seo-check:hover { transform: translateX(3px); }
+        .seo-check.ok { color: #15803d; background: rgba(22,163,74,.07); border-color: rgba(22,163,74,.2); }
+    </style>
 @endsection

@@ -72,17 +72,18 @@
 <body>
     <div class="track-card">
         <div class="track-top">
-            <div class="ic"><i class="fa-solid fa-magnifying-glass-location"></i></div>
+            <div class="ic"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/><path d="M11 8a3 3 0 0 1 3 3"/></svg></div>
             <h1>অর্ডার ট্র্যাক করুন</h1>
-            <p class="sub">ট্র্যাকিং কোড (AB-XXXX) অথবা মোবাইল নম্বর দিন</p>
+            <p class="sub">ট্র্যাকিং কোড ও অর্ডারের মোবাইল নম্বর — দুটোই দিন</p>
         </div>
         <div class="track-body">
             <form method="GET" action="{{ route('track') }}">
-                <input type="text" name="q" value="{{ $query }}" placeholder="যেমন: AB-XXXXXX অথবা 017XXXXXXXX" required>
-                <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> ট্র্যাক</button>
+                <input type="text" name="code" value="{{ $code }}" placeholder="ট্র্যাকিং কোড (যেমন: AB-XXXXXX)" required>
+                <input type="tel" inputmode="numeric" name="phone" value="{{ $phone }}" placeholder="অর্ডারের মোবাইল নম্বর (017XXXXXXXX)" required>
+                <button type="submit"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg> ট্র্যাক</button>
             </form>
 
-            @if ($query !== '')
+            @if ($code !== '' && $phone !== '')
                 @if ($order)
                     <div class="result">
                         <div class="order-box">
@@ -112,8 +113,8 @@
                     </div>
                 @else
                     <div class="not-found" style="margin-top:16px">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                        এই কোড/নম্বরে কোনো অর্ডার পাওয়া যায়নি।
+                        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                        এই কোড ও নম্বরে কোনো অর্ডার মেলেনি — কোড ও ফোন নম্বর দুটোই অর্ডারের সাথে মিলছে কিনা দেখুন।
                     </div>
                 @endif
             @endif

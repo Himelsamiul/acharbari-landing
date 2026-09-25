@@ -31,6 +31,12 @@ class DatabaseSeeder extends Seeder
             'theme_id' => 'spice',
         ]);
 
+        // Demo coupon
+        \App\Models\Coupon::updateOrCreate(
+            ['code' => 'ACHAR10'],
+            ['percent' => 10, 'is_active' => true, 'expires_at' => null]
+        );
+
         // Admin user
         \App\Models\User::updateOrCreate(
             ['email' => 'admin@khorak.shop'],

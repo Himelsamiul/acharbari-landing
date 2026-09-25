@@ -9,9 +9,10 @@ class Product extends Model
     protected $fillable = [
         'slug', 'name', 'name_en', 'category', 'category_en', 'category_key',
         'brand', 'unit', 'stock', 'barcode',
-        'price', 'old_price', 'discount_bn', 'discount_en', 'image',
+        'price', 'old_price', 'discount_bn', 'discount_en', 'image', 'vat_percent',
         'rating', 'reviews_count', 'stock_badge', 'stock_badge_en',
         'description', 'description_en', 'sort_order', 'is_active', 'is_featured',
+        'meta_title', 'meta_description', 'image_alt',
     ];
 
     protected $casts = [

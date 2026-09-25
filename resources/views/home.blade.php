@@ -64,11 +64,11 @@
             <div class="ds-hero-visual">
                 <div class="ds-hero-card">
                     <div class="ds-hero-img-wrap" id="heroImgSlider">
-                        <img class="himg active" src="{{ asset('assets/img/hero_achar.jpg') }}"
+                        <img class="himg active" src="{{ asset(ab_img('assets/img/hero_achar.jpg')) }}"
                             alt="আচারবাড়ি — মসলার বাটি" fetchpriority="high">
-                        <img class="himg" src="{{ asset('assets/img/prod_mix.jpg') }}" alt="আচারবাড়ি — আচারের জার সমূহ" loading="lazy">
-                        <img class="himg" src="{{ asset('assets/img/prod_honey.jpg') }}" alt="আচারবাড়ি — সুন্দরবনের মধু" loading="lazy">
-                        <img class="himg" src="{{ asset('assets/img/spice_box.jpg') }}" alt="আচারবাড়ি — মসলার ডাব্বা" loading="lazy">
+                        <img class="himg" src="{{ asset(ab_img('assets/img/prod_mix.jpg')) }}" alt="আচারবাড়ি — আচারের জার সমূহ" loading="lazy">
+                        <img class="himg" src="{{ asset(ab_img('assets/img/prod_honey.jpg')) }}" alt="আচারবাড়ি — সুন্দরবনের মধু" loading="lazy">
+                        <img class="himg" src="{{ asset(ab_img('assets/img/spice_box.jpg')) }}" alt="আচারবাড়ি — মসলার ডাব্বা" loading="lazy">
                         <span class="ds-tag-flash">
                             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> <span data-en="Fresh Batch Live">নতুন ব্যাচ এসেছে</span>
                         </span>
@@ -155,22 +155,22 @@
                 @foreach ($products as $p)
                 <article class="ds-product-card product-card" data-category="{{ $p->category_key }}" data-product-id="{{ $p->id }}" data-advance="0">
                     <div class="ds-product-media">
-                        <img src="{{ asset($p->image) }}" alt="{{ $p->name }}" loading="lazy">
+                        <img src="{{ asset(ab_img($p->image)) }}" alt="{{ $p->image_alt ?: $p->name }}" loading="lazy">
                         <div class="ds-product-badges">
                             @if ($p->is_featured)<span class="ds-badge-discount" style="background:#047857">ফিচার্ড</span>@endif
                             <span class="ds-badge-discount" data-en="{{ $p->discount_en }}">{{ $p->discount_bn }}</span>
                             <span class="ds-badge-category" data-en="{{ $p->category_en }}">{{ $p->category }}</span>
                         </div>
                         <button class="ds-product-quick-btn" onclick="openQuickView({{ $p->id }})">
-                            <i class="fa-solid fa-eye"></i> <span data-en="Details">বিস্তারিত</span>
+                            <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> <span data-en="Details">বিস্তারিত</span>
                         </button>
                     </div>
                     <div class="ds-product-body">
                         <div class="ds-product-rating">
                             @for ($i = 1; $i <= 5; $i++)
-                                @if ($p->rating >= $i - 0.25) <i class="fa-solid fa-star"></i>
-                                @elseif ($p->rating >= $i - 0.75) <i class="fa-solid fa-star-half-stroke"></i>
-                                @else <i class="fa-regular fa-star"></i> @endif
+                                @if ($p->rating >= $i - 0.25) <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                @elseif ($p->rating >= $i - 0.75) <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 2 8.91 8.26 2 9.27 7 14.14 5.82 21.02 12 17.77Z"/><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                @else <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> @endif
                             @endfor
                             <span>{{ number_format($p->rating, 1) }} <span data-en="({{ $p->reviews_count }} reviews)">({{ bn_num($p->reviews_count) }}টি রিভিউ)</span></span>
                         </div>
@@ -187,11 +187,11 @@
                         <div class="ds-product-actions">
                             @if ($p->stock > 0)
                             <button class="ds-btn ds-btn-block" onclick="selectProductForOrder({{ $p->id }})">
-                                <i class="fa-solid fa-cart-shopping"></i> <span data-en="Order Now">অর্ডার করুন</span>
+                                <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> <span data-en="Order Now">অর্ডার করুন</span>
                             </button>
                             @else
                             <button class="ds-btn ds-btn-block" disabled style="opacity:.5;cursor:not-allowed">
-                                <i class="fa-solid fa-ban"></i> <span data-en="Out of Stock">স্টক শেষ</span>
+                                <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> <span data-en="Out of Stock">স্টক শেষ</span>
                             </button>
                             @endif
                         </div>
@@ -217,7 +217,7 @@
                 <div class="ds-seller-card ds-bento-card">
                     <div class="ds-bento-glow"></div>
                     <div class="ds-seller-card-ic">
-                        <i class="fa-solid fa-percent"></i>
+                        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
                     </div>
                     <h4 data-en="0% Hidden Service Fee">০% হিডেন সার্ভিস ফি</h4>
                     <p data-en="No hidden fees or extra charges ever. What you see at checkout is exactly what you pay — What you see at checkout is exactly what you pay.">কোনো লুকায়িত ফি বা অতিরিক্ত চার্জ নেই। চেকআউটে যা দেখেন, ঠিক তাই পরিশোধ করবেন।</p>
@@ -226,7 +226,7 @@
                 <div class="ds-seller-card ds-bento-card">
                     <div class="ds-bento-glow"></div>
                     <div class="ds-seller-card-ic">
-                        <i class="fa-solid fa-money-bill-transfer"></i>
+                        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg>
                     </div>
                     <h4 data-en="48-Hour Guaranteed Payout">৪৮ ঘণ্টায় নিশ্চিত পেআউট</h4>
                     <p data-en="Refund or payout — money reaches your bKash or bank within just 48 hours, guaranteed.">রিফান্ড হোক বা পেআউট — টাকা পৌঁছে যাবে মাত্র ৪৮ ঘণ্টায় আপনার বিকাশ বা ব্যাংকে।</p>
@@ -235,7 +235,7 @@
                 <div class="ds-seller-card ds-bento-card">
                     <div class="ds-bento-glow"></div>
                     <div class="ds-seller-card-ic">
-                        <i class="fa-solid fa-truck-plane"></i>
+                        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
                     </div>
                     <h4 data-en="Logistics in 64 Districts">৬৪ জেলায় অটো লজিস্টিকস</h4>
                     <p data-en="From your door anywhere in Bangladesh — pickup and delivery handled entirely by AcharBari via trusted courier partners.">আপনার লোকাল বা বাসা থেকে ফিক্সড ও সারা দেশে ডেলিভারি — সব হ্যান্ডেল করে আচারবাড়ি ট্রাস্টেড কুরিয়ার পার্টনারদের মাধ্যমে।</p>
@@ -244,7 +244,7 @@
                 <div class="ds-seller-card ds-bento-card">
                     <div class="ds-bento-glow"></div>
                     <div class="ds-seller-card-ic">
-                        <i class="fa-solid fa-box-open"></i>
+                        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
                     </div>
                     <h4 data-en="Sealed &amp; Safe Packaging">সিলড ও সেফ প্যাকেজিং</h4>
                     <p data-en="Every jar is air-tight sealed and wrapped in thick bubble layers — breakage risk is practically zero, or we replace it free.">প্রতিটি জার এয়ার-টাইট সিল ও মোটা বাবল-র‍্যাপে সাজানো — ভাঙার ঝুঁকি প্রায় শূন্য, নাহলে ফ্রি রিপ্লেসমেন্ট।</p>
@@ -271,13 +271,13 @@
                 </div>
                 <div class="ds-step">
                     <span class="ds-step-n">২</span>
-                    <i class="fa-solid fa-phone-volume"></i>
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg>
                     <h3 data-en="Phone Confirmation">ফোন কলে কনফার্মেশন</h3>
                     <p data-en="As soon as we receive your order, our support team calls you to confirm the address and details.">অর্ডার পাওয়ার পরই আমাদের সাপোর্ট টিম কল দিয়ে ঠিকানা ও বিবরণ নিশ্চিত করবে।</p>
                 </div>
                 <div class="ds-step">
                     <span class="ds-step-n">৩</span>
-                    <i class="fa-solid fa-box-open"></i>
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
                     <h3 data-en="Check the Jar, Then Pay">জার বুঝে টাকা দিন</h3>
                     <p data-en="Check the sealed jar in front of the delivery man and pay only when 100% satisfied.">ডেলিভারি ম্যানের সামনে সিল করা জার চেক করে ১০০% সন্তুষ্ট হয়ে টাকা পরিশোধ করুন।</p>
                 </div>
@@ -341,27 +341,27 @@
             </div>
             <div class="ds-faqs">
                 <details class="ds-faq" open>
-                    <summary><span data-en="Can I pay cash after receiving the product?">প্রোডাক্ট হাতে পেয়ে কি টাকা দেওয়া যাবে?</span> <i class="fa-solid fa-chevron-down"></i></summary>
+                    <summary><span data-en="Can I pay cash after receiving the product?">প্রোডাক্ট হাতে পেয়ে কি টাকা দেওয়া যাবে?</span> <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
                     <div data-en="Yes, we have 100% Cash on Delivery — check the sealed jar in front of the delivery man and then pay. No advance money is needed.">
                         হ্যাঁ, ১০০% ক্যাশ অন ডেলিভারি সুবিধা রয়েছে — ডেলিভারি ম্যানের সামনে সিল করা জার চেক করে টাকা পরিশোধ করতে পারবেন। কোনো অগ্রিম টাকা লাগবে না।</div>
                 </details>
                 <details class="ds-faq">
-                    <summary><span data-en="How long do the pickles last? Any preservatives?">আচার কতদিন ভালো থাকে? প্রিজারভেটিভ আছে কি?</span> <i class="fa-solid fa-chevron-down"></i></summary>
+                    <summary><span data-en="How long do the pickles last? Any preservatives?">আচার কতদিন ভালো থাকে? প্রিজারভেটিভ আছে কি?</span> <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
                     <div data-en="Our pickles stay good for 12 months at room temperature — made the traditional way with premium mustard oil, enough salt and pure spices. Completely free of preservatives, colours and chemicals.">
                         সঠিক পদ্ধতিতে তৈরি ও খাঁটি সরিষার তেল, পর্যাপ্ত লবণ ও বিশুদ্ধ মসলার কারণে আমাদের আচার ঘরের তাপমাত্রায় ১২ মাস পর্যন্ত ভালো থাকে। প্রিজারভেটিভ, কালার ও কেমিক্যাল সম্পূর্ণ মুক্ত।</div>
                 </details>
                 <details class="ds-faq">
-                    <summary><span data-en="What is the delivery charge?">ডেলিভারি চার্জ কত টাকা?</span> <i class="fa-solid fa-chevron-down"></i></summary>
+                    <summary><span data-en="What is the delivery charge?">ডেলিভারি চার্জ কত টাকা?</span> <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
                     <div data-en="Delivery charge is ৳80 inside Dhaka and ৳150 outside Dhaka. During special offers many products also get free delivery.">
                         ঢাকার ভেতরের জন্য ডেলিভারি চার্জ ৮০ টাকা এবং ঢাকার বাইরের জন্য ১৫০ টাকা। বিশেষ অফার চলাকালীন অনেক প্রোডাক্টে ফ্রি ডেলিভারিও থাকে।</div>
                 </details>
                 <details class="ds-faq">
-                    <summary><span data-en="What if the jar arrives broken or leaked?">জার ভেঙে বা লিক হয়ে এলে কী করব?</span> <i class="fa-solid fa-chevron-down"></i></summary>
+                    <summary><span data-en="What if the jar arrives broken or leaked?">জার ভেঙে বা লিক হয়ে এলে কী করব?</span> <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
                     <div data-en="Just inform our helpline with a photo within 24 hours of receiving the parcel — we will replace it completely free of charge.">
                         পার্সেল পাওয়ার ২৪ ঘণ্টার মধ্যে ছবি দিয়ে আমাদের হেল্পলাইনে জানালেই আমরা সম্পূর্ণ ফ্রি রিপ্লেসমেন্ট করে দেব।</div>
                 </details>
                 <details class="ds-faq">
-                    <summary><span data-en="How do I track my order?">অর্ডার কীভাবে ট্র্যাক করব?</span> <i class="fa-solid fa-chevron-down"></i></summary>
+                    <summary><span data-en="How do I track my order?">অর্ডার কীভাবে ট্র্যাক করব?</span> <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
                     <div data-en="You can see live status from the &quot;Order Track&quot; button on the website using your mobile number or invoice ID.">
                         আপনার মোবাইল নম্বর অথবা ইনভয়েস আইডি দিয়ে ওয়েবসাইটের "অর্ডার ট্র্যাক" বাটন থেকে লাইভ স্ট্যাটাস দেখতে পারবেন।</div>
                 </details>
@@ -373,12 +373,35 @@
     {{-- live product data for cart + quick view (single source of truth: DB) --}}
     <script>
         window.quickViewProducts = @json($qv);
+        window.AB_COUPONS = @json(\App\Models\Coupon::activeMap());
+    </script>
+    {{-- Structured data: product catalog for rich results --}}
+    @php
+        $ldProducts = $products->map(fn ($p, $i) => [
+            '@type' => 'ListItem',
+            'position' => $i + 1,
+            'item' => [
+                '@type' => 'Product',
+                'name' => $p->name_en ?: $p->name,
+                'image' => url(asset(ab_img($p->image))),
+                'description' => $p->description_en ?: $p->description,
+                'offers' => [
+                    '@type' => 'Offer',
+                    'price' => $p->price,
+                    'priceCurrency' => 'BDT',
+                    'availability' => $p->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                ],
+            ],
+        ])->all();
+    @endphp
+    <script type="application/ld+json">
+        @json(['@context' => 'https://schema.org', '@type' => 'ItemList', 'itemListElement' => $ldProducts])
     </script>
     <section id="order-form" class="py-12 px-4">
         <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border border-emerald-200 overflow-hidden">
             <div class="text-center p-6 border-b border-green-100 bg-white">
                 <div class="lp-order-head-ic mx-auto">
-                    <i class="fa-solid fa-clipboard-check"></i>
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
                 </div>
                 <h2 class="text-xl md:text-2xl font-bold text-gray-900"
                     data-en-html='Fill in the <span class="text-emerald-600">form correctly</span> to order on Cash on Delivery'>
@@ -394,7 +417,7 @@
                     <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                         <div class="p-4 border-b bg-gray-50 flex items-center justify-between">
                             <h3 class="font-bold text-gray-800 text-sm uppercase tracking-wide">
-                                <i class="fa-solid fa-basket-shopping text-emerald-600 mr-1"></i> <span data-en="Your Cart">আপনার কার্ট</span>
+                                <svg class="text-emerald-600 mr-1" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></svg> <span data-en="Your Cart">আপনার কার্ট</span>
                             </h3>
                             <span class="text-xs text-gray-500 font-semibold" id="cart-item-count-label">0
                                 item(s)</span>
@@ -442,7 +465,7 @@
                             </div>
 
                             <div class="lp-cart-empty" id="lpCartEmpty">
-                                <i class="fa-solid fa-basket-shopping"></i>
+                                <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></svg>
                                 <span data-en="Cart is empty now — click the &quot;Order Now&quot; button on a product card above and your favourite jars will be added here.">
                                     কার্ট এখন খালি — উপরের প্রোডাক্ট কার্ডের <strong>অর্ডার করুন</strong> বাটনে চাপ দিলে পছন্দের পণ্য এখানে যোগ হবে।</span>
                             </div>
@@ -465,7 +488,7 @@
                     <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                         <div class="p-4 border-b bg-gray-50">
                             <h3 class="font-bold text-gray-800 text-sm uppercase tracking-wide">
-                                <i class="fa-solid fa-address-card text-emerald-600 mr-1"></i> <span data-en="Enter Delivery Info">ডেলিভারি তথ্য দিন</span>
+                                <svg class="text-emerald-600 mr-1" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><circle cx="9" cy="11" r="2"/><path d="M16 10h2"/><path d="M16 14h2"/></svg> <span data-en="Enter Delivery Info">ডেলিভারি তথ্য দিন</span>
                             </h3>
                         </div>
 
@@ -489,7 +512,7 @@
                                     <label class="block text-xs font-bold text-gray-700 mb-1" for="phone">
                                         <span data-en="Mobile Number">মোবাইল নাম্বার</span> <span class="text-red-500">*</span>
                                     </label>
-                                    <input id="phone" type="number" name="phone" required="" value=""
+                                    <input id="phone" type="tel" inputmode="numeric" maxlength="15" name="phone" required="" value=""
                                         class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none"
                                         placeholder="০১xxxxxxxxx (১১ সংখ্যা)" data-en-ph="01xxxxxxxxx (11 digits)">
                                 </div>
@@ -561,10 +584,10 @@
                                         <button type="button" class="pay-toggle" id="onlinePayToggle"
                                             onclick="toggleOnlinePay()">
                                             <span class="pay-toggle-l">
-                                                <i class="fa-solid fa-mobile-screen-button"></i>
+                                                <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></svg>
                                                 <span data-en="Online Payment — bKash / Nagad / Rocket / Upay">অনলাইন পেমেন্ট — বিকাশ / নগদ / রকেট / উপায়</span>
                                             </span>
-                                            <i class="fa-solid fa-chevron-down pay-toggle-chev"></i>
+                                            <svg class="pay-toggle-chev" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                                         </button>
                                         <div class="pay-collapse" id="onlinePayWrap">
                                             <div class="pay-collapse-in">
@@ -591,9 +614,9 @@
                                                     </label>
                                                 </div>
                                                 <div id="payOnlineNote">
-                                                    <i class="fa-solid fa-circle-info"></i>
-                                                    <span data-en="Our agent will call you after confirming the order with send-money instructions to 01707-373692.">
-                                                        অর্ডার কনফার্ম হওয়ার পর আমাদের প্রতিনিধি কল দিয়ে 01707-373692 নম্বরে সেন্ড মানির বিস্তারিত জানিয়ে দেবেন।</span>
+                                                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                                    <span data-en="Our agent will call you after confirming the order with send-money instructions to {{ ab_contact('phone') }}.">
+                                                        অর্ডার কনফার্ম হওয়ার পর আমাদের প্রতিনিধি কল দিয়ে {{ ab_contact('phone') }} নম্বরে সেন্ড মানির বিস্তারিত জানিয়ে দেবেন।</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -605,11 +628,11 @@
 
                                 <button type="submit"
                                     class="w-full bg-emerald-600 text-white font-bold text-lg px-4 py-3.5 rounded-xl shadow-lg hover:bg-emerald-700 transition flex justify-center items-center gap-2">
-                                    <i class="fa-solid fa-lock"></i> <span data-en="Confirm Order">অর্ডার কনফার্ম করুন</span>
+                                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span data-en="Confirm Order">অর্ডার কনফার্ম করুন</span>
                                 </button>
 
                                 <div class="lp-trust-row">
-                                    <span><i class="fa-solid fa-shield-halved"></i> <span data-en="Secure order">নিরাপদ অর্ডার</span></span>
+                                    <span><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg> <span data-en="Secure order">নিরাপদ অর্ডার</span></span>
                                     <span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg> <span data-en="Pay after checking">দেখে টাকা দিন</span></span>
                                     <span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5h8"/><path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"/><path d="M5 10h14"/><path d="M9.5 14.5h5"/></svg> <span data-en="Broken jar? Free replacement">ভাঙা জারে ফ্রি রিপ্লেসমেন্ট</span></span>
                                 </div>
@@ -634,33 +657,33 @@
             <div class="rs-score">
                 <div class="rs-big">৪.৯<span data-en="/5">/৫</span></div>
                 <div class="rs-stars">
-                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 2 8.91 8.26 2 9.27 7 14.14 5.82 21.02 12 17.77Z"/><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 </div>
                 <div class="rs-total" data-en="Based on 532 verified reviews">৫৩২টি ভেরিফাইড রিভিউ</div>
             </div>
             <div class="rs-bars">
                 <div class="rs-bar">
-                    <span class="rs-l">৫ <i class="fa-solid fa-star"></i></span>
+                    <span class="rs-l">৫ <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
                     <span class="rs-track"><span class="rs-fill" data-w="89"></span></span>
                     <span class="rs-n">৪৭২</span>
                 </div>
                 <div class="rs-bar">
-                    <span class="rs-l">৪ <i class="fa-solid fa-star"></i></span>
+                    <span class="rs-l">৪ <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
                     <span class="rs-track"><span class="rs-fill" data-w="8"></span></span>
                     <span class="rs-n">৪১</span>
                 </div>
                 <div class="rs-bar">
-                    <span class="rs-l">৩ <i class="fa-solid fa-star"></i></span>
+                    <span class="rs-l">৩ <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
                     <span class="rs-track"><span class="rs-fill" data-w="2"></span></span>
                     <span class="rs-n">১২</span>
                 </div>
                 <div class="rs-bar">
-                    <span class="rs-l">২ <i class="fa-solid fa-star"></i></span>
+                    <span class="rs-l">২ <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
                     <span class="rs-track"><span class="rs-fill" data-w="0.8"></span></span>
                     <span class="rs-n">৪</span>
                 </div>
                 <div class="rs-bar">
-                    <span class="rs-l">১ <i class="fa-solid fa-star"></i></span>
+                    <span class="rs-l">১ <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
                     <span class="rs-track"><span class="rs-fill" data-w="0.6"></span></span>
                     <span class="rs-n">৩</span>
                 </div>
@@ -677,8 +700,7 @@
                             <img src="{{ asset('assets/img/rev1.jpg') }}" alt="নুসরাত জাহান"
                                 class="w-10 h-10 rounded-full object-cover">
                             <div>
-                                <h4 class="font-bold text-sm text-[#d97706]">নুসরাত জাহান <i
-                                        class="fa-solid fa-circle-check text-emerald-500 text-xs"></i></h4>
+                                <h4 class="font-bold text-sm text-[#d97706]">নুসরাত জাহান <svg class="text-emerald-500 text-xs" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></h4>
                                 <p class="text-[10px] text-gray-500" data-en="Verified Purchase • Dhaka">ভেরিফাইড পারচেজ • ঢাকা</p>
                             </div>
                         </div>
@@ -686,13 +708,11 @@
                             "আমের কুচি আচারটা একদম ঠাকুমার বানানো আচারের মতোই লেগেছে! তেল বেশি না, ঝাল-নোনতা পারফেক্ট ব্যালেন্স। ঢাকায় একদিনের মধ্যেই ডেলিভারি পেয়েছি!"
                         </p>
                         <div class="flex items-center text-xs text-yellow-500 mb-2">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i>
+                            <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                             <span class="ml-2 text-gray-600 font-semibold" data-en="5/5">৫/৫</span>
                         </div>
                         <div class="border-t pt-2 mt-auto text-xs font-bold text-gray-400 flex gap-4">
-                            <span><i class="fa-regular fa-thumbs-up"></i> <span data-en="Like (24)">Like (২৪)</span></span>
+                            <span><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg> <span data-en="Like (24)">Like (২৪)</span></span>
                             <span data-en="Reply">Reply</span>
                         </div>
                     </div>
@@ -705,8 +725,7 @@
                             <img src="{{ asset('assets/img/rev2.jpg') }}" alt="ফারহানা ইয়াসমিন"
                                 class="w-10 h-10 rounded-full object-cover">
                             <div>
-                                <h4 class="font-bold text-sm text-[#d97706]">ফারহানা ইয়াসমিন <i
-                                        class="fa-solid fa-circle-check text-emerald-500 text-xs"></i></h4>
+                                <h4 class="font-bold text-sm text-[#d97706]">ফারহানা ইয়াসমিন <svg class="text-emerald-500 text-xs" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></h4>
                                 <p class="text-[10px] text-gray-500" data-en="Verified Purchase • Chattogram">ভেরিফাইড পারচেজ • চট্টগ্রাম</p>
                             </div>
                         </div>
@@ -714,13 +733,11 @@
                             "মিক্সড প্যাকের প্যাকেজিং দেখে মুগ্ধ! তিনটা আলাদা সিল করা জার, এক ফোঁটাও লিক হয়নি। জলপাই আচারটা বছরের পর বছর ধরে খাওয়া সেরা আচার!"
                         </p>
                         <div class="flex items-center text-xs text-yellow-500 mb-2">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i>
+                            <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                             <span class="ml-2 text-gray-600 font-semibold" data-en="5/5">৫/৫</span>
                         </div>
                         <div class="border-t pt-2 mt-auto text-xs font-bold text-gray-400 flex gap-4">
-                            <span><i class="fa-regular fa-thumbs-up"></i> <span data-en="Like (18)">Like (১৮)</span></span>
+                            <span><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg> <span data-en="Like (18)">Like (১৮)</span></span>
                             <span data-en="Reply">Reply</span>
                         </div>
                     </div>
@@ -733,8 +750,7 @@
                             <img src="{{ asset('assets/img/rev3.jpg') }}" alt="তানজিনা আক্তার"
                                 class="w-10 h-10 rounded-full object-cover">
                             <div>
-                                <h4 class="font-bold text-sm text-[#d97706]">তানজিনা আক্তার <i
-                                        class="fa-solid fa-circle-check text-emerald-500 text-xs"></i></h4>
+                                <h4 class="font-bold text-sm text-[#d97706]">তানজিনা আক্তার <svg class="text-emerald-500 text-xs" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></h4>
                                 <p class="text-[10px] text-gray-500" data-en="Verified Purchase • Rajshahi">ভেরিফাইড পারচেজ • রাজশাহী</p>
                             </div>
                         </div>
@@ -742,13 +758,11 @@
                             "অবশেষে খাঁটি কাঁচা মধু পেলাম! শীতে প্রাকৃতিকভাবে সেট হয়ে গেছে — খাঁটি হওয়ার সবচেয়ে বড় প্রমাণ। পুরো পরিবারের সবাই খুব পছন্দ করেছে।"
                         </p>
                         <div class="flex items-center text-xs text-yellow-500 mb-2">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i>
+                            <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                             <span class="ml-2 text-gray-600 font-semibold" data-en="5/5">৫/৫</span>
                         </div>
                         <div class="border-t pt-2 mt-auto text-xs font-bold text-gray-400 flex gap-4">
-                            <span><i class="fa-regular fa-thumbs-up"></i> <span data-en="Like (31)">Like (৩১)</span></span>
+                            <span><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg> <span data-en="Like (31)">Like (৩১)</span></span>
                             <span data-en="Reply">Reply</span>
                         </div>
                     </div>
@@ -761,8 +775,7 @@
                             <img src="{{ asset('assets/img/rev4.jpg') }}" alt="মেহেজাবীন চৌধুরী"
                                 class="w-10 h-10 rounded-full object-cover">
                             <div>
-                                <h4 class="font-bold text-sm text-[#d97706]">মেহেজাবীন চৌধুরী <i
-                                        class="fa-solid fa-circle-check text-emerald-500 text-xs"></i></h4>
+                                <h4 class="font-bold text-sm text-[#d97706]">মেহেজাবীন চৌধুরী <svg class="text-emerald-500 text-xs" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></h4>
                                 <p class="text-[10px] text-gray-500" data-en="Verified Purchase • Sylhet">ভেরিফাইড পারচেজ • সিলেট</p>
                             </div>
                         </div>
@@ -770,13 +783,11 @@
                             "ঘি খুলতেই পুরো রান্নাঘর ঘ্রাণে ভরে গেল! গরম ভাতে এক চামচ ঘি মানেই আসল স্বাদ। আপনার বোনের জন্য আরও ৩টা অর্ডার দিয়েছি।"
                         </p>
                         <div class="flex items-center text-xs text-yellow-500 mb-2">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i>
+                            <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                             <span class="ml-2 text-gray-600 font-semibold" data-en="5/5">৫/৫</span>
                         </div>
                         <div class="border-t pt-2 mt-auto text-xs font-bold text-gray-400 flex gap-4">
-                            <span><i class="fa-regular fa-thumbs-up"></i> <span data-en="Like (15)">Like (১৫)</span></span>
+                            <span><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg> <span data-en="Like (15)">Like (১৫)</span></span>
                             <span data-en="Reply">Reply</span>
                         </div>
                     </div>
@@ -789,8 +800,7 @@
                             <img src="{{ asset('assets/img/rev5.jpg') }}" alt="সাবরিনা ইসলাম"
                                 class="w-10 h-10 rounded-full object-cover">
                             <div>
-                                <h4 class="font-bold text-sm text-[#d97706]">সাবরিনা ইসলাম <i
-                                        class="fa-solid fa-circle-check text-emerald-500 text-xs"></i></h4>
+                                <h4 class="font-bold text-sm text-[#d97706]">সাবরিনা ইসলাম <svg class="text-emerald-500 text-xs" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></h4>
                                 <p class="text-[10px] text-gray-500" data-en="Verified Purchase • Khulna">ভেরিফাইড পারচেজ • খুলনা</p>
                             </div>
                         </div>
@@ -798,13 +808,11 @@
                             "প্রথমবার অনলাইনে আচার অর্ডার করলাম এবং অভিজ্ঞতা দারুণ! ডেলিভারি ম্যানের সামনে চেক করে টাকা দিলাম। রিকমেন্ডেড শপ।"
                         </p>
                         <div class="flex items-center text-xs text-yellow-500 mb-2">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i>
+                            <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                             <span class="ml-2 text-gray-600 font-semibold" data-en="5/5">৫/৫</span>
                         </div>
                         <div class="border-t pt-2 mt-auto text-xs font-bold text-gray-400 flex gap-4">
-                            <span><i class="fa-regular fa-thumbs-up"></i> <span data-en="Like (29)">Like (২৯)</span></span>
+                            <span><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg> <span data-en="Like (29)">Like (২৯)</span></span>
                             <span data-en="Reply">Reply</span>
                         </div>
                     </div>
@@ -822,17 +830,15 @@
             <p data-en="Book your favourite jars now — check them in hand and then pay.">আপনার পছন্দের জার এখনই বুক করুন, পণ্য হাতে পেয়ে দেখে মূল্য পরিশোধ করুন।</p>
             <button onclick="document.getElementById('order-form').scrollIntoView({behavior:'smooth'})"
                 class="ds-btn ds-btn-lg">
-                <i class="fa-solid fa-cart-shopping"></i> <span data-en="I Want to Order">অর্ডার করতে চাই</span>
+                <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> <span data-en="I Want to Order">অর্ডার করতে চাই</span>
             </button>
             <div class="ds-cta-links">
-                <a href="tel:01707373692"><i class="fa-solid fa-phone"></i> 01707373692</a>
-                <a href="https://wa.me/8801707373692" target="_blank" rel="noopener"><i
-                        class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</a>
-                <a href="https://facebook.com/" target="_blank" rel="noopener"><i
-                        class="fa-brands fa-facebook text-lg"></i> <span data-en="Facebook Page">Facebook Page</span></a>
-                <a href="{{ route('track') }}" style="text-decoration:none;color:inherit"><i class="fa-solid fa-magnifying-glass-location text-lg"></i> <span
+                <a href="tel:{{ ab_contact('phone') }}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg> {{ ab_contact('phone') }}</a>
+                <a href="https://wa.me/{{ ab_contact('whatsapp') }}" target="_blank" rel="noopener"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg> WhatsApp</a>
+                <a href="{{ ab_contact('facebook') }}" target="_blank" rel="noopener"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg> <span data-en="Facebook Page">Facebook Page</span></a>
+                <a href="{{ route('track') }}" style="text-decoration:none;color:inherit"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/><path d="M11 8a3 3 0 0 1 3 3"/></svg> <span
                         data-en="Order Track">অর্ডার ট্র্যাক</span></a>
-                <button onclick="openComplaintModal()"><i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                <button onclick="openComplaintModal()"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
                     <span data-en="Complaint">কমপ্লেইন</span></button>
             </div>
         </div>

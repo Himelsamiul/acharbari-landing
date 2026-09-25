@@ -63,12 +63,18 @@
             padding: 11px 14px; border-radius: 12px;
             cursor: pointer; border: none; background: transparent;
             font-family: inherit; text-align: left;
-            transition: background .2s, color .2s;
+            transition: background .2s, color .2s, transform .15s, box-shadow .2s;
             width: 100%;
         }
-        .side-link i { width: 18px; text-align: center; font-size: 15px; }
-        .side-link:hover { background: rgba(255,255,255,.08); color: #fff; }
-        .side-link.active { background: rgba(16,185,129,.28); color: #fff; box-shadow: inset 3px 0 0 #a3e635; }
+        .side-link i { width: 18px; text-align: center; font-size: 15px; transition: transform .2s, color .2s; }
+        .side-link:hover { background: rgba(255,255,255,.09); color: #fff; transform: translateX(3px); }
+        .side-link:hover i { transform: scale(1.12); }
+        .side-link.active {
+            background: linear-gradient(135deg, rgba(16,185,129,.38), rgba(5,150,105,.18));
+            color: #fff;
+            box-shadow: inset 3px 0 0 #a3e635, 0 8px 20px -10px rgba(16,185,129,.55);
+        }
+        .side-link.active i { color: #a3e635; }
         .side-foot { border-top: 1px solid rgba(255,255,255,.12); padding-top: 12px; }
         .side-group-label {
             font-size: 9.5px;
@@ -119,27 +125,40 @@
         .avatar-chip {
             display: flex; align-items: center; gap: 9px;
             background: #fff; border: 1px solid rgba(5,150,105,.2);
-            padding: 7px 13px 7px 8px; border-radius: 999px;
+            padding: 6px 14px 6px 7px; border-radius: 999px;
             font-size: 12.5px; font-weight: 700; color: #1f4234;
+            box-shadow: 0 6px 16px -8px rgba(6,78,59,.3);
+            transition: box-shadow .2s, border-color .2s;
         }
+        .avatar-chip:hover { box-shadow: 0 10px 22px -10px rgba(6,78,59,.4); border-color: rgba(5,150,105,.4); }
         .avatar-chip .av {
             width: 30px; height: 30px; border-radius: 50%;
             background: linear-gradient(135deg, #059669, #10b981);
             color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px;
+            box-shadow: 0 0 0 2.5px #fff, 0 0 0 4px rgba(16,185,129,.35);
         }
 
         .card {
-            background: #fff;
-            border: 1px solid rgba(5,150,105,.14);
+            background: linear-gradient(180deg, #ffffff, #fdfcfa);
+            border: 1px solid rgba(5,150,105,.13);
             border-radius: var(--admin-radius);
-            box-shadow: 0 10px 30px -18px rgba(6,78,59,.35);
+            box-shadow: 0 2px 4px rgba(6,78,59,.04), 0 14px 34px -20px rgba(6,78,59,.35);
             padding: 20px;
             margin-bottom: 18px;
+            position: relative;
             animation: cardIn .4s ease both;
+            transition: box-shadow .3s ease, border-color .3s ease;
         }
+        .card:hover { box-shadow: 0 4px 8px rgba(6,78,59,.05), 0 22px 44px -22px rgba(6,78,59,.42); }
         @keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
         .card h3 { margin: 0 0 4px; font-size: 15.5px; display: flex; align-items: center; gap: 8px; }
-        .card h3 i { color: #059669; }
+        .card h3 i {
+            color: #059669;
+            width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 13px;
+            background: linear-gradient(135deg, rgba(16,185,129,.16), rgba(5,150,105,.08));
+        }
         .card p.desc { margin: 0 0 16px; font-size: 12.5px; color: #8b7355; }
 
         .page { display: block; }
@@ -147,105 +166,144 @@
 
         .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 215px), 1fr)); gap: 14px; margin-bottom: 18px; }
         .stat-card {
-            background: #fff;
-            border: 1px solid rgba(5,150,105,.14);
+            background: linear-gradient(160deg, #ffffff 30%, #f6fbf8);
+            border: 1px solid rgba(5,150,105,.13);
             border-radius: var(--admin-radius);
             padding: 16px 18px;
             position: relative; overflow: hidden;
-            transition: transform .25s ease, box-shadow .3s ease;
+            transition: transform .25s ease, box-shadow .3s ease, border-color .3s;
         }
         .stat-card::before {
             content: "";
             position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, #059669, #10b981);
+            background: linear-gradient(90deg, #059669, #10b981, #a3e635);
+            background-size: 200% 100%;
             opacity: 0; transition: opacity .3s;
         }
-        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -18px rgba(6,78,59,.4); }
-        .stat-card:hover::before { opacity: 1; }
+        .stat-card::after {
+            content: "";
+            position: absolute; right: -34px; top: -34px;
+            width: 110px; height: 110px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(16,185,129,.12), transparent 70%);
+            pointer-events: none;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 44px -18px rgba(6,78,59,.42); border-color: rgba(5,150,105,.28); }
+        .stat-card:hover::before { opacity: 1; animation: gradSlide 2.2s ease infinite; }
+        @keyframes gradSlide { 0%,100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
         .stat-card .ic {
             position: absolute; right: 14px; top: 14px;
-            width: 38px; height: 38px; border-radius: 12px;
+            width: 40px; height: 40px; border-radius: 13px;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(16,185,129,.12); color: #059669; font-size: 16px;
+            background: linear-gradient(135deg, rgba(16,185,129,.18), rgba(5,150,105,.1));
+            color: #047857; font-size: 16px;
+            border: 1px solid rgba(16,185,129,.2);
+            transition: transform .25s;
         }
-        .stat-card .lbl { font-size: 12px; color: #8b7355; font-weight: 600; }
-        .stat-card .val { font-size: 24px; font-weight: 800; margin-top: 6px; color: #12261d; }
+        .stat-card:hover .ic { transform: scale(1.1) rotate(-5deg); }
+        .stat-card .lbl { font-size: 11.5px; color: #8b7355; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; }
+        .stat-card .val { font-size: 26px; font-weight: 800; margin-top: 6px; color: #12261d; letter-spacing: -.5px; }
         .stat-card .chg { font-size: 11.5px; font-weight: 700; margin-top: 6px; color: #16a34a; }
         .stat-card .chg.mut { color: #8b7355; }
 
-        .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .tbl { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
         .tbl th {
-            text-align: left; font-size: 11px; letter-spacing: .8px; text-transform: uppercase;
-            color: #8b7355; padding: 9px 10px;
+            text-align: left; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase;
+            color: #7a8f84; padding: 10px;
+            background: linear-gradient(180deg, rgba(5,150,105,.06), rgba(5,150,105,.02));
             border-bottom: 2px solid rgba(5,150,105,.14);
         }
+        .tbl th:first-child { border-radius: 10px 0 0 0; }
+        .tbl th:last-child { border-radius: 0 10px 0 0; }
         .tbl td { padding: 11px 10px; border-bottom: 1px solid rgba(5,150,105,.08); }
-        .tbl tbody tr { transition: background .2s; }
-        .tbl tbody tr:hover { background: rgba(5,150,105,.05); }
+        .tbl tbody tr { transition: background .18s, transform .15s; }
+        .tbl tbody tr:hover { background: rgba(16,185,129,.06); }
         .tbl .pimg {
-            width: 42px; height: 42px; border-radius: 10px; object-fit: cover;
-            border: 1px solid rgba(5,150,105,.2);
+            width: 42px; height: 42px; border-radius: 11px; object-fit: cover;
+            border: 1px solid rgba(5,150,105,.2); box-shadow: 0 4px 10px -4px rgba(6,78,59,.3);
             vertical-align: middle; margin-right: 10px; background: #fff;
+            transition: transform .2s;
         }
+        .tbl .pimg:hover { transform: scale(1.08); }
         .pill {
-            display: inline-block; font-size: 11px; font-weight: 800;
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 800;
             padding: 4px 12px; border-radius: 999px;
+            border: 1px solid transparent;
         }
-        .pill.ok { background: rgba(22,163,74,.12); color: #16a34a; }
-        .pill.wait { background: rgba(217,119,6,.14); color: #b45309; }
-        .pill.mut { background: rgba(5,150,105,.08); color: #5f7a6d; }
-        .pill.red { background: rgba(220,38,38,.1); color: #dc2626; }
-        .pill.info { background: rgba(59,130,246,.12); color: #2563eb; }
+        .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .pill.ok { background: rgba(22,163,74,.1); color: #15803d; border-color: rgba(22,163,74,.22); }
+        .pill.wait { background: rgba(217,119,6,.1); color: #b45309; border-color: rgba(217,119,6,.22); }
+        .pill.mut { background: rgba(5,150,105,.06); color: #5f7a6d; border-color: rgba(5,150,105,.15); }
+        .pill.red { background: rgba(220,38,38,.08); color: #dc2626; border-color: rgba(220,38,38,.2); }
+        .pill.info { background: rgba(59,130,246,.1); color: #2563eb; border-color: rgba(59,130,246,.22); }
 
         .status-select {
-            border: 1.5px solid rgba(5,150,105,.3);
+            border: 1.5px solid rgba(5,150,105,.28);
             border-radius: 10px; padding: 7px 10px;
             font-family: inherit; font-size: 12.5px; font-weight: 700;
-            background: rgba(5,150,105,.05); color: #1f4234;
+            background: #fff; color: #1f4234;
             cursor: pointer; outline: none;
+            transition: border-color .2s, box-shadow .2s;
         }
+        .status-select:hover { border-color: #059669; }
+        .status-select:focus { border-color: #059669; box-shadow: 0 0 0 4px rgba(5,150,105,.12); }
         .btn-icon {
-            border: none; cursor: pointer; font-family: inherit;
-            background: rgba(220,38,38,.08); color: #dc2626;
+            border: 1px solid rgba(220,38,38,.18); cursor: pointer; font-family: inherit;
+            background: rgba(220,38,38,.07); color: #dc2626;
             width: 34px; height: 34px; border-radius: 10px;
-            transition: background .2s, transform .15s;
+            transition: background .2s, transform .15s, box-shadow .2s;
         }
-        .btn-icon:hover { background: #dc2626; color: #fff; transform: scale(1.05); }
+        .btn-icon:hover { background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; transform: translateY(-2px); box-shadow: 0 10px 20px -8px rgba(220,38,38,.5); }
+        .btn-icon:active { transform: translateY(0); }
 
         .note-banner {
-            display: flex; gap: 10px; align-items: flex-start;
-            background: rgba(5,150,105,.08);
-            border: 1px dashed rgba(5,150,105,.35);
-            border-radius: 12px; padding: 12px 14px;
+            display: flex; gap: 12px; align-items: flex-start;
+            background: linear-gradient(135deg, rgba(5,150,105,.09), rgba(16,185,129,.05));
+            border: 1px dashed rgba(5,150,105,.4);
+            border-radius: 14px; padding: 13px 16px;
             font-size: 12.5px; color: #1f4234;
             margin-bottom: 18px;
         }
-        .note-banner i { color: #059669; margin-top: 2px; }
+        .note-banner i {
+            color: #059669; margin-top: 2px; flex-shrink: 0;
+            width: 28px; height: 28px; border-radius: 9px;
+            display: inline-flex; align-items: center; justify-content: center; font-size: 12px;
+            background: rgba(5,150,105,.12);
+        }
 
         .toast {
-            position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: #12261d; color: #fff;
-            padding: 12px 22px; border-radius: 999px;
+            position: fixed; bottom: 26px; left: 50%;
+            transform: translateX(-50%) translateY(24px) scale(.95);
+            background: linear-gradient(135deg, #0d2b20, #064e3b);
+            color: #fff;
+            padding: 13px 24px; border-radius: 999px;
             font-size: 13px; font-weight: 700;
+            border: 1px solid rgba(163,230,53,.3);
             opacity: 0; pointer-events: none;
-            transition: all .3s ease;
+            transition: all .35s cubic-bezier(.32,.72,.28,1);
             z-index: 90;
-            box-shadow: 0 18px 40px -12px rgba(0,0,0,.4);
+            box-shadow: 0 20px 50px -12px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
         }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        .toast i { color: #a3e635; margin-right: 4px; }
 
         .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
         .filter-tab {
             text-decoration: none;
             font-size: 12px; font-weight: 700;
-            padding: 7px 16px; border-radius: 999px;
-            background: rgba(5,150,105,.07); color: #1f4234;
-            border: 1.5px solid rgba(5,150,105,.15);
+            padding: 8px 17px; border-radius: 999px;
+            background: #fff; color: #1f4234;
+            border: 1.5px solid rgba(5,150,105,.16);
+            box-shadow: 0 3px 10px -5px rgba(6,78,59,.2);
             transition: all .2s;
         }
-        .filter-tab:hover { border-color: #059669; }
-        .filter-tab.active { background: linear-gradient(135deg, #059669, #10b981); color: #fff; border-color: transparent; }
-        .filter-tab b { opacity: .7; font-weight: 700; }
+        .filter-tab:hover { border-color: #059669; transform: translateY(-2px); box-shadow: 0 8px 18px -8px rgba(6,78,59,.35); }
+        .filter-tab.active {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #fff; border-color: transparent;
+            box-shadow: 0 10px 22px -8px rgba(5,150,105,.55);
+        }
+        .filter-tab b { opacity: .65; font-weight: 700; }
 
         /* ---- Shared form styles ---- */
         .a-field { margin-bottom: 4px; }
@@ -263,43 +321,56 @@
             font-family: inherit;
             color: #12261d;
             outline: none;
-            transition: border-color .2s, box-shadow .2s;
+            transition: border-color .2s, box-shadow .2s, background .2s;
         }
         .a-input::placeholder { color: #a8b8af; }
-        .a-input:focus { border-color: #059669; box-shadow: 0 0 0 4px rgba(5,150,105,.12); }
+        .a-input:hover { border-color: rgba(5,150,105,.4); }
+        .a-input:focus { border-color: #059669; box-shadow: 0 0 0 4px rgba(5,150,105,.12); background: #fdfffe; }
         textarea.a-input { resize: vertical; min-height: 44px; }
         select.a-input { cursor: pointer; appearance: none; -webkit-appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23059669' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
             background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; }
-        input.a-input[type="file"] { padding: 9px 12px; cursor: pointer; }
+        input.a-input[type="file"] { padding: 9px 12px; cursor: pointer; border-style: dashed; background: rgba(5,150,105,.03); }
+        input.a-input[type="file"]:hover { background: rgba(5,150,105,.06); }
         input[type="checkbox"] { accent-color: #059669; width: 16px; height: 16px; cursor: pointer; }
         .a-btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
             border: none; cursor: pointer; font-family: inherit;
             background: linear-gradient(135deg, #059669, #10b981);
+            background-size: 150% 150%; background-position: 0% 0%;
             color: #fff; font-weight: 800; font-size: 13.5px;
             padding: 12px 22px; border-radius: 12px;
-            box-shadow: 0 12px 26px -12px rgba(5,150,105,.55);
-            transition: transform .15s, filter .2s, box-shadow .2s;
+            box-shadow: 0 12px 26px -10px rgba(5,150,105,.55), inset 0 1px 0 rgba(255,255,255,.25);
+            transition: transform .18s, box-shadow .25s, background-position .35s;
             text-decoration: none;
+            position: relative; overflow: hidden;
         }
-        .a-btn:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 16px 30px -12px rgba(5,150,105,.6); }
-        .a-btn:active { transform: translateY(0); }
+        .a-btn i { transition: transform .2s; }
+        .a-btn:hover { transform: translateY(-2px); background-position: 100% 0%; box-shadow: 0 18px 34px -12px rgba(5,150,105,.65), inset 0 1px 0 rgba(255,255,255,.25); }
+        .a-btn:hover i { transform: scale(1.15); }
+        .a-btn:active { transform: translateY(0) scale(.98); }
         .a-btn.ghost {
             background: #fff; color: #1f4234;
             border: 1.5px solid rgba(5,150,105,.25);
-            box-shadow: none;
+            box-shadow: 0 3px 10px -6px rgba(6,78,59,.25);
         }
-        .a-btn.ghost:hover { border-color: #059669; background: rgba(5,150,105,.05); }
+        .a-btn.ghost:hover { border-color: #059669; background: rgba(5,150,105,.06); box-shadow: 0 10px 22px -10px rgba(6,78,59,.35); }
         .fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px 14px; }
 
         .alert-success {
-            background: rgba(22,163,74,.1);
-            border: 1px solid rgba(22,163,74,.3);
-            color: #16a34a;
-            border-radius: 12px; padding: 12px 16px;
+            display: flex; align-items: center; gap: 10px;
+            background: linear-gradient(135deg, rgba(22,163,74,.12), rgba(16,185,129,.06));
+            border: 1px solid rgba(22,163,74,.32);
+            color: #15803d;
+            border-radius: 13px; padding: 12px 16px;
             font-size: 13px; font-weight: 700;
             margin-bottom: 18px;
+            animation: cardIn .35s ease both;
+        }
+        .alert-success i {
+            width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+            display: inline-flex; align-items: center; justify-content: center; font-size: 12px;
+            background: rgba(22,163,74,.15);
         }
 
         .side-overlay {
@@ -381,21 +452,24 @@
                     @if ($pendingOrders > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $pendingOrders }} নতুন</span>@endif
                 </a>
                 <a class="side-link {{ request()->routeIs('admin.module', request()->route('module') === 'customers') ? 'active' : '' }}" href="{{ route('admin.module', 'customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন
+                    @php $openComplaints = \App\Models\Complaint::where('is_resolved', false)->count(); @endphp
+                    @if ($openComplaints > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $openComplaints }} নতুন</span>@endif
+                </a>
                 <a class="side-link {{ request()->route('module') === 'suppliers' ? 'active' : '' }}" href="{{ route('admin.module', 'suppliers') }}"><i class="fa-solid fa-truck-field"></i> সাপ্লায়ার <span class="draft-tag">ড্রাফট</span></a>
                 <a class="side-link {{ request()->routeIs('admin.products.index') || request()->routeIs('admin.products.create') || request()->routeIs('admin.products.edit') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
                 <a class="side-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}"><i class="fa-solid fa-layer-group"></i> ক্যাটাগরি ও ব্র্যান্ড</a>
-                <a class="side-link {{ request()->route('module') === 'coupons' ? 'active' : '' }}" href="{{ route('admin.module', 'coupons') }}"><i class="fa-solid fa-ticket"></i> কুপন <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->routeIs('admin.coupons') ? 'active' : '' }}" href="{{ route('admin.coupons') }}"><i class="fa-solid fa-ticket"></i> কুপন</a>
                 <a class="side-link {{ request()->route('module') === 'reviews' ? 'active' : '' }}" href="{{ route('admin.module', 'reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ <span class="draft-tag">ড্রাফট</span></a>
 
                 <div class="side-group-label">মার্কেটিং ও ট্র্যাকিং</div>
                 <a class="side-link {{ request()->route('module') === 'payments' ? 'active' : '' }}" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে <span class="draft-tag">ড্রাফট</span></a>
-                <a class="side-link {{ request()->route('module') === 'fbpixel' ? 'active' : '' }}" href="{{ route('admin.settings.tracking', 'fb') }}"><i class="fa-brands fa-facebook"></i> Facebook Pixel</a>
-                <a class="side-link {{ request()->route('module') === 'ganalytics' ? 'active' : '' }}" href="{{ route('admin.settings.tracking', 'ga') }}"><i class="fa-solid fa-chart-line"></i> Google Analytics</a>
-                <a class="side-link {{ request()->route('module') === 'tagmanager' ? 'active' : '' }}" href="{{ route('admin.settings.tracking', 'gtm') }}"><i class="fa-solid fa-tags"></i> Tag Manager</a>
-                <a class="side-link {{ request()->route('module') === 'tiktok' ? 'active' : '' }}" href="{{ route('admin.settings.tracking', 'tiktok') }}"><i class="fa-brands fa-tiktok"></i> TikTok Pixel</a>
+                <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
 
                 <div class="side-group-label">SEO</div>
                 <a class="side-link {{ request()->routeIs('admin.seo') ? 'active' : '' }}" href="{{ route('admin.seo') }}"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO Settings</a>
+                <a class="side-link {{ request()->routeIs('admin.robots') ? 'active' : '' }}" href="{{ route('admin.robots') }}"><i class="fa-solid fa-robot"></i> robots.txt</a>
+                <a class="side-link {{ request()->routeIs('admin.redirects.*') ? 'active' : '' }}" href="{{ route('admin.redirects.index') }}"><i class="fa-solid fa-rotate"></i> 301 Redirects</a>
                 <a class="side-link {{ request()->routeIs('admin.sitemap') ? 'active' : '' }}" href="{{ route('admin.sitemap') }}"><i class="fa-solid fa-sitemap"></i> Sitemap</a>
 
                 <div class="side-group-label">অ্যাকাউন্ট</div>
@@ -429,6 +503,7 @@
             <nav class="mobile-nav">
                 <a class="side-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-gauge-high"></i> ড্যাশবোর্ড</a>
                 <a class="side-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}"><i class="fa-solid fa-boxes-stacked"></i> অর্ডার</a>
+                <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন</a>
                 <a class="side-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}"><i class="fa-solid fa-layer-group"></i> ক্যাটাগরি</a>
                 <a class="side-link {{ request()->routeIs('admin.products') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
                 <a class="side-link" href="{{ route('admin.module', 'customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>

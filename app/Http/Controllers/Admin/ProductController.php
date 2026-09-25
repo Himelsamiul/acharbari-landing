@@ -92,6 +92,9 @@ class ProductController extends Controller
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
+            'meta_title' => 'nullable|string|max:150',
+            'meta_description' => 'nullable|string|max:320',
+            'image_alt' => 'nullable|string|max:200',
         ]);
 
         if (empty($data['slug'])) {

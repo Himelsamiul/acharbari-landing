@@ -31,6 +31,10 @@ class SettingController extends Controller
             'brand_en1' => 'required|string|max:20',
             'brand_en2' => 'nullable|string|max:20',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
+            'contact_phone' => 'nullable|string|max:20',
+            'contact_whatsapp' => 'nullable|string|max:20',
+            'contact_messenger' => 'nullable|string|max:60',
+            'contact_facebook' => 'nullable|url|max:255',
         ]);
 
         $pairs = [
@@ -38,6 +42,10 @@ class SettingController extends Controller
             'brand_bn2' => $data['brand_bn2'] ?? '',
             'brand_en1' => $data['brand_en1'],
             'brand_en2' => $data['brand_en2'] ?? '',
+            'contact_phone' => $data['contact_phone'] ?? '',
+            'contact_whatsapp' => $data['contact_whatsapp'] ?? '',
+            'contact_messenger' => $data['contact_messenger'] ?? '',
+            'contact_facebook' => $data['contact_facebook'] ?? '',
         ];
 
         if ($request->hasFile('logo')) {

@@ -1323,6 +1323,7 @@ window.openQuickView = function (productId) {
     document.getElementById('qvModalDiscount').textContent = pick(prod.discount, prod.discount_en);
     document.getElementById('qvModalDesc').textContent = pick(prod.desc, prod.desc_en);
     document.getElementById('qvModalImg').src = prod.img;
+    document.getElementById('qvModalImg').alt = prod.alt || prod.title || 'Product';
 
     var modal = document.getElementById('quickViewModal');
     if (modal) {
@@ -1663,7 +1664,8 @@ document.addEventListener('keydown', function (e) {
 (function () {
     var cart = {};            // { pid: { qty } }
     var coupon = null;        // { code, pct }
-    var COUPONS = { 'ACHAR10': 10, 'achar10': 10 };
+    // active coupons injected from the DB via the Blade page (window.AB_COUPONS)
+    var COUPONS = window.AB_COUPONS || {};
 
     function prodData(pid) { return (window.quickViewProducts || {})[pid] || null; }
     function bnToNum(s) {
@@ -1822,10 +1824,11 @@ document.addEventListener('keydown', function (e) {
             render();
             return;
         }
-        if (COUPONS[code]) {
-            coupon = { code: code.toUpperCase(), pct: COUPONS[code] };
+        var normalized = code.toUpperCase();
+        if (COUPONS[normalized]) {
+            coupon = { code: normalized, pct: COUPONS[normalized] };
             msg.className = 'lp-coupon-msg ok';
-            msg.textContent = AB.t('কুপন প্রয়োগ হয়েছে — ' + COUPONS[code] + '% ডিসকাউন্ট!', 'Coupon applied — ' + COUPONS[code] + '% discount!');
+            msg.textContent = AB.t('কুপন প্রয়োগ হয়েছে — ' + COUPONS[normalized] + '% ডিসকাউন্ট!', 'Coupon applied — ' + COUPONS[normalized] + '% discount!');
         } else {
             coupon = null;
             msg.className = 'lp-coupon-msg err';

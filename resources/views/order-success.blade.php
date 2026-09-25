@@ -131,7 +131,7 @@
 <body>
     <div class="success-card">
         <div class="success-top">
-            <div class="success-ic"><i class="fa-solid fa-check"></i></div>
+            <div class="success-ic"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
             <h1>অর্ডার সফলভাবে গৃহীত! 🎉</h1>
             <p>আমাদের প্রতিনিধি শীঘ্রই ফোন করে অর্ডার কনফার্ম করবেন।</p>
             <div class="order-code">অর্ডার নং: {{ $order->order_code }}</div>
@@ -154,7 +154,14 @@
             <div class="sum-row"><span>ডেলিভারি চার্জ</span><span>৳{{ number_format($order->shipping_cost) }}</span></div>
             <div class="sum-row total"><span>সর্বমোট ({{ strtoupper($order->payment_method) }})</span>
                 <span>৳{{ number_format($order->total) }}</span></div>
-            <a class="btn-home" href="{{ url('/') }}"><i class="fa-solid fa-house"></i> হোমে ফিরে যান</a>
+            <div style="display:flex;gap:10px;margin-top:18px">
+                <a class="btn-home" style="flex:1" target="_blank" rel="noopener"
+                    href="https://wa.me/{{ ab_contact('whatsapp') }}?text={{ rawurlencode('আসসালামু আলাইকুম! আমার অর্ডার #' . $order->order_code . ' কনফার্ম করতে চাই।') }}">
+                    WhatsApp-এ কনফার্ম করুন</a>
+                <a class="btn-home" style="flex:1;background:linear-gradient(135deg,#0f766e,#059669);box-shadow:0 14px 30px -12px rgba(15,118,110,.7)"
+                    href="{{ route('track') }}?code={{ $order->order_code }}&phone={{ $order->phone }}">অর্ডার ট্র্যাক করুন</a>
+            </div>
+            <a class="btn-home" href="{{ url('/') }}" style="margin-top:10px;background:transparent;color:#059669;border:1.5px solid #a7f3d0;box-shadow:none"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> হোমে ফিরে যান</a>
         </div>
     </div>
 </body>

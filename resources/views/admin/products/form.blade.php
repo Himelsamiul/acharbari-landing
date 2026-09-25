@@ -127,6 +127,25 @@
         </div>
 
         <div class="card">
+            <h3><i class="fa-solid fa-magnifying-glass-chart"></i> SEO (ঐচ্ছিক)</h3>
+            <p class="desc">খালি রাখলে গ্লোবাল SEO সেটিংস ব্যবহার হবে — প্রোডাক্ট পেজের জন্য আলাদা টাইটেল/বর্ণনা দিন</p>
+            <div class="fgrid">
+                <div class="a-field">
+                    <label>Meta Title</label>
+                    <input class="a-input" name="meta_title" value="{{ old('meta_title', $product->meta_title) }}" maxlength="150" placeholder="{{ $product->name }} — আচারবাড়ি">
+                </div>
+                <div class="a-field">
+                    <label>Image Alt Text</label>
+                    <input class="a-input" name="image_alt" value="{{ old('image_alt', $product->image_alt) }}" maxlength="200" placeholder="{{ $product->name }} — খাঁটি দেশি আচার">
+                </div>
+            </div>
+            <div class="a-field">
+                <label>Meta Description</label>
+                <textarea class="a-input" name="meta_description" rows="2" maxlength="320" placeholder="প্রোডাক্টের ছোট বর্ণনা যা গুগল সার্চে দেখাবে">{{ old('meta_description', $product->meta_description) }}</textarea>
+            </div>
+        </div>
+
+        <div class="card">
             <h3>ছবি ও বারকোড</h3>
             <p class="desc">প্রোডাক্টের ছবি আপলোড করুন — বারকোড অটো তৈরি হবে</p>
             <div class="a-field">

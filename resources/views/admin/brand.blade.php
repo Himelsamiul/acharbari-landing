@@ -70,6 +70,34 @@
         </form>
     </div>
 
+    {{-- ===== CONTACT INFO ===== --}}
+    <div class="card">
+        <h3>যোগাযোগ তথ্য</h3>
+        <p class="desc">ফুটার, চ্যাট উইজেট ও কল-টু-অ্যাকশন বাটনে এই নম্বর/লিংকগুলো ব্যবহৃত হয়</p>
+        <form method="POST" action="{{ route('admin.settings.brand.save') }}">
+            @csrf
+            <div class="brand-grid">
+                <div class="a-field">
+                    <label>হটলাইন ফোন</label>
+                    <input class="a-input" name="contact_phone" value="{{ $settings['contact_phone'] ?? '01707373692' }}" placeholder="01707373692">
+                </div>
+                <div class="a-field">
+                    <label>WhatsApp নম্বর (country code সহ)</label>
+                    <input class="a-input" name="contact_whatsapp" value="{{ $settings['contact_whatsapp'] ?? '8801707373692' }}" placeholder="8801707373692">
+                </div>
+                <div class="a-field">
+                    <label>Messenger ইউজারনেম</label>
+                    <input class="a-input" name="contact_messenger" value="{{ $settings['contact_messenger'] ?? 'AcharBari' }}" placeholder="AcharBari">
+                </div>
+                <div class="a-field">
+                    <label>Facebook পেজ URL</label>
+                    <input class="a-input" name="contact_facebook" value="{{ $settings['contact_facebook'] ?? '' }}" placeholder="https://facebook.com/yourpage">
+                </div>
+            </div>
+            <button class="a-btn"><i class="fa-solid fa-floppy-disk"></i> যোগাযোগ সেভ করুন</button>
+        </form>
+    </div>
+
     <style>
         .logo-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
     </style>
