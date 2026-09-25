@@ -30,16 +30,16 @@
             <!-- Dynamic Category Filter Pills -->
             <div class="ds-filter-wrap">
                 <button class="ds-filter-btn active" data-filter="all">
-                    <i class="fa-solid fa-border-all"></i> <span data-en="All Items">সব প্রোডাক্ট</span> <span class="ds-filter-count">৬</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></svg> <span data-en="All Items">সব প্রোডাক্ট</span> <span class="ds-filter-count">৬</span>
                 </button>
                 <button class="ds-filter-btn" data-filter="pickle">
-                    <i class="fa-solid fa-pepper-hot"></i> <span data-en="Pickles">আচার</span> <span class="ds-filter-count">৩</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5h8"/><path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"/><path d="M5 10h14"/><path d="M9.5 14.5h5"/></svg> <span data-en="Pickles">আচার</span> <span class="ds-filter-count">৩</span>
                 </button>
                 <button class="ds-filter-btn" data-filter="pure">
-                    <i class="fa-solid fa-jar"></i> <span data-en="Honey &amp; Ghee">মধু ও ঘি</span> <span class="ds-filter-count">২</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg> <span data-en="Honey &amp; Ghee">মধু ও ঘি</span> <span class="ds-filter-count">২</span>
                 </button>
                 <button class="ds-filter-btn" data-filter="chaatni">
-                    <i class="fa-solid fa-bowl-food"></i> <span data-en="Chutney">চাটনি</span> <span class="ds-filter-count">১</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M9.5 7.5V6"/><path d="M12 7.5V5"/><path d="M14.5 7.5V6"/></svg> <span data-en="Chutney">চাটনি</span> <span class="ds-filter-count">১</span>
                 </button>
             </div>
 
