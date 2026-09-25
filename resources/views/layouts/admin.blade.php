@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'ড্যাশবোর্ড') — আচারবাড়ি Admin</title>
-    <link rel="icon" href="{{ asset('assets/img/favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset($settings['favicon_path'] ?: 'assets/img/favicon.svg') }}" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -357,6 +357,20 @@
         .a-btn.ghost:hover { border-color: #059669; background: rgba(5,150,105,.06); box-shadow: 0 10px 22px -10px rgba(6,78,59,.35); }
         .fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px 14px; }
 
+        /* landing-content repeaters */
+        .rep { display: flex; flex-direction: column; gap: 8px; }
+        .rep-row { display: flex; gap: 8px; align-items: flex-start; }
+        .rep-row-block { border: 1.5px dashed rgba(5,150,105,.25); border-radius: 14px; padding: 12px; background: rgba(5,150,105,.02); }
+        .rep-row-block .rep-line { display: flex; gap: 8px; margin-bottom: 8px; }
+        .rep-row-block .rep-line:last-child { margin-bottom: 0; }
+        .rep-row .a-input { flex: 1; }
+        .rep-del { flex-shrink: 0; margin-top: 4px; }
+        .content-img-preview { width: 100%; height: 110px; object-fit: cover; border-radius: 12px; margin-bottom: 8px; border: 1.5px solid rgba(5,150,105,.18); }
+        @media (max-width: 640px) {
+            .rep-row, .rep-row-block .rep-line { flex-direction: column; }
+            .rep-del { margin-top: 0; align-self: flex-end; }
+        }
+
         .alert-success {
             display: flex; align-items: center; gap: 10px;
             background: linear-gradient(135deg, rgba(22,163,74,.12), rgba(16,185,129,.06));
@@ -437,7 +451,13 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="adminSidebar">
             <div class="side-brand">
-                <div class="logo-box"><i class="fa-solid fa-jar"></i></div>
+                <div class="logo-box">
+                    @if (!empty($settings['logo_path']))
+                        <img src="{{ asset($settings['logo_path']) }}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+                    @else
+                        <i class="fa-solid fa-jar"></i>
+                    @endif
+                </div>
                 <div>
                     <b>আচারবাড়ি</b>
                     <span>ADMIN PANEL</span>
@@ -465,6 +485,11 @@
                 <div class="side-group-label">মার্কেটিং ও ট্র্যাকিং</div>
                 <a class="side-link {{ request()->route('module') === 'payments' ? 'active' : '' }}" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে <span class="draft-tag">ড্রাফট</span></a>
                 <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
+
+                <div class="side-group-label">সাইট সাজানো</div>
+                <a class="side-link {{ request()->routeIs('admin.settings.content') ? 'active' : '' }}" href="{{ route('admin.settings.content') }}"><i class="fa-solid fa-pen-to-square"></i> ল্যান্ডিং কনটেন্ট</a>
+                <a class="side-link {{ request()->routeIs('admin.settings.brand') ? 'active' : '' }}" href="{{ route('admin.settings.brand') }}"><i class="fa-solid fa-jar"></i> লোগো ও ব্র্যান্ড</a>
+                <a class="side-link {{ request()->routeIs('admin.settings.theme') ? 'active' : '' }}" href="{{ route('admin.settings.theme') }}"><i class="fa-solid fa-palette"></i> থিম কালার</a>
 
                 <div class="side-group-label">SEO</div>
                 <a class="side-link {{ request()->routeIs('admin.seo') ? 'active' : '' }}" href="{{ route('admin.seo') }}"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO Settings</a>

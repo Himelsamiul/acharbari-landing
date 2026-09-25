@@ -73,7 +73,9 @@ class OrderController extends Controller
             }
         }
 
-        $shipping = $data['area'] === 'inside' ? 80 : 150;
+        $shipping = $data['area'] === 'inside'
+            ? ab_charge('delivery_charge_inside', 80)
+            : ab_charge('delivery_charge_outside', 150);
         $total = max(0, $subtotal - $discount) + $vatTotal + $shipping;
 
         $order = DB::transaction(function () use ($data, $lines, $subtotal, $discount, $couponCode, $vatTotal, $shipping, $total) {

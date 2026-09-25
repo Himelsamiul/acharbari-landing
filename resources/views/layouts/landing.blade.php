@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ asset('assets/img/favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset($settings['favicon_path'] ?: 'assets/img/favicon.svg') }}" type="image/svg+xml">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,6 +29,22 @@
 </head>
 
 <body class="text-gray-800 antialiased" >
+    @php
+        $navHome = ab_t('nav_home', 'হোম', 'Home');
+        $navProducts = ab_t('nav_products', 'সব প্রোডাক্ট', 'All Products');
+        $navWhy = ab_t('nav_why', 'কেন আমরা', 'Why Us');
+        $navReviews = ab_t('nav_reviews', 'রিভিউ', 'Reviews');
+        $navFaq = ab_t('nav_faq', 'প্রশ্ন-উত্তর', 'FAQ');
+        $navOrder = ab_t('nav_order', 'অর্ডার করুন', 'Order Now');
+        $logoPill = ab_t('logo_pill', 'খাঁটি', 'Pure');
+        $footerTag = ab_t('footer_tag', 'ঘরে তৈরি খাঁটি দেশি আচার, মধু ও ঘি — সারা বাংলাদেশে ক্যাশ অন ডেলিভারিতে হোম ডেলিভারি।', 'Homemade deshi pickles, honey & ghee — delivered to your home across Bangladesh with Cash on Delivery.');
+        $footerLinksH = ab_t('footer_col_links', 'কুইক লিংক', 'Quick Links');
+        $footerContactH = ab_t('footer_col_contact', 'যোগাযোগ ও সাপোর্ট', 'Contact & Support');
+        $footerFb = ab_t('footer_fb', 'ফেসবুক পেজ', 'Facebook Page');
+        $footerAdmin = ab_t('footer_admin', 'অ্যাডমিন ডেমো', 'Admin Demo');
+        $footerRights = ab_t('footer_rights', 'সর্বস্বত্ব সংরক্ষিত', 'All rights reserved');
+        $footerMade = ab_t('footer_made', 'Made with love by', 'Made with love by');
+    @endphp
 
 <header class="ds-header-wrap" id="dsHeaderWrap">
         <div class="ds-header-bar" id="dsHeader">
@@ -51,20 +67,20 @@
                     <span data-lang="bn">{{ $settings['brand_bn1'] }}<em>{{ $settings['brand_bn2'] }}</em></span>
                     <span data-lang="en">{{ $settings['brand_en1'] }}<em>{{ $settings['brand_en2'] }}</em></span>
                 </span>
-                <span class="ds-logo-pill">খাঁটি</span>
+                <span class="ds-logo-pill">{{ $logoPill['bn'] }}</span>
             </a>
 
             <!-- Central Floating Pill Navigation -->
             <nav class="ds-nav-pill-track">
-                <a href="#" class="ds-nav-pill {{ ($nav ?? '') === 'home' ? 'active' : '' }}" data-en="Home"
-                    onclick="if (window.location.pathname !== '/') { window.location.href = '/'; return false; } window.scrollTo({top:0,behavior:'smooth'}); return false;">হোম</a>
+                <a href="#" class="ds-nav-pill {{ ($nav ?? '') === 'home' ? 'active' : '' }}" data-en="{{ $navHome['en'] }}"
+                    onclick="if (window.location.pathname !== '/') { window.location.href = '/'; return false; } window.scrollTo({top:0,behavior:'smooth'}); return false;">{{ $navHome['bn'] }}</a>
                 <a href="{{ route('products') }}" class="ds-nav-pill ds-nav-pill-seller {{ ($nav ?? '') === 'products' ? 'active' : '' }}">
                     <span class="ds-beacon-dot"></span>
-                    <span data-en="All Products">সব প্রোডাক্ট</span>
+                    <span data-en="{{ $navProducts['en'] }}">{{ $navProducts['bn'] }}</span>
                 </a>
-                <a href="{{ url('/#ds-why') }}" class="ds-nav-pill {{ ($nav ?? '') === 'why' ? 'active' : '' }}" data-en="Why Us">কেন আমরা</a>
-                <a href="{{ url('/#ds-reviews') }}" class="ds-nav-pill" data-en="Reviews">রিভিউ</a>
-                <a href="{{ url('/#ds-faq') }}" class="ds-nav-pill" data-en="FAQ">প্রশ্ন-উত্তর</a>
+                <a href="{{ url('/#ds-why') }}" class="ds-nav-pill {{ ($nav ?? '') === 'why' ? 'active' : '' }}" data-en="{{ $navWhy['en'] }}">{{ $navWhy['bn'] }}</a>
+                <a href="{{ url('/#ds-reviews') }}" class="ds-nav-pill" data-en="{{ $navReviews['en'] }}">{{ $navReviews['bn'] }}</a>
+                <a href="{{ url('/#ds-faq') }}" class="ds-nav-pill" data-en="{{ $navFaq['en'] }}">{{ $navFaq['bn'] }}</a>
             </nav>
 
             <!-- Right Action Buttons -->
@@ -76,7 +92,7 @@
                 <button class="ds-btn-order-shine" aria-label="অর্ডার করুন"
                     onclick="document.getElementById('order-form').scrollIntoView({behavior:'smooth'})">
                     <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-                    <span data-en="Order Now">অর্ডার করুন</span>
+                    <span data-en="{{ $navOrder['en'] }}">{{ $navOrder['bn'] }}</span>
                     <span class="ds-btn-shimmer-fx"></span>
                 </button>
                 <button class="ds-mobile-nav-toggle" id="mobileNavToggle" onclick="toggleMobileNav()" aria-label="মেনู">
@@ -89,20 +105,20 @@
         <div class="ds-mobile-drawer" id="mobileNavDrawer">
             <div class="ds-mobile-drawer-in">
                 <a href="#" class="ds-mob-link active" onclick="toggleMobileNav(); window.scrollTo({top:0,behavior:'smooth'});return false;">
-                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> <span data-en="Home">হোম</span>
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> <span data-en="{{ $navHome['en'] }}">{{ $navHome['bn'] }}</span>
                 </a>
                 <a href="{{ route('products') }}" class="ds-mob-link ds-mob-seller" onclick="toggleMobileNav()">
                     <span class="ds-pulse-dot"></span>
-                    <span data-en="All Products">সব প্রোডাক্ট</span>
+                    <span data-en="{{ $navProducts['en'] }}">{{ $navProducts['bn'] }}</span>
                 </a>
                 <a href="{{ url("/") }}#ds-why" class="ds-mob-link" onclick="toggleMobileNav()">
-                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg> <span data-en="Why Us">কেন আমরা</span>
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg> <span data-en="{{ $navWhy['en'] }}">{{ $navWhy['bn'] }}</span>
                 </a>
                 <a href="{{ url("/") }}#ds-reviews" class="ds-mob-link" onclick="toggleMobileNav()">
-                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> <span data-en="Customer Reviews">কাস্টমার রিভিউ</span>
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> <span data-en="{{ $navReviews['en'] }}">{{ $navReviews['bn'] }}</span>
                 </a>
                 <a href="{{ url("/") }}#ds-faq" class="ds-mob-link" onclick="toggleMobileNav()">
-                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> <span data-en="FAQ">সাধারণ প্রশ্ন-উত্তর</span>
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> <span data-en="{{ $navFaq['en'] }}">{{ $navFaq['bn'] }}</span>
                 </a>
                 <div class="ds-mob-lang">
                     <div class="ds-lang-switch" role="group" aria-label="Language / ভাষা">
@@ -114,11 +130,11 @@
                 <div class="ds-mob-actions">
                     <a class="ds-btn ds-btn-block ds-btn-ghost mb-2" href="{{ route('products') }}" style="text-decoration:none"
                         onclick="toggleMobileNav();">
-                        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.5h8"/><path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"/><path d="M5 10h14"/><path d="M9.5 14.5h5"/></svg> <span data-en="Browse All Products">সব প্রোডাক্ট দেখুন</span>
+                        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.5h8"/><path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"/><path d="M5 10h14"/><path d="M9.5 14.5h5"/></svg> <span data-en="{{ $navProducts['en'] }}">{{ $navProducts['bn'] }}</span>
                     </a>
                     <button class="ds-btn ds-btn-block"
                         onclick="toggleMobileNav(); document.getElementById('order-form').scrollIntoView({behavior:'smooth'});">
-                        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> <span data-en="Order Now (COD)">অর্ডার করুন (COD)</span>
+                        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> <span data-en="{{ $navOrder['en'] }} (COD)">{{ $navOrder['bn'] }} (COD)</span>
                     </button>
                 </div>
             </div>
@@ -135,18 +151,21 @@
             <div class="lp-f-brand">
                 <a class="lp-f-logo" href="#">
                     <span class="lp-f-logo-ic" data-ab-logo-slot>
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M8 2.5h8"></path>
-                            <path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"></path>
-                            <path d="M5 10h14"></path>
-                            <path d="M9.5 14.5h5"></path>
-                        </svg>
+                        @if (!empty($settings['logo_path']))
+                            <img src="{{ asset($settings['logo_path']) }}" alt="logo" style="width:100%;height:100%;object-fit:cover">
+                        @else
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8 2.5h8"></path>
+                                <path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"></path>
+                                <path d="M5 10h14"></path>
+                                <path d="M9.5 14.5h5"></path>
+                            </svg>
+                        @endif
                     </span>
-                    <span class="lp-f-logo-tx" data-ab-brand-logo>আচার<em>বাড়ি</em></span>
+                    <span class="lp-f-logo-tx" data-ab-brand-logo>{{ $settings['brand_bn1'] ?? 'আচার' }}<em>{{ $settings['brand_bn2'] ?? 'বাড়ি' }}</em></span>
                 </a>
-                <p class="lp-f-tag" data-en="Homemade deshi pickles, honey &amp; ghee — delivered to your home across Bangladesh with Cash on Delivery.">
-                    ঘরে তৈরি খাঁটি দেশি আচার, মধু ও ঘি — সারা বাংলাদেশে ক্যাশ অন ডেলিভারিতে হোম ডেলিভারি।</p>
+                <p class="lp-f-tag" data-en="{{ $footerTag['en'] }}">{{ $footerTag['bn'] }}</p>
                 <div class="lp-f-social">
                     <a href="{{ ab_contact('facebook') }}" target="_blank" rel="noopener" aria-label="Facebook" data-brand="facebook">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
@@ -171,27 +190,26 @@
             </div>
 
             <div class="lp-f-col">
-                <h4 data-en="Quick Links">কুইক লিংক</h4>
+                <h4 data-en="{{ $footerLinksH['en'] }}">{{ $footerLinksH['bn'] }}</h4>
                 <a href="{{ url('/#ds-products') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5h8"/><path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"/><path d="M5 10h14"/><path d="M9.5 14.5h5"/></svg> <span data-en="Products">প্রোডাক্টস</span></a>
-                <a href="{{ route('products') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></svg> <span data-en="All Products">সব প্রোডাক্ট</span></a>
-                <a href="{{ url("/") }}#ds-why"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg> <span data-en="Why Us">কেন আমরা</span></a>
-                <a href="{{ url("/") }}#ds-faq"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> <span data-en="FAQ">প্রশ্ন-উত্তর</span></a>
+                <a href="{{ route('products') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></svg> <span data-en="{{ $navProducts['en'] }}">{{ $navProducts['bn'] }}</span></a>
+                <a href="{{ url("/") }}#ds-why"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg> <span data-en="{{ $navWhy['en'] }}">{{ $navWhy['bn'] }}</span></a>
+                <a href="{{ url("/") }}#ds-faq"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> <span data-en="{{ $navFaq['en'] }}">{{ $navFaq['bn'] }}</span></a>
             </div>
 
             <div class="lp-f-col">
-                <h4 data-en="Contact &amp; Support">যোগাযোগ ও সাপোর্ট</h4>
+                <h4 data-en="{{ $footerContactH['en'] }}">{{ $footerContactH['bn'] }}</h4>
                 <a href="tel:{{ ab_contact('phone') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg> {{ ab_contact('phone') }}</a>
                 <a href="https://wa.me/{{ ab_contact('whatsapp') }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg> WhatsApp</a>
                 <a href="{{ ab_contact('facebook') }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                    <span data-en="Facebook Page">ফেসবুক পেজ</span></a>
-                <a href="{{ route('admin.login') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span data-en="Admin Demo">অ্যাডমিন ডেমো</span></a>
+                    <span data-en="{{ $footerFb['en'] }}">{{ $footerFb['bn'] }}</span></a>
+                <a href="{{ route('admin.login') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span data-en="{{ $footerAdmin['en'] }}">{{ $footerAdmin['bn'] }}</span></a>
             </div>
         </div>
 
         <div class="lp-f-bar">
-            <span>© 2026 <strong data-ab-brand-name>আচারবাড়ি</strong>. <span data-en="All rights reserved">All rights
-                    reserved</span></span>
-            <span class="lp-f-made"><span data-en="Made with love by">Made with love by</span> <strong
+            <span>© {{ date('Y') }} <strong data-ab-brand-name>আচারবাড়ি</strong>. <span data-en="{{ $footerRights['en'] }}">{{ $footerRights['bn'] }}</span></span>
+            <span class="lp-f-made"><span data-en="{{ $footerMade['en'] }}">{{ $footerMade['bn'] }}</span> <strong
                     data-ab-brand-name>আচারবাড়ি</strong> <svg class="lp-f-heart" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
         </div>
     </footer>

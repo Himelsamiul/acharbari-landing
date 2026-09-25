@@ -65,6 +65,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/settings/brand', [Admin\SettingController::class, 'saveBrand'])->name('admin.settings.brand.save');
     Route::get('/settings/theme', [Admin\SettingController::class, 'theme'])->name('admin.settings.theme');
     Route::post('/settings/theme', [Admin\SettingController::class, 'saveTheme'])->name('admin.settings.theme.save');
+    Route::get('/settings/content', [Admin\SettingController::class, 'content'])->name('admin.settings.content');
+    Route::post('/settings/content', [Admin\SettingController::class, 'saveContent'])->name('admin.settings.content.save');
     Route::get('/settings/tracking', [Admin\SettingController::class, 'tracking'])->name('admin.settings.tracking');
     Route::post('/settings/tracking/{key}', [Admin\SettingController::class, 'saveTracking'])->name('admin.settings.tracking.save');
     Route::get('/seo', [Admin\SeoController::class, 'index'])->name('admin.seo');

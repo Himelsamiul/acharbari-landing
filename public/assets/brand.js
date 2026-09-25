@@ -293,6 +293,12 @@
 
         /* initialize on page load */
         init: function () {
+            // server-rendered pages: theme colors + logo/brand come from the DB
+            // (partials/theme-vars) — localStorage presets must not override them.
+            if (window.AB_MODE === 'server') {
+                this.applyLang();
+                return;
+            }
             this.applyTheme(this.getTheme());
             this.applyLang(); // also calls applyBrand
         }

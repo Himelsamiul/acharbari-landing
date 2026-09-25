@@ -42,6 +42,37 @@
         </form>
     </div>
 
+    {{-- ===== FAVICON ===== --}}
+    <div class="card">
+        <h3>ফেভিকন (ব্রাউজার ট্যাবের আইকন)</h3>
+        <p class="desc">ব্রাউজার ট্যাব ও বুকমার্কে দেখায় (স্কয়ার সাইজ — PNG/SVG/ICO ভালো)</p>
+        <form method="POST" action="{{ route('admin.settings.brand.save') }}" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="remove_favicon" value="0" id="removeFaviconFlag">
+            <div class="logo-upload-row">
+                <div class="logo-preview" id="faviconPreview">
+                    @if (!empty($settings['favicon_path']))
+                        <img src="{{ asset($settings['favicon_path']) }}" alt="favicon">
+                    @else
+                        <img src="{{ asset('assets/img/favicon.svg') }}" alt="default favicon" style="opacity:.55">
+                    @endif
+                </div>
+                <div>
+                    <input type="file" name="favicon" id="faviconFile" accept="image/*" style="display:none" onchange="previewFavicon(this)">
+                    <button type="button" class="a-btn" onclick="document.getElementById('faviconFile').click()">
+                        <i class="fa-solid fa-upload"></i> নতুন ফেভিকন আপলোড
+                    </button>
+                    @if (!empty($settings['favicon_path']))
+                        <button type="button" class="a-btn ghost" style="margin-left:8px" onclick="removeFavicon()">
+                            <i class="fa-solid fa-rotate-left"></i> ডিফল্টে ফিরুন
+                        </button>
+                    @endif
+                    <p style="font-size:11.5px;color:#8b7355;margin:10px 0 0">সর্বোচ্চ 1MB • PNG/SVG/ICO/JPG</p>
+                </div>
+            </div>
+        </form>
+    </div>
+
     {{-- ===== BRAND NAME ===== --}}
     <div class="card">
         <h3>ব্র্যান্ডের নাম</h3>
@@ -125,6 +156,27 @@
             t.type = 'hidden'; t.name = '_token'; t.value = '{{ csrf_token() }}';
             var r = document.createElement('input');
             r.type = 'hidden'; r.name = 'remove_logo'; r.value = '1';
+            f.appendChild(t); f.appendChild(r);
+            document.body.appendChild(f);
+            f.submit();
+        }
+        function previewFavicon(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('faviconPreview').innerHTML = '<img src="' + e.target.result + '">';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function removeFavicon() {
+            var f = document.createElement('form');
+            f.method = 'POST';
+            f.action = '{{ route('admin.settings.brand.save') }}';
+            var t = document.createElement('input');
+            t.type = 'hidden'; t.name = '_token'; t.value = '{{ csrf_token() }}';
+            var r = document.createElement('input');
+            r.type = 'hidden'; r.name = 'remove_favicon'; r.value = '1';
             f.appendChild(t); f.appendChild(r);
             document.body.appendChild(f);
             f.submit();

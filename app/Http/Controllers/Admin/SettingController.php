@@ -25,12 +25,19 @@ class SettingController extends Controller
             return back()->with('success', 'লোগো ডিফল্টে ফিরে গেছে।');
         }
 
+        // favicon removal (standalone action)
+        if ($request->boolean('remove_favicon')) {
+            Setting::set('favicon_path', '');
+            return back()->with('success', 'ফেভিকন ডিফল্টে ফিরে গেছে।');
+        }
+
         $data = $request->validate([
             'brand_bn1' => 'required|string|max:20',
             'brand_bn2' => 'nullable|string|max:20',
             'brand_en1' => 'required|string|max:20',
             'brand_en2' => 'nullable|string|max:20',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
+            'logo' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:2048',
+            'favicon' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg,ico|max:1024',
             'contact_phone' => 'nullable|string|max:20',
             'contact_whatsapp' => 'nullable|string|max:20',
             'contact_messenger' => 'nullable|string|max:60',
@@ -51,6 +58,11 @@ class SettingController extends Controller
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('brand', 'public');
             $pairs['logo_path'] = 'storage/' . $path;
+        }
+
+        if ($request->hasFile('favicon')) {
+            $path = $request->file('favicon')->store('brand', 'public');
+            $pairs['favicon_path'] = 'storage/' . $path;
         }
 
         Setting::setMany($pairs);
@@ -108,6 +120,115 @@ class SettingController extends Controller
         ]);
 
         return back()->with('success', 'ডিফল্ট (হার্বাল গ্রিন) থিমে ফিরে গেছে।');
+    }
+
+    /** Landing content: hero / sections / order form / footer (ab_t + ab_json keys). */
+    public const CONTENT_TEXT_KEYS = [
+        // hero
+        'hero_chip', 'hero_s1_main', 'hero_s1_grad', 'hero_s2_main', 'hero_s2_grad', 'hero_s3_main', 'hero_s3_grad',
+        'hero_lead', 'hero_cta1', 'hero_cta2',
+        'hero_stat1', 'hero_stat2', 'hero_stat3', 'hero_stat4',
+        'hero_stat1_n', 'hero_stat2_n', 'hero_stat3_n', 'hero_stat4_n',
+        'hero_flash', 'hero_badge1_t', 'hero_badge1_s', 'hero_badge2_t', 'hero_badge2_s',
+        // product section + filter pills
+        'prod_eyebrow', 'prod_h2a', 'prod_h2b', 'prod_sub',
+        'filter_all', 'filter_pickle', 'filter_pure', 'filter_chaatni',
+        // promises
+        'promise_eyebrow', 'promise_h2a', 'promise_h2b', 'promise_sub',
+        'promise_c1_t', 'promise_c1_d', 'promise_c1_tag',
+        'promise_c2_t', 'promise_c2_d', 'promise_c2_tag',
+        'promise_c3_t', 'promise_c3_d', 'promise_c3_tag',
+        'promise_c4_t', 'promise_c4_d', 'promise_c4_tag',
+        // steps
+        'steps_eyebrow', 'steps_h2a', 'steps_h2b', 'steps_sub',
+        'step1_t', 'step1_d', 'step2_t', 'step2_d', 'step3_t', 'step3_d',
+        // why us
+        'why_eyebrow', 'why_h2a', 'why_h2b', 'why_sub', 'why_big_t', 'why_big_d', 'why_verified',
+        'why_c1_t', 'why_c1_d', 'why_c2_t', 'why_c2_d', 'why_c3_t', 'why_c3_d', 'why_c4_t', 'why_c4_d',
+        // faq headings (items via faq_json)
+        'faq_eyebrow', 'faq_h2a', 'faq_h2b', 'faq_sub',
+        // order form
+        'order_head_a', 'order_head_b', 'order_head_c', 'order_head_sub',
+        'cart_title', 'cart_coupon_ph', 'cart_coupon_note',
+        'cart_col_mark', 'cart_col_product', 'cart_col_qty', 'cart_col_price',
+        'cart_total_sub', 'cart_total_delivery', 'cart_total_grand', 'cart_empty',
+        'advance_title', 'advance_payable', 'advance_due',
+        'checkout_title', 'f_name_ph', 'f_phone_ph', 'f_address_ph', 'f_area',
+        'area_inside', 'area_outside', 'area_pick', 'area_free',
+        'pay_method', 'pay_cod', 'pay_cod_sub', 'pay_online', 'pay_online_note_a', 'pay_online_note_b',
+        'confirm_order', 'trust_1', 'trust_2', 'trust_3',
+        // reviews
+        'reviews_eyebrow', 'reviews_h2a', 'reviews_h2b', 'reviews_sub',
+        'rating_score', 'rating_total',
+        // bottom CTA
+        'cta_h2a', 'cta_h2b', 'cta_sub', 'cta_btn',
+        // nav + footer
+        'logo_pill', 'nav_home', 'nav_products', 'nav_why', 'nav_reviews', 'nav_faq', 'nav_order',
+        'footer_tag', 'footer_col_links', 'footer_col_contact', 'footer_fb', 'footer_admin', 'footer_rights', 'footer_made',
+    ];
+
+    public function content()
+    {
+        return view('admin.content', [
+            'settings' => Setting::allCached(),
+        ]);
+    }
+
+    public function saveContent(Request $request)
+    {
+        $rules = [];
+        foreach (self::CONTENT_TEXT_KEYS as $key) {
+            $rules[$key . '_bn'] = 'nullable|string|max:3000';
+            $rules[$key . '_en'] = 'nullable|string|max:3000';
+        }
+        $rules += [
+            'marquee_json' => 'nullable|string|max:20000',
+            'faq_json' => 'nullable|string|max:60000',
+            'reviews_json' => 'nullable|string|max:60000',
+            'rating_json' => 'nullable|string|max:10000',
+            'delivery_inside' => 'nullable|integer|min:0|max:5000',
+            'delivery_outside' => 'nullable|integer|min:0|max:5000',
+        ];
+        foreach (['hero_img1', 'hero_img2', 'hero_img3', 'hero_img4'] as $img) {
+            $rules[$img] = 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048';
+            $rules[$img . '_remove'] = 'nullable|boolean';
+        }
+
+        $data = $request->validate($rules);
+
+        $pairs = [];
+        foreach (self::CONTENT_TEXT_KEYS as $key) {
+            $pairs[$key . '_bn'] = trim((string) ($data[$key . '_bn'] ?? ''));
+            $pairs[$key . '_en'] = trim((string) ($data[$key . '_en'] ?? ''));
+        }
+
+        // repeater groups — empty/invalid JSON clears the override so blade defaults return
+        foreach (['marquee' => 'marquee_items', 'faq' => 'faq_items', 'reviews' => 'reviews_items', 'rating' => 'rating_items'] as $field => $setting) {
+            $rows = json_decode((string) ($data[$field . '_json'] ?? ''), true);
+            $pairs[$setting] = (is_array($rows) && count($rows))
+                ? json_encode($rows, JSON_UNESCAPED_UNICODE)
+                : '';
+        }
+
+        foreach (['delivery_inside' => 80, 'delivery_outside' => 150] as $charge => $default) {
+            if (array_key_exists($charge, $data) && (int) $data[$charge] > 0) {
+                $pairs[$charge] = (int) $data[$charge];
+            }
+        }
+
+        // hero images follow the logo upload pattern (removal restores the bundled default)
+        foreach (['hero_img1', 'hero_img2', 'hero_img3', 'hero_img4'] as $img) {
+            if ($request->boolean($img . '_remove')) {
+                $pairs[$img] = '';
+            } elseif ($request->hasFile($img)) {
+                $path = $request->file($img)->store('content', 'public');
+                $pairs[$img] = 'storage/' . $path;
+            }
+        }
+
+        Setting::setMany($pairs);
+
+        return back()->with('success', 'ল্যান্ডিং কনটেন্ট সেভ হয়েছে — ল্যান্ডিং পেজে দেখুন।');
     }
 
     /** Tracking pixels: FB / GA4 / GTM / TikTok. */

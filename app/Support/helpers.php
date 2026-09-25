@@ -20,6 +20,50 @@ if (!function_exists('asset_v')) {
     }
 }
 
+if (!function_exists('ab_t')) {
+    /** Admin-editable bilingual landing text. Empty stored value falls back to the default, so the landing never renders blank. */
+    function ab_t(string $key, string $bnDefault, string $enDefault = ''): array
+    {
+        $bn = trim((string) \App\Models\Setting::get($key . '_bn', ''));
+        $en = trim((string) \App\Models\Setting::get($key . '_en', ''));
+
+        return [
+            'bn' => $bn !== '' ? $bn : $bnDefault,
+            'en' => $en !== '' ? $en : ($enDefault !== '' ? $enDefault : $bnDefault),
+        ];
+    }
+}
+
+if (!function_exists('ab_img_setting')) {
+    /** Admin-uploaded image URL for a content slot; falls back to the bundled default (webp preferred). */
+    function ab_img_setting(string $key, string $defaultPath): string
+    {
+        $v = trim((string) \App\Models\Setting::get($key, ''));
+
+        return $v !== '' ? asset($v) : asset(ab_img($defaultPath));
+    }
+}
+
+if (!function_exists('ab_charge')) {
+    /** Numeric setting (delivery charges etc.) with default. */
+    function ab_charge(string $key, int $default): int
+    {
+        $v = (int) \App\Models\Setting::get($key, $default);
+
+        return $v > 0 ? $v : $default;
+    }
+}
+
+if (!function_exists('ab_json')) {
+    /** JSON-list setting (FAQ items, reviews, marquee) with default. */
+    function ab_json(string $key, array $default): array
+    {
+        $arr = json_decode((string) \App\Models\Setting::get($key, ''), true);
+
+        return is_array($arr) && count($arr) ? $arr : $default;
+    }
+}
+
 if (!function_exists('ab_contact')) {
     /** Contact info from admin settings with sensible defaults. */
     function ab_contact(string $key): string
