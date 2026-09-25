@@ -3035,17 +3035,43 @@ body {
 /* Mobile Drawer */
 .ds-mobile-drawer {
     pointer-events: auto;
+    position: relative;
+    z-index: 2;
     max-width: 1200px;
     margin: 8px auto 0;
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform: translateY(-8px);
+    transition: max-height 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .ds-mobile-drawer.open {
-    max-height: 520px;
+    /* never clip: fill the viewport below the bar, scroll if needed */
+    max-height: calc(100dvh - 130px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     opacity: 1;
+    transform: translateY(0);
+}
+
+/* backdrop behind the open drawer — tap to close */
+.ds-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background: rgba(6, 20, 15, 0.45);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.ds-drawer-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .ds-mobile-drawer-in {
@@ -5218,6 +5244,7 @@ body {
         0 0 0 1px rgba(var(--ds-accent-rgb), 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.85);
     position: relative;
+    z-index: 3;
 }
 
 .ds-header-bar::before {
@@ -5770,6 +5797,21 @@ footer a:hover {
     .ds-mobile-nav-toggle {
         width: 36px;
         height: 36px;
+    }
+}
+
+/* very narrow phones: compact logo, hide the "খাঁটি" pill */
+@media (max-width: 480px) {
+    .ds-logo {
+        gap: 7px;
+    }
+
+    .ds-logo-tx {
+        font-size: 17px;
+    }
+
+    .ds-logo-pill {
+        display: none;
     }
 }
 
@@ -6796,7 +6838,9 @@ details.ds-faq[open] summary i { transform: rotate(180deg); }
     transition: color 0.25s, transform 0.25s;
 }
 .lp-f-col a i { width: 16px; text-align: center; font-size: 13px; color: rgba(var(--ds-lime-neon-rgb), 0.8); }
+.lp-f-col a svg { width: 16px; height: 16px; flex-shrink: 0; color: rgba(var(--ds-lime-neon-rgb), 0.8); transition: color 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .lp-f-col a:hover { color: var(--ds-lime-neon); transform: translateX(4px); }
+.lp-f-col a:hover svg { color: var(--ds-lime-neon); transform: scale(1.12); }
 .lp-f-bar {
     position: relative;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
@@ -7202,6 +7246,15 @@ details.ds-faq[open] summary i { transform: rotate(180deg); }
     transform: translateY(-4px) rotate(-6deg);
     box-shadow: 0 14px 28px -10px rgba(var(--ds-accent-rgb), 0.55);
 }
+
+/* brand-colored hover glow (overrides generic green above) */
+.lp-f-social a[data-brand="facebook"]:hover { background: linear-gradient(135deg, #1877f2, #3b5998); }
+.lp-f-social a[data-brand="messenger"]:hover { background: linear-gradient(135deg, #00b2ff, #006aff); }
+.lp-f-social a[data-brand="whatsapp"]:hover { background: linear-gradient(135deg, #25d366, #128c7e); }
+.lp-f-social a[data-brand="phone"]:hover { background: linear-gradient(135deg, var(--ds-primary), var(--ds-accent)); }
+.lp-f-social a[data-brand]:hover { border-color: transparent; box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.5); }
+
+.lp-f-heart { color: var(--ds-accent); vertical-align: -2px; }
 
 /* ============================================================
    v5 — ADMIN SIDEBAR GROUPS + SEO/SITEMAP

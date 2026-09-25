@@ -6,7 +6,7 @@
 
 @section('content')
     <form method="POST" action="{{ $product->exists ? route('admin.products.update', $product) : route('admin.products.store') }}"
-        enctype="multipart/form-data" style="max-width:860px">
+        enctype="multipart/form-data" style="max-width:920px;margin:0 auto">
         @csrf
         @if ($product->exists)
             @method('PUT')
@@ -152,8 +152,4 @@
         </button>
         <a class="a-btn ghost" href="{{ route('admin.products.index') }}" style="margin-left:8px;text-decoration:none">বাতিল</a>
     </form>
-
-    <style>
-        .fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; }
-    </style>
 @endsection

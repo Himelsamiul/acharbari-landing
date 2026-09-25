@@ -36,7 +36,7 @@
     <!-- Font Awesome 6.5.1 (fonts inlined as base64 — works via file:// too) -->
     <link rel="stylesheet" href="{{ asset('assets/fontawesome.min.css?v=5') }}">
 
-    <link rel="stylesheet" href="{{ asset('assets/style.css?v=26') }}">
+    <link rel="stylesheet" href="{{ asset('assets/style.css?v=28') }}">
     @include('partials.seo-meta')
     @include('partials.theme-vars')
     @include('partials.pixels')
@@ -143,6 +143,9 @@
                 </div>
             </div>
         </div>
+
+        <!-- Backdrop: tap outside to close the drawer -->
+        <div class="ds-drawer-backdrop" id="drawerBackdrop" onclick="toggleMobileNav()" aria-hidden="true"></div>
     </header>
     @yield('content')
 
@@ -165,10 +168,18 @@
                 <p class="lp-f-tag" data-en="Homemade deshi pickles, honey &amp; ghee — delivered to your home across Bangladesh with Cash on Delivery.">
                     ঘরে তৈরি খাঁটি দেশি আচার, মধু ও ঘি — সারা বাংলাদেশে ক্যাশ অন ডেলিভারিতে হোম ডেলিভারি।</p>
                 <div class="lp-f-social">
-                    <a href="https://facebook.com/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="https://m.me/AcharBari" target="_blank" rel="noopener" aria-label="Messenger"><i class="fa-brands fa-facebook-messenger"></i></a>
-                    <a href="https://wa.me/8801707373692" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-                    <a href="tel:01707373692" aria-label="Hotline"><i class="fa-solid fa-phone"></i></a>
+                    <a href="https://facebook.com/" target="_blank" rel="noopener" aria-label="Facebook" data-brand="facebook">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    </a>
+                    <a href="https://m.me/AcharBari" target="_blank" rel="noopener" aria-label="Messenger" data-brand="messenger">
+                        <i class="fa-brands fa-facebook-messenger"></i>
+                    </a>
+                    <a href="https://wa.me/8801707373692" target="_blank" rel="noopener" aria-label="WhatsApp" data-brand="whatsapp">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                    <a href="tel:01707373692" aria-label="Hotline" data-brand="phone">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg>
+                    </a>
                 </div>
                 <div class="lp-f-pay">
                     <span class="img-chip"><img src="{{ asset('assets/img/pay/bkash.svg') }}" alt="bKash"></span>
@@ -181,28 +192,27 @@
 
             <div class="lp-f-col">
                 <h4 data-en="Quick Links">কুইক লিংক</h4>
-                <a href="{{ url('/#ds-products') }}"><i class="fa-solid fa-jar"></i> <span data-en="Products">প্রোডাক্টস</span></a>
-                <a href="{{ route('products') }}"><i class="fa-solid fa-jar"></i> <span data-en="All Products">সব প্রোডাক্ট</span></a>
-                <a href="#ds-why"><i class="fa-solid fa-shield-halved"></i> <span data-en="Why Us">কেন আমরা</span></a>
-                <a href="#ds-faq"><i class="fa-solid fa-circle-question"></i> <span data-en="FAQ">প্রশ্ন-উত্তর</span></a>
+                <a href="{{ url('/#ds-products') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5h8"/><path d="M7 2.5v4.2L5 10v9.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10l-2-3.3V2.5"/><path d="M5 10h14"/><path d="M9.5 14.5h5"/></svg> <span data-en="Products">প্রোডাক্টস</span></a>
+                <a href="{{ route('products') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></svg> <span data-en="All Products">সব প্রোডাক্ট</span></a>
+                <a href="#ds-why"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg> <span data-en="Why Us">কেন আমরা</span></a>
+                <a href="#ds-faq"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> <span data-en="FAQ">প্রশ্ন-উত্তর</span></a>
             </div>
 
             <div class="lp-f-col">
                 <h4 data-en="Contact &amp; Support">যোগাযোগ ও সাপোর্ট</h4>
-                <a href="tel:01707373692"><i class="fa-solid fa-phone"></i> 01707373692</a>
-                <a href="https://wa.me/8801707373692" target="_blank" rel="noopener"><i
-                        class="fa-brands fa-whatsapp"></i> WhatsApp</a>
-                <a href="https://facebook.com/" target="_blank" rel="noopener"><i class="fa-brands fa-facebook"></i>
+                <a href="tel:01707373692"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg> 01707373692</a>
+                <a href="https://wa.me/8801707373692" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+                <a href="https://facebook.com/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                     <span data-en="Facebook Page">ফেসবুক পেজ</span></a>
-                <a href="{{ route('admin.login') }}"><i class="fa-solid fa-user-shield"></i> <span data-en="Admin Demo">অ্যাডমিন ডেমো</span></a>
+                <a href="{{ route('admin.login') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span data-en="Admin Demo">অ্যাডমিন ডেমো</span></a>
             </div>
         </div>
 
         <div class="lp-f-bar">
             <span>© 2026 <strong data-ab-brand-name>আচারবাড়ি</strong>. <span data-en="All rights reserved">All rights
                     reserved</span></span>
-            <span><span data-en="Made with love by">Made with love by</span> <strong
-                    data-ab-brand-name>আচারবাড়ি</strong> 🧡</span>
+            <span class="lp-f-made"><span data-en="Made with love by">Made with love by</span> <strong
+                    data-ab-brand-name>আচারবাড়ি</strong> <svg class="lp-f-heart" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
         </div>
     </footer>
 

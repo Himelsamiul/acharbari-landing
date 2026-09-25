@@ -370,6 +370,10 @@
     </section>
 
     <!-- ================= CHECKOUT ORDER FORM SECTION ================= -->
+    {{-- live product data for cart + quick view (single source of truth: DB) --}}
+    <script>
+        window.quickViewProducts = @json($qv);
+    </script>
     <section id="order-form" class="py-12 px-4">
         <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border border-emerald-200 overflow-hidden">
             <div class="text-center p-6 border-b border-green-100 bg-white">
@@ -468,6 +472,7 @@
                         <form id="landing-checkout-form" action="{{ route('order.store') }}" method="POST" class="p-6">
                             @csrf
                             <input type="hidden" name="items" id="cart_items_input">
+                            <input type="hidden" name="coupon_code" id="coupon_hidden_code" value="">
                             <input type="hidden" name="landing_checkout" value="1">
 
                             <div class="space-y-4">
@@ -475,7 +480,7 @@
                                     <label class="block text-xs font-bold text-gray-700 mb-1" for="name">
                                         <span data-en="Your Full Name">আপনার সম্পূর্ণ নাম</span> <span class="text-red-500">*</span>
                                     </label>
-                                    <input id="name" type="text" name="name" required="" value=""
+                                    <input id="name" type="text" name="customer_name" required="" value=""
                                         class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none"
                                         placeholder="যেমন: মোঃ কামরুল হাসান" data-en-ph="e.g. Md. Kamrul Hasan">
                                 </div>
@@ -501,7 +506,7 @@
                                 <div id="landing-area-wrapper">
                                     <label class="block text-xs font-bold text-gray-700 mb-1" for="area"><span
                                             data-en="Delivery Area">ডেলিভারি এরিয়া</span></label>
-                                    <input type="hidden" name="area" id="landing_area_input" value="free_shipping">
+                                    <input type="hidden" name="area" id="landing_area_input" value="inside">
 
                                     <div id="landing-area-empty" class="">
                                         <input type="text"

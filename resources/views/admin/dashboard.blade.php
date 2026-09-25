@@ -15,6 +15,12 @@
             <p style="margin:0;font-size:13px;color:rgba(255,255,255,.85)">আজ <b style="color:#a3e635">{{ $stats['orders_today'] }}টি</b> নতুন অর্ডার এসেছে — মোট {{ $stats['orders_total'] }}টি অর্ডারের মধ্যে {{ $stats['pending'] }}টি পেন্ডিং আছে।</p>
         </div>
     </div>
+    <style>
+        @media (max-width: 640px) {
+            .dash-banner > div { padding: 20px 18px !important; }
+            .dash-banner h3 { font-size: 17px !important; }
+        }
+    </style>
 
     <div class="stat-grid">
         <div class="stat-card">

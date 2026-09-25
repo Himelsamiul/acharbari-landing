@@ -18,7 +18,11 @@
         body {
             margin: 0;
             font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
-            background: color-mix(in srgb, var(--ds-primary, #059669) 7%, #f4f1ec);
+            background:
+                radial-gradient(900px 500px at 85% -10%, rgba(16,185,129,.10), transparent 60%),
+                radial-gradient(700px 400px at -10% 30%, rgba(163,230,53,.07), transparent 55%),
+                color-mix(in srgb, var(--ds-primary, #059669) 7%, #f4f1ec);
+            background-attachment: fixed;
             color: #12261d;
             -webkit-font-smoothing: antialiased;
         }
@@ -87,11 +91,28 @@
             border: 1px solid rgba(251,191,36,.35);
         }
 
-        .main-wrap { flex: 1; padding: 24px 28px; max-width: 1160px; }
+        .main-wrap { flex: 1; padding: 24px 28px; min-width: 0; }
         .topbar {
+            position: sticky; top: 0; z-index: 40;
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 22px; gap: 14px; flex-wrap: wrap;
+            margin: -24px -28px 22px; padding: 16px 28px;
+            gap: 14px; flex-wrap: wrap;
+            background: rgba(244, 241, 236, .82);
+            backdrop-filter: blur(14px) saturate(150%);
+            -webkit-backdrop-filter: blur(14px) saturate(150%);
+            border-bottom: 1px solid rgba(5,150,105,.10);
         }
+        .topbar-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .menu-btn {
+            display: none;
+            border: 1px solid rgba(5,150,105,.2);
+            background: #fff; color: #1f4234;
+            width: 40px; height: 40px; border-radius: 12px;
+            font-size: 15px; cursor: pointer; flex-shrink: 0;
+            align-items: center; justify-content: center;
+            transition: background .2s, color .2s;
+        }
+        .menu-btn:hover { background: #059669; color: #fff; }
         .topbar h2 { margin: 0; font-size: 21px; }
         .topbar p { margin: 2px 0 0; font-size: 12.5px; color: #8b7355; }
         .top-actions { display: flex; gap: 10px; align-items: center; }
@@ -226,6 +247,52 @@
         .filter-tab.active { background: linear-gradient(135deg, #059669, #10b981); color: #fff; border-color: transparent; }
         .filter-tab b { opacity: .7; font-weight: 700; }
 
+        /* ---- Shared form styles ---- */
+        .a-field { margin-bottom: 4px; }
+        .a-field label {
+            display: block; font-size: 12px; font-weight: 700;
+            margin-bottom: 6px; color: #1f4234;
+        }
+        .a-input {
+            width: 100%;
+            background: #fff;
+            border: 1.5px solid rgba(5,150,105,.22);
+            border-radius: 12px;
+            padding: 11px 14px;
+            font-size: 13.5px;
+            font-family: inherit;
+            color: #12261d;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .a-input::placeholder { color: #a8b8af; }
+        .a-input:focus { border-color: #059669; box-shadow: 0 0 0 4px rgba(5,150,105,.12); }
+        textarea.a-input { resize: vertical; min-height: 44px; }
+        select.a-input { cursor: pointer; appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23059669' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; }
+        input.a-input[type="file"] { padding: 9px 12px; cursor: pointer; }
+        input[type="checkbox"] { accent-color: #059669; width: 16px; height: 16px; cursor: pointer; }
+        .a-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            border: none; cursor: pointer; font-family: inherit;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #fff; font-weight: 800; font-size: 13.5px;
+            padding: 12px 22px; border-radius: 12px;
+            box-shadow: 0 12px 26px -12px rgba(5,150,105,.55);
+            transition: transform .15s, filter .2s, box-shadow .2s;
+            text-decoration: none;
+        }
+        .a-btn:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 16px 30px -12px rgba(5,150,105,.6); }
+        .a-btn:active { transform: translateY(0); }
+        .a-btn.ghost {
+            background: #fff; color: #1f4234;
+            border: 1.5px solid rgba(5,150,105,.25);
+            box-shadow: none;
+        }
+        .a-btn.ghost:hover { border-color: #059669; background: rgba(5,150,105,.05); }
+        .fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px 14px; }
+
         .alert-success {
             background: rgba(22,163,74,.1);
             border: 1px solid rgba(22,163,74,.3);
@@ -235,16 +302,54 @@
             margin-bottom: 18px;
         }
 
+        .side-overlay {
+            display: none;
+            position: fixed; inset: 0; z-index: 98;
+            background: rgba(2, 26, 20, .55);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            opacity: 0; transition: opacity .3s ease;
+        }
+
         @media (max-width: 900px) {
-            .sidebar { display: none; }
+            .menu-btn { display: inline-flex; }
+            .side-overlay { display: block; pointer-events: none; }
+            .sidebar {
+                position: fixed; left: 0; top: 0; z-index: 100;
+                width: 272px; height: 100dvh;
+                transform: translateX(-102%);
+                transition: transform .32s cubic-bezier(.32,.72,.28,1);
+                box-shadow: 0 0 60px rgba(0,0,0,.35);
+                padding-top: 16px;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .side-overlay.show { opacity: 1; pointer-events: auto; }
+            body.drawer-open { overflow: hidden; }
+            .topbar {
+                margin: 0 -14px 16px; padding: 12px 14px;
+                border-radius: 0 0 18px 18px;
+            }
+            .topbar h2 { font-size: 18px; }
+            .topbar .top-actions .side-link { display: none; }
+            .avatar-chip { padding: 5px 10px 5px 6px; font-size: 11.5px; }
+            .avatar-chip .av { width: 26px; height: 26px; font-size: 10.5px; }
             .main-wrap { padding: 14px; }
-            .card { overflow-x: auto; }
+            .card { overflow-x: auto; padding: 16px 14px; }
             .tbl { min-width: 560px; }
+            .stat-card .val { font-size: 21px; }
             .mobile-nav { display: flex !important; }
+        }
+        @media (max-width: 420px) {
+            .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-card { padding: 13px 14px; }
+            .stat-card .ic { width: 32px; height: 32px; font-size: 13px; }
+            .avatar-chip span:not(.av) { display: none; }
         }
         .mobile-nav {
             display: none; gap: 6px; overflow-x: auto; margin-bottom: 16px; padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none;
         }
+        .mobile-nav::-webkit-scrollbar { display: none; }
         .mobile-nav .side-link {
             white-space: nowrap; width: auto;
             background: #fff; color: #1f4234;
@@ -256,8 +361,10 @@
 
 <body>
     <div class="admin-shell">
+        <div class="side-overlay" id="sideOverlay"></div>
+
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="adminSidebar">
             <div class="side-brand">
                 <div class="logo-box"><i class="fa-solid fa-jar"></i></div>
                 <div>
@@ -306,9 +413,12 @@
         <!-- Main -->
         <div class="main-wrap">
             <div class="topbar">
-                <div>
-                    <h2>@yield('page_title', 'ড্যাশবোর্ড')</h2>
-                    <p>@yield('page_sub', 'আচারবাড়ি অ্যাডমিন প্যানেল')</p>
+                <div class="topbar-title">
+                    <button class="menu-btn" id="menuBtn" aria-label="মেনু"><i class="fa-solid fa-bars"></i></button>
+                    <div>
+                        <h2>@yield('page_title', 'ড্যাশবোর্ড')</h2>
+                        <p>@yield('page_sub', 'আচারবাড়ি অ্যাডমিন প্যানেল')</p>
+                    </div>
                 </div>
                 <div class="top-actions">
                     <a class="side-link" style="background:#fff;color:#1f4234;border-radius:12px" href="{{ url('/') }}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> সাইট দেখুন</a>
@@ -345,6 +455,24 @@
         @if (session('success'))
             document.addEventListener('DOMContentLoaded', function () { showToast(@js(session('success'))); });
         @endif
+        (function () {
+            var sidebar = document.getElementById('adminSidebar');
+            var overlay = document.getElementById('sideOverlay');
+            var btn = document.getElementById('menuBtn');
+            function setDrawer(open) {
+                sidebar.classList.toggle('open', open);
+                overlay.classList.toggle('show', open);
+                document.body.classList.toggle('drawer-open', open);
+            }
+            if (btn) btn.addEventListener('click', function () { setDrawer(!sidebar.classList.contains('open')); });
+            if (overlay) overlay.addEventListener('click', function () { setDrawer(false); });
+            sidebar.querySelectorAll('.side-link').forEach(function (a) {
+                a.addEventListener('click', function () { setDrawer(false); });
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') setDrawer(false);
+            });
+        })();
     </script>
     @stack('scripts')
 </body>

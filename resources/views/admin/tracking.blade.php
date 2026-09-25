@@ -11,10 +11,15 @@
     </div>
 
     <div class="track-grid">
-        @foreach (['fb' => ['Facebook Pixel', 'fa-brands fa-facebook', '#1877F2', 'Pixel ID (যেমন: 123456789012345)'],
-                  'ga' => ['Google Analytics 4', 'fa-solid fa-chart-line', '#F9AB00', 'Measurement ID (G-XXXXXXXXXX)'],
-                  'gtm' => ['Google Tag Manager', 'fa-solid fa-tags', '#246FDB', 'Container ID (GTM-XXXXXXX)'],
-                  'tiktok' => ['TikTok Pixel', 'fa-brands fa-tiktok', '#000000', 'Pixel Code ID'] as $key => $t)
+        @php
+            $trackers = [
+                'fb' => ['Facebook Pixel', 'fa-brands fa-facebook', '#1877F2', 'Pixel ID — যেমন 123456789012345'],
+                'ga' => ['Google Analytics 4', 'fa-solid fa-chart-line', '#F9AB00', 'Measurement ID — G-XXXXXXXXXX'],
+                'gtm' => ['Google Tag Manager', 'fa-solid fa-tags', '#246FDB', 'Container ID — GTM-XXXXXXX'],
+                'tiktok' => ['TikTok Pixel', 'fa-brands fa-tiktok', '#000000', 'Pixel Code ID'],
+            ];
+        @endphp
+        @foreach ($trackers as $key => $t)
             <div class="track-card" style="--tc: {{ $t[2] }}">
                 <div class="track-head">
                     <span class="track-ic"><i class="{{ $t[1] }}"></i></span>

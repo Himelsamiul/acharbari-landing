@@ -1301,75 +1301,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// 4. Product Quick View Database & Modal (bilingual: bn + en)
-window.quickViewProducts = {
-    1: {
-        title: "খাঁটি আমের কুচি আচার (৫০০ গ্রাম) — খাঁটি সরিষার তেলে",
-        title_en: "Authentic Mango Kuchi Achar (500g) — in pure mustard oil",
-        category: "আচার", category_en: "Pickles",
-        price: "৳৪৫০", price_en: "৳450",
-        oldPrice: "৳৬০০", oldPrice_en: "৳600",
-        discount: "-২৫%", discount_en: "-25%",
-        img: "assets/img/prod_mango.jpg",
-        desc: "মৌসুমি কাঁচা আম ও বিশুদ্ধ মসলায় ঘরে তৈরি খাঁটি কুচি আচার। খাঁটি সরিষার তেলে ভরা, কোনো প্রিজারভেটিভ বা কেমিক্যাল ছাড়াই ১২ মাস পর্যন্ত ভালো থাকে। প্রতিটি জার হাতে সিল করা।",
-        desc_en: "Homemade authentic kuchi achar made with seasonal raw mangoes and pure spices. Packed in premium mustard oil — stays good up to 12 months with no preservatives or chemicals. Every jar is hand-sealed."
-    },
-    2: {
-        title: "হাতে তৈরি জলপাই আচার (৪০০ গ্রাম) — ঠাকুমার রেসিপিতে",
-        title_en: "Handmade Jalpai Olive Pickle (400g) — Thakumar recipe",
-        category: "আচার", category_en: "Pickles",
-        price: "৳৩৮০", price_en: "৳380",
-        oldPrice: "৳৪৫০", oldPrice_en: "৳450",
-        discount: "-১৫%", discount_en: "-15%",
-        img: "assets/img/prod_jalpai.jpg",
-        desc: "দেশি জলপাই ও ঐতিহ্যবাহী ঠাকুমার রেসিপিতে হাতে তৈরি। হালকা টক-মিষ্টি স্বাদে পুরো পরিবারের প্রিয়। ভাত, পরোটা কিংবা নাস্তার সঙ্গে দুর্দান্ত।",
-        desc_en: "Handmade from deshi jalpai olives following a traditional family recipe. A light sweet-and-tangy taste the whole family loves. Perfect with rice, paratha or snacks."
-    },
-    3: {
-        title: "স্পেশাল মিক্সড আচার প্যাক (৩ প্রকার) — আম, জলপাই ও মরিচ",
-        title_en: "Special Mixed Pickle Pack (3 Varieties) — mango, olive & chili",
-        category: "আচার", category_en: "Pickles",
-        price: "৳৬৫০", price_en: "৳650",
-        oldPrice: "৳৯০০", oldPrice_en: "৳900",
-        discount: "-২৮%", discount_en: "-28%",
-        img: "assets/img/prod_mix.jpg",
-        desc: "তিনটি আলাদা সিল করা জারে আমের কুচি, জলপাই ও হট মরিচ আচার। উপহার দেওয়ার জন্য বা নিজে স্বাদ বেছে খাওয়ার জন্য পারফেক্ট কম্বো প্যাক।",
-        desc_en: "Three separately sealed jars — mango kuchi, jalpai and hot chili achar. A perfect combo pack for gifting or for tasting a bit of everything yourself."
-    },
-    4: {
-        title: "তেঁতুল ঝোল টক-ঝাল চাটনি (৩৫০ গ্রাম) — খিচুড়ি ও নাস্তার সঙ্গী",
-        title_en: "Tetul Jhol Tangy Chutney (350g) — perfect with khichuri & snacks",
-        category: "চাটনি", category_en: "Chutney",
-        price: "৳২৯০", price_en: "৳290",
-        oldPrice: "৳৩৯০", oldPrice_en: "৳390",
-        discount: "-২৬%", discount_en: "-26%",
-        img: "assets/img/prod_chutney.jpg",
-        desc: "দেশি তেঁতুলের ঘন ঝোল চাটনি — টক-ঝাল-মিষ্টির নিখুঁত ব্যালেন্স। খিচুড়ি, বিরিয়ানি কিংবা সিঙাড়া-পুরির সঙ্গে সবার প্রিয়। কোনো কেমিক্যাল বা কালার নেই।",
-        desc_en: "Thick tamarind chutney with a perfect tangy-hot-sweet balance. Everyone's favourite with khichuri, biryani or singara-puri. No chemicals or colour added."
-    },
-    5: {
-        title: "ঘরে ভাঙা খাঁটি দেশি ঘি (৫০০ মিলি) — গ্রামের গরুর দুধের সর",
-        title_en: "Pure Homemade Deshi Ghee (500ml) — from village cow milk",
-        category: "মধু ও ঘি", category_en: "Honey & Ghee",
-        price: "৳১,১৯০", price_en: "৳1,190",
-        oldPrice: "৳১,৪০০", oldPrice_en: "৳1,400",
-        discount: "-১৫%", discount_en: "-15%",
-        img: "assets/img/prod_ghee.jpg",
-        desc: "গ্রামের গরুর দুধের সর থেকে ঐতিহ্যবাহী পদ্ধতিতে ঘরে ভাঙা খাঁটি দেশি ঘি। সেই চেনা ঘ্রাণ আর স্বাদ — ভাত, খিচুড়ি বা পায়েসে এক চামচই যথেষ্ট।",
-        desc_en: "Pure deshi ghee churned at home from village cow milk cream using the traditional method. That familiar aroma and taste — one spoon is enough on rice, khichuri or payesh."
-    },
-    6: {
-        title: "সুন্দরবনের খাঁটি কাঁচা মধু (১ কেজি) — ল্যাব টেস্টেড, চিনি মুক্ত",
-        title_en: "Pure Raw Sundarban Honey (1kg) — lab-tested, no sugar added",
-        category: "মধু ও ঘি", category_en: "Honey & Ghee",
-        price: "৳৯৯০", price_en: "৳990",
-        oldPrice: "৳১,২৫০", oldPrice_en: "৳1,250",
-        discount: "-২০%", discount_en: "-20%",
-        img: "assets/img/prod_honey.jpg",
-        desc: "সুন্দরবনের খলিসা ও কেওড়া ফুলের ১০০% খাঁটি কাঁচা মধু। কোনো প্রকার চিনি বা কেমিক্যাল মুক্ত ল্যাব-টেস্টেড খাঁটি মধু সরাসরি মৌয়ালদের কাছ থেকে আপনার ঘরে।",
-        desc_en: "100% pure raw honey from the khalsena and keora flowers of the Sundarbans. Lab-tested with no sugar or chemicals — collected directly from honey hunters to your home."
-    }
-};
+// 4. Product Quick View & Cart (bilingual: bn + en)
+// Product data is injected per-page from the database via
+// window.quickViewProducts = @json($qv) in the Blade views.
 
 var currentQvProductId = null;
 
@@ -1416,6 +1350,11 @@ window.orderFromQuickView = function () {
 };
 
 window.selectProductForOrder = function (productId) {
+    // pages without the checkout cart (e.g. /products) go to the home checkout
+    if (!document.querySelector('.lp-cart-wrapper')) {
+        window.location.href = '/#order-form';
+        return;
+    }
     if (typeof addToCartFromRow === 'function') {
         try { addToCartFromRow(productId); } catch (e) { }
     }
@@ -1464,9 +1403,12 @@ window.submitSellerWaitlist = function (e) {
 window.toggleMobileNav = function () {
     var drawer = document.getElementById('mobileNavDrawer');
     var btn = document.getElementById('mobileNavToggle');
+    var backdrop = document.getElementById('drawerBackdrop');
     if (drawer) {
         var isOpen = drawer.classList.toggle('open');
+        if (backdrop) backdrop.classList.toggle('show', isOpen);
         if (btn) {
+            btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             var BARS = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
             var XMARK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
             btn.innerHTML = isOpen ? XMARK : BARS;
@@ -1787,9 +1729,10 @@ document.addEventListener('keydown', function (e) {
         list.forEach(function (pid) {
             var p = prodData(pid);
             if (!p) return;
-            vatTotal += bnToNum(p.price) * cart[pid].qty * (parseFloat(p.vat_percent) || 0) / 100;
+            // per-line VAT rounded to 2dp — matches OrderController rounding exactly
+            vatTotal += Math.round(bnToNum(p.price) * cart[pid].qty * (parseFloat(p.vat_percent) || 0)) / 100;
         });
-        var grand = Math.max(0, subtotal - discount) + Math.round(vatTotal) + (list.length ? ship : 0);
+        var grand = Math.max(0, subtotal - discount) + vatTotal + (list.length ? ship : 0);
 
         var discountRow = coupon
             ? '<div class="lp-cart-total-row"><span>' + L('ডিসকাউন্ট', 'Discount') + ' (' + esc(coupon.code) + ')</span><span style="color:var(--ds-primary)">− ৳ ' + fmt(discount) + '</span></div>'
@@ -1824,6 +1767,9 @@ document.addEventListener('keydown', function (e) {
         }
         var sel = document.getElementById('area');
         if (sel) sel.toggleAttribute('required', list.length > 0);
+        // keep the hidden "area" field in sync (server validates inside|outside)
+        var areaInput = document.getElementById('landing_area_input');
+        if (areaInput) areaInput.value = (list.length && sel) ? sel.value : 'inside';
 
         try { landingCartItems = list.map(function (pid) { return parseInt(pid, 10); }); } catch (e) { }
     }
@@ -1848,7 +1794,14 @@ document.addEventListener('keydown', function (e) {
     };
 
     window.addToCartFromRow = function (productId) {
-        window.toggleProductFromCart(productId, true);
+        productId = parseInt(productId, 10);
+        // already in the cart → bump the quantity instead of doing nothing
+        if (cart[productId] && cart[productId].qty < 10) {
+            cart[productId].qty++;
+            render();
+        } else {
+            window.toggleProductFromCart(productId, true);
+        }
     };
 
     window.submitCoupon = function () {
@@ -1920,7 +1873,11 @@ document.addEventListener('keydown', function (e) {
                 }));
             }
             var couponInput = document.getElementById('coupon_input');
-            if (couponInput && !couponInput.name) couponInput.name = 'coupon_code';
+            var couponHidden = document.getElementById('coupon_hidden_code');
+            if (couponHidden) {
+                // coupon box sits outside the <form> — copy the applied code in
+                couponHidden.value = coupon ? coupon.code : (couponInput ? couponInput.value.trim() : '');
+            }
             // natural form POST → server recalculates everything securely
         });
     }
