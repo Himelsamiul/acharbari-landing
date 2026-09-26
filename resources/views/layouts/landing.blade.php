@@ -36,7 +36,6 @@
         $navReviews = ab_t('nav_reviews', 'রিভিউ', 'Reviews');
         $navFaq = ab_t('nav_faq', 'প্রশ্ন-উত্তর', 'FAQ');
         $navOrder = ab_t('nav_order', 'অর্ডার করুন', 'Order Now');
-        $logoPill = ab_t('logo_pill', 'খাঁটি', 'Pure');
         $footerTag = ab_t('footer_tag', 'ঘরে তৈরি খাঁটি দেশি আচার, মধু ও ঘি — সারা বাংলাদেশে ক্যাশ অন ডেলিভারিতে হোম ডেলিভারি।', 'Homemade deshi pickles, honey & ghee — delivered to your home across Bangladesh with Cash on Delivery.');
         $footerLinksH = ab_t('footer_col_links', 'কুইক লিংক', 'Quick Links');
         $footerContactH = ab_t('footer_col_contact', 'যোগাযোগ ও সাপোর্ট', 'Contact & Support');
@@ -66,7 +65,6 @@
                     <span data-lang="bn">{{ $settings['brand_bn1'] ?? 'আচার' }}<em>{{ $settings['brand_bn2'] ?? 'বাড়ি' }}</em></span>
                     <span data-lang="en">{{ $settings['brand_en1'] ?? 'Achar' }}<em>{{ $settings['brand_en2'] ?? 'Bari' }}</em></span>
                 </span>
-                <span class="ds-logo-pill">{{ $logoPill['bn'] }}</span>
             </a>
 
             <!-- Central Floating Pill Navigation -->

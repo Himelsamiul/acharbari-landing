@@ -468,6 +468,7 @@
                 </div>
                 <div>
                     <b>{{ ab_brand('bn') }}</b>
+                    <span>ADMIN PANEL</span>
                 </div>
             </div>
 
