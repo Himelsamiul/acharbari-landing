@@ -6,7 +6,7 @@ if (!function_exists('ab_img')) {
     {
         // Industry preset: prefer a genre-pack asset with the same basename when present
         $industry = ab_industry();
-        if ($industry !== '' && str_starts_with($path, 'assets/img/')) {
+        if ($industry !== '' && str_starts_with($path, 'assets/img/') && !str_starts_with($path, 'assets/img/genres/')) {
             $candidate = 'assets/img/genres/' . $industry . '/' . preg_replace('/\.(jpe?g|png|webp)$/i', '.svg', basename($path));
             if (is_file(public_path($candidate))) return $candidate;
         }
@@ -60,6 +60,35 @@ if (!function_exists('ab_t')) {
     }
 }
 
+
+if (!function_exists('ab_pill_categories')) {
+    /** Categories for the landing filter pills.
+     *  Industry active -> only that genre's own categories.
+     *  Default -> everything except genre-managed leftovers (stale pills hidden). */
+    function ab_pill_categories()
+    {
+        $managed = [];
+        foreach (\App\Http\Controllers\Admin\IndustryPack::all() as $gKey => $pack) {
+            foreach (\App\Http\Controllers\Admin\IndustryPack::products($gKey) as $p) {
+                $managed[$p['category_key']] = true;
+            }
+        }
+
+        $industry = ab_industry();
+        if ($industry !== '') {
+            $genreKeys = [];
+            foreach (\App\Http\Controllers\Admin\IndustryPack::products($industry) as $p) {
+                $genreKeys[$p['category_key']] = true;
+            }
+            return \App\Models\Category::whereIn('key', array_keys($genreKeys))
+                ->where('is_active', 1)->orderBy('id')->get();
+        }
+
+        return \App\Models\Category::whereNotIn('key', array_keys($managed))
+            ->where('is_active', 1)->orderBy('id')->get();
+    }
+}
+
 if (!function_exists('ab_img_setting')) {
     /** Admin-uploaded image URL for a content slot; falls back to the bundled default (webp preferred). */
     function ab_img_setting(string $key, string $defaultPath): string
@@ -70,9 +99,11 @@ if (!function_exists('ab_img_setting')) {
         // Industry preset: try the genre image pack before the bundled default
         $industry = ab_industry();
         if ($industry !== '') {
-            $slot = \App\Http\Controllers\Admin\IndustryPack::slotFor($industry, $key)
-                ?? preg_replace('/\.(jpe?g|png|webp)$/i', '.svg', basename($defaultPath));
-            if ($slot !== null) {
+            $candidates = [\App\Http\Controllers\Admin\IndustryPack::slotFor($industry, $key)];
+            $candidates[] = preg_replace('/\.(jpe?g|png|webp)$/i', '.jpg', basename($defaultPath));
+            $candidates[] = preg_replace('/\.(jpe?g|png|webp)$/i', '.svg', basename($defaultPath));
+            foreach ($candidates as $slot) {
+                if ($slot === null) continue;
                 $candidate = 'assets/img/genres/' . $industry . '/' . $slot;
                 if (is_file(public_path($candidate))) return asset($candidate);
             }

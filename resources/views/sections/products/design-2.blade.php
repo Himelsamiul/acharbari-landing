@@ -17,7 +17,7 @@
                 'pure' => '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
                 'chaatni' => '<path d="M4 11h16"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M9.5 7.5V6"/><path d="M12 7.5V5"/><path d="M14.5 7.5V6"/>',
             ];
-            $v2homeCategories = \App\Models\Category::orderBy('id')->get();
+            $v2homeCategories = ab_pill_categories();
         @endphp
 
         <div class="prod-v2__head">

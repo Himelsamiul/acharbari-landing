@@ -20,10 +20,10 @@ class IndustryPack
     public static function slots(): array
     {
         return [
-            'hero_img1' => 'hero-1.svg',
-            'hero_img2' => 'hero-2.svg',
-            'hero_img3' => 'hero-3.svg',
-            'hero_img4' => 'hero-4.svg',
+            'hero_img1' => 'hero-1.jpg',
+            'hero_img2' => 'hero-2.jpg',
+            'hero_img3' => 'hero-3.jpg',
+            'hero_img4' => 'hero-4.jpg',
         ];
     }
 
@@ -37,7 +37,7 @@ class IndustryPack
         return $key !== null && $key !== '' && array_key_exists($key, self::all());
     }
 
-    /** Slot file for a setting key, e.g. hero_img1 → hero-1.svg */
+    /** Slot file for a setting key, e.g. hero_img1 → hero-1.jpg */
     public static function slotFor(string $industry, string $key): ?string
     {
         if (!self::valid($industry)) return null;
@@ -254,12 +254,12 @@ class IndustryPack
                 ['বুফে ক্যাটারিং (১০০ জন)', 'Buffet Catering (100 pax)', 'ক্যাটারিং', 'Catering', 'catering', 12000, 15000, 'অনুষ্ঠানের জন্য সম্পূর্ণ ম্যানেজমেন্ট'],
             ],
             'fashion' => [
-                ['প্রিমিয়াম এমব্রয়ডারি পাঞ্জাবি', 'Premium Embroidered Panjabi', 'পাঞ্জাবি', 'Panjabi', 'men', 1290, 1690, 'সাটিন কটন, জামদানি নকশি'],
-                ['হাফ সিল্ক জামদানি শাড়ি', 'Half Silk Jamdani Saree', 'শাড়ি', 'Saree', 'women', 2450, 2990, 'নকশিকাঁথা বর্ডারসহ'],
-                ['কুর্তি — ব্লক প্রিন্ট', 'Block Print Kurti', 'কুর্তি', 'Kurti', 'women', 890, 1150, 'কটন, নিয়মিত পরার জন্য'],
-                ['জেন্টস ক্যাজুয়াল টি-শার্ট', 'Men Casual Tee', 'টি-শার্ট', 'T-Shirt', 'men', 450, 590, '১০০% কমব্যাক কটন'],
-                ['থ্রি-পিস সেট', 'Three Piece Set', 'থ্রি-পিস', 'Three Piece', 'women', 1850, 2400, 'আনস্টিচড ফেব্রিক সেট'],
-                ['পাঞ্জাবি পেজডি সেট', 'Panjabi & Pajama Set', 'সেট', 'Set', 'men', 1590, 1990, 'ম্যাচিং পেজডিসহ কমপ্লিট'],
+                ['প্রিমিয়াম এমব্রয়ডারি পাঞ্জাবি', 'Premium Embroidered Panjabi', 'পাঞ্জাবি', 'Panjabi', 'panjabi', 1290, 1690, 'সাটিন কটন, জামদানি নকশি'],
+                ['হাফ সিল্ক জামদানি শাড়ি', 'Half Silk Jamdani Saree', 'শাড়ি', 'Saree', 'saree', 2450, 2990, 'নকশিকাঁথা বর্ডারসহ'],
+                ['কুর্তি — ব্লক প্রিন্ট', 'Block Print Kurti', 'কুর্তি', 'Kurti', 'kurti', 890, 1150, 'কটন, নিয়মিত পরার জন্য'],
+                ['জেন্টস ক্যাজুয়াল টি-শার্ট', 'Men Casual Tee', 'টি-শার্ট', 'T-Shirt', 'tshirt', 450, 590, '১০০% কমব্যাক কটন'],
+                ['থ্রি-পিস সেট', 'Three Piece Set', 'থ্রি-পিস', 'Three Piece', 'threepiece', 1850, 2400, 'আনস্টিচড ফেব্রিক সেট'],
+                ['পাঞ্জাবি পেজডি সেট', 'Panjabi & Pajama Set', 'সেট', 'Set', 'set', 1590, 1990, 'ম্যাচিং পেজডিসহ কমপ্লিট'],
             ],
             'beauty' => [
                 ['ভিটামিন সি ফেস সিরাম', 'Vitamin C Face Serum', 'স্কিনকেয়ার', 'Skincare', 'skincare', 690, 890, 'উজ্জ্বল ত্বকের জন্য দৈনিক সিরাম'],
@@ -331,7 +331,7 @@ class IndustryPack
                 'desc' => $p[7], 'desc_en' => $p[7],
                 'image' => $key === 'organic'
                     ? ['assets/img/prod_mango.jpg', 'assets/img/prod_mix.jpg', 'assets/img/prod_honey.jpg', 'assets/img/prod_ghee.jpg', 'assets/img/spice_box.jpg', 'assets/img/prod_jalpai.jpg'][$i]
-                    : 'assets/img/genres/' . $key . '/product-' . ($i + 1) . '.svg',
+                    : 'assets/img/genres/' . $key . '/product-' . ($i + 1) . '.jpg',
             ];
         }
         return $out;
@@ -429,7 +429,7 @@ class IndustryPack
         $out = [];
         foreach ($sel as $i => $r) {
             $out[] = [
-                'img' => 'assets/img/genres/' . $key . '/avatar-' . ($i + 1) . '.svg',
+                'img' => 'assets/img/genres/' . $key . '/avatar-' . ($i + 1) . '.jpg',
                 'name' => ['রফিকুল ইসলাম', 'শারমিন আক্তার', 'তানভীর হাসান'][$i % 3],
                 'loc_bn' => 'ভেরিফাইড পারচেজ • ঢাকা',
                 'loc_en' => 'Verified Purchase • Dhaka',

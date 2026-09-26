@@ -682,6 +682,19 @@ class SettingController extends Controller
                 foreach ($cats as $ck => [$bn, $en]) {
                     \App\Models\Category::updateOrCreate(['key' => $ck], ['name' => $bn, 'name_en' => $en, 'is_active' => true]);
                 }
+
+                // hide other genres' managed categories (only the active genre's stay visible)
+                $otherKeys = [];
+                foreach (\App\Http\Controllers\Admin\IndustryPack::all() as $gKey => $gPack) {
+                    if ($gKey === $key) continue;
+                    foreach (\App\Http\Controllers\Admin\IndustryPack::products($gKey) as $p) {
+                        $otherKeys[$p['category_key']] = true;
+                    }
+                }
+                $otherKeys = array_diff(array_keys($otherKeys), array_keys($cats), ['pickle', 'pure', 'chaatni']);
+                if ($otherKeys) {
+                    \App\Models\Category::whereIn('key', $otherKeys)->update(['is_active' => false]);
+                }
             });
         } catch (\Throwable $e) {
             return response()->json(['ok' => false, 'message' => 'ডেমো প্রোডাক্ট সিঙ্ক ব্যর্থ: ' . $e->getMessage()], 500);
