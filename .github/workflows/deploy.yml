@@ -27,6 +27,9 @@ jobs:
             set ssl:verify-certificate no
             set net:max-retries 3
             set net:timeout 30
+            debug 3
+            pwd
+            ls -la .
             mirror -R --verbose \
               --exclude-glob .git* \
               --exclude-glob .github \
