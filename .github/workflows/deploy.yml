@@ -30,8 +30,8 @@ jobs:
             set ssl:verify-certificate no
             set net:max-retries 3
             set net:timeout 30
-            # FTP account er home directory nijei public_html hobe —
-            # tai login er por CWD e mirror korlei thik jaygay pore
+            # main cPanel FTP account (khorak) chroot home = /home/khorak —
+            # tai absolute /public_html e upload korlei exactly doc root e pore
             mirror -R --verbose --overwrite \
               --exclude-glob .git* \
               --exclude-glob .github \
@@ -40,7 +40,7 @@ jobs:
               --exclude-glob node_modules \
               --exclude-glob tests \
               --exclude DEPLOYMENT.md \
-              . .
+              . /public_html
             bye
           SCRIPT
 
