@@ -130,14 +130,6 @@
             font-weight: 600;
             margin-bottom: 14px;
         }
-        .demo-hint {
-            margin-top: 16px;
-            font-size: 11.5px; text-align: center; color: rgba(255,255,255,.72);
-            background: rgba(255,255,255,.08);
-            border: 1px dashed rgba(255,255,255,.22);
-            padding: 9px 12px; border-radius: 10px;
-        }
-        .demo-hint a { color: #a3e635; font-weight: 700; text-decoration: none; }
         .remember-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 12px; color: rgba(255,255,255,.75); }
         .remember-row input { accent-color: #10b981; width: 15px; height: 15px; }
     </style>
@@ -151,7 +143,7 @@
             <i class="fa-solid fa-jar"></i>
         </div>
         <h1><span>{{ config('app.name') }}</span> <span class="hl">Admin</span></h1>
-        <p class="sub">ডেমো ড্যাশবোর্ড — লগইন করে অর্ডার ম্যানেজ করুন</p>
+        <p class="sub">অ্যাডমিন প্যানেল — লগইন করে অর্ডার ম্যানেজ করুন</p>
 
         @if ($errors->any())
             <div class="err-box"><i class="fa-solid fa-circle-exclamation"></i> {{ $errors->first() }}</div>
@@ -161,7 +153,7 @@
             @csrf
             <div class="a-field">
                 <label>ইমেইল</label>
-                <input class="a-input" type="email" name="email" value="{{ old('email') }}" placeholder="admin@khorak.shop" required autofocus>
+                <input class="a-input" type="email" name="email" value="{{ old('email') }}" placeholder="apnar@email.com" required autofocus>
             </div>
             <div class="a-field">
                 <label>পাসওয়ার্ড</label>
@@ -187,10 +179,6 @@
                 <i class="fa-solid fa-right-to-bracket"></i> লগইন করুন
             </button>
         </form>
-        <div class="demo-hint">
-            <i class="fa-solid fa-circle-info"></i> ডেমো — ইমেইল: <b>admin@khorak.shop</b> | পাসওয়ার্ড: <b>admin123</b>
-            · <a href="{{ url('/') }}">Landing Page</a>
-        </div>
     </div>
 </body>
 
