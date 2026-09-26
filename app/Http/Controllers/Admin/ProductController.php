@@ -36,7 +36,8 @@ class ProductController extends Controller
     {
         $data = $this->validateProduct($request);
         $data = $this->handleUpload($request, $data);
-        $data['barcode'] = $this->nextBarcode();
+        // barcode: admin typed nijer moto — khali rakhle auto-generate hobe
+        $data['barcode'] = trim((string) ($data['barcode'] ?? '')) !== '' ? $data['barcode'] : $this->nextBarcode();
         $data['supplier_id'] = $request->filled('supplier_id') ? (int) $request->input('supplier_id') : null;
 
         $product = Product::create($data);
@@ -116,6 +117,7 @@ class ProductController extends Controller
             'rating' => 'nullable|numeric|min:0|max:5',
             'reviews_count' => 'nullable|integer|min:0',
             'sort_order' => 'nullable|integer|min:0',
+            'barcode' => 'nullable|string|max:40|unique:products,barcode' . ($product ? ',' . $product->id : ''),
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',

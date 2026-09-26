@@ -568,6 +568,37 @@
                     </div>
                 </div>
                 <div class="top-actions">
+                    @php
+                        $notifCount = \App\Models\OrderNotification::where('is_read', false)->count();
+                        $notifItems = \App\Models\OrderNotification::with('order')->latest()->take(8)->get();
+                    @endphp
+                    <div class="notif-wrap">
+                        <button type="button" class="notif-bell" onclick="toggleNotif(event)" aria-label="নোটিফিকেশন">
+                            <i class="fa-{{ $notifCount > 0 ? 'solid' : 'regular' }} fa-bell"></i>
+                            @if ($notifCount > 0)<span class="notif-badge">{{ $notifCount > 9 ? '9+' : $notifCount }}</span>@endif
+                        </button>
+                        <div class="notif-drop" id="notifDrop">
+                            <div class="notif-head">
+                                <b>নোটিফিকেশন</b>
+                                @if ($notifCount > 0)
+                                    <form method="POST" action="{{ route('admin.notifications.readAll') }}">
+                                        @csrf
+                                        <button type="submit" class="notif-readall">সব পড়া হয়েছে</button>
+                                    </form>
+                                @endif
+                            </div>
+                            @forelse ($notifItems as $n)
+                                <a href="{{ $n->order ? route('admin.orders.show', $n->order) : route('admin.orders.index') }}"
+                                    class="notif-item {{ $n->is_read ? '' : 'unread' }}">
+                                    <b>নতুন অর্ডার #{{ $n->order?->order_code ?? '—' }}</b>
+                                    <span>{{ $n->order?->customer_name }} — ৳{{ number_format($n->order?->total ?? 0) }}</span>
+                                    <small>{{ optional($n->created_at)->diffForHumans() }}</small>
+                                </a>
+                            @empty
+                                <p class="notif-empty">কোনো নোটিফিকেশন নেই</p>
+                            @endforelse
+                        </div>
+                    </div>
                     <div class="avatar-chip"><span class="av">AD</span> {{ auth()->user()->name ?? 'Admin' }} <i class="fa-solid fa-circle" style="font-size:7px;color:#16a34a"></i></div>
                 </div>
             </div>
@@ -593,6 +624,57 @@
     </div>
 
     <div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastText"></span></div>
+    <style>
+        .notif-wrap { position: relative; }
+        .notif-bell {
+            position: relative; width: 40px; height: 40px; border-radius: 12px;
+            border: 1px solid rgba(5, 150, 105, .18); background: #fff; cursor: pointer;
+            color: #1f4234; font-size: 16px; transition: .2s;
+        }
+        .notif-bell:hover { background: rgba(5, 150, 105, .06); }
+        .notif-badge {
+            position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px;
+            padding: 0 5px; border-radius: 999px; background: #dc2626; color: #fff;
+            font-size: 10.5px; font-weight: 800; display: grid; place-items: center;
+            border: 2px solid #fff;
+        }
+        .notif-drop {
+            display: none; position: absolute; right: 0; top: 48px; width: 320px; max-width: 88vw;
+            background: #fff; border: 1px solid rgba(5, 150, 105, .15); border-radius: 14px;
+            box-shadow: 0 24px 50px -18px rgba(6, 78, 59, .35); overflow: hidden; z-index: 60;
+        }
+        .notif-drop.open { display: block; }
+        .notif-head {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 14px; background: rgba(5, 150, 105, .05);
+            border-bottom: 1px solid rgba(5, 150, 105, .1); font-size: 13px; color: #12261d;
+        }
+        .notif-readall {
+            border: none; background: none; cursor: pointer; font-family: inherit;
+            font-size: 11.5px; font-weight: 700; color: #059669;
+        }
+        .notif-readall:hover { text-decoration: underline; }
+        .notif-item {
+            display: block; padding: 10px 14px; text-decoration: none;
+            border-bottom: 1px solid rgba(5, 150, 105, .07);
+        }
+        .notif-item:hover { background: rgba(5, 150, 105, .04); }
+        .notif-item.unread { background: rgba(5, 150, 105, .07); }
+        .notif-item b { display: block; font-size: 12.5px; color: #12261d; }
+        .notif-item span { display: block; font-size: 12px; color: #5f7a6d; margin-top: 2px; }
+        .notif-item small { display: block; font-size: 11px; color: #8b7355; margin-top: 2px; }
+        .notif-empty { padding: 18px 14px; text-align: center; color: #8b7355; font-size: 12.5px; margin: 0; }
+    </style>
+    <script>
+        function toggleNotif(e) {
+            e.stopPropagation();
+            document.getElementById('notifDrop').classList.toggle('open');
+        }
+        document.addEventListener('click', function (e) {
+            var drop = document.getElementById('notifDrop');
+            if (drop && !e.target.closest('.notif-wrap')) drop.classList.remove('open');
+        });
+    </script>
     <script>
         function showToast(msg) {
             var t = document.getElementById('toast');

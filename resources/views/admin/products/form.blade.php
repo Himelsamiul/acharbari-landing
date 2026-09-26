@@ -6,15 +6,21 @@
 
 @section('content')
     <form method="POST" action="{{ $product->exists ? route('admin.products.update', $product) : route('admin.products.store') }}"
-        enctype="multipart/form-data" style="max-width:920px;margin:0 auto">
+        enctype="multipart/form-data" style="max-width:960px;margin:0 auto">
         @csrf
         @if ($product->exists)
             @method('PUT')
         @endif
 
-        <div class="card">
-            <h3>বেসিক তথ্য</h3>
-            <p class="desc">নাম, ক্যাটাগরি ও ব্র্যান্ড</p>
+        <div class="note-banner">
+            <i class="fa-solid fa-lightbulb"></i>
+            <span>{{ $product->exists ? 'তথ্য পাল্টে <b>আপডেট করুন</b> চাপুন — সাথে সাথে লাইভ সাইটে দেখা যাবে।' : 'তারা চিহ্নিত (*) ঘরগুলো জরুরি — বাকিগুলো পরেও এডিট করা যাবে।' }}</span>
+        </div>
+
+        {{-- ===== 1. বেসিক ===== --}}
+        <div class="card pf-card">
+            <h3><span class="pf-ic" style="--pc:#059669"><i class="fa-solid fa-jar"></i></span> বেসিক তথ্য</h3>
+            <p class="desc">প্রোডাক্টের নাম, ক্যাটাগরি, ব্র্যান্ড ও স্টক</p>
             <div class="fgrid">
                 <div class="a-field">
                     <label>প্রোডাক্টের নাম (বাংলা) *</label>
@@ -58,8 +64,9 @@
             </div>
         </div>
 
-        <div class="card">
-            <h3>দাম, VAT ও ডিসকাউন্ট</h3>
+        {{-- ===== 2. দাম ===== --}}
+        <div class="card pf-card">
+            <h3><span class="pf-ic" style="--pc:#d97706"><i class="fa-solid fa-tags"></i></span> দাম, VAT ও ডিসকাউন্ট</h3>
             <p class="desc">বিক্রয়মূল্য, আগের দাম ও ভ্যাটের হার</p>
             <div class="fgrid">
                 <div class="a-field">
@@ -85,9 +92,39 @@
             </div>
         </div>
 
-        <div class="card">
-            <h3>বর্ণনা ও স্ট্যাটাস</h3>
-            <p class="desc">প্রোডাক্টের বিবরণ, রেটিং ও প্রদর্শন</p>
+        {{-- ===== 3. ছবি ও বারকোড ===== --}}
+        <div class="card pf-card">
+            <h3><span class="pf-ic" style="--pc:#7c3aed"><i class="fa-solid fa-barcode"></i></span> ছবি ও বারকোড</h3>
+            <p class="desc">ছবি আপলোড করুন — বারকোড নিজে লিখুন, না লিখলে অটো তৈরি হবে</p>
+            <div class="pf-two">
+                <div class="pf-imgbox">
+                    <div class="a-field">
+                        <label>প্রোডাক্টের ছবি {{ $product->exists ? '(অপরিবর্তিত রাখতে খালি রাখুন)' : '*' }}</label>
+                        <input class="a-input" type="file" name="image" accept="image/*" {{ $product->exists ? '' : 'required' }}>
+                    </div>
+                    <div class="pf-preview">
+                        @if ($product->exists)
+                            <img src="{{ asset($p->image ?? $product->image) }}" alt="">
+                        @else
+                            <i class="fa-solid fa-image"></i>
+                            <span>প্রিভিউ এখানে দেখা যাবে</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="a-field">
+                    <label>বারকোড {{ $product->exists ? '' : '(খালি রাখলে অটো তৈরি হবে)' }}</label>
+                    <input class="a-input" name="barcode" value="{{ old('barcode', $product->barcode) }}"
+                        placeholder="যেমন: ABP-0001 বা নিজের কোড" maxlength="40"
+                        style="font-family:monospace;letter-spacing:1.5px;font-weight:700">
+                    <p class="pf-hint">বারকোড প্রিন্ট/স্ক্যানের জন্য — ইনভয়েস ও প্রোডাক্ট লিস্টে দেখা যাবে</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- ===== 4. বর্ণনা ===== --}}
+        <div class="card pf-card">
+            <h3><span class="pf-ic" style="--pc:#0ea5e9"><i class="fa-solid fa-file-lines"></i></span> বর্ণনা ও ডিটেইলস</h3>
+            <p class="desc">প্রোডাক্টের বিবরণ, রেটিং ও ব্যাজ</p>
             <div class="a-field">
                 <label>বিবরণ (বাংলা)</label>
                 <textarea class="a-input" name="description" rows="3">{{ old('description', $product->description) }}</textarea>
@@ -118,56 +155,12 @@
                     <input class="a-input" type="number" name="sort_order" value="{{ old('sort_order', $product->sort_order ?? 0) }}">
                 </div>
             </div>
-            <label style="display:flex;gap:8px;align-items:center;font-size:13px;font-weight:700;margin:8px 0">
-                <input type="checkbox" name="is_active" value="1" {{ old('is_active', $product->is_active ?? true) ? 'checked' : '' }}> লাইভ করুন (ল্যান্ডিং পেজে দেখাবে)
-            </label>
-            <label style="display:flex;gap:8px;align-items:center;font-size:13px;font-weight:700;margin:8px 0">
-                <input type="checkbox" name="is_featured" value="1" {{ old('is_featured', $product->is_featured ?? false) ? 'checked' : '' }}> ফিচার্ড প্রোডাক্ট
-            </label>
         </div>
 
-        <div class="card">
-            <h3><i class="fa-solid fa-magnifying-glass-chart"></i> SEO (ঐচ্ছিক)</h3>
-            <p class="desc">খালি রাখলে গ্লোবাল SEO সেটিংস ব্যবহার হবে — প্রোডাক্ট পেজের জন্য আলাদা টাইটেল/বর্ণনা দিন</p>
-            <div class="fgrid">
-                <div class="a-field">
-                    <label>Meta Title</label>
-                    <input class="a-input" name="meta_title" value="{{ old('meta_title', $product->meta_title) }}" maxlength="150" placeholder="{{ $product->name }} — আচারবাড়ি">
-                </div>
-                <div class="a-field">
-                    <label>Image Alt Text</label>
-                    <input class="a-input" name="image_alt" value="{{ old('image_alt', $product->image_alt) }}" maxlength="200" placeholder="{{ $product->name }} — খাঁটি দেশি আচার">
-                </div>
-            </div>
-            <div class="a-field">
-                <label>Meta Description</label>
-                <textarea class="a-input" name="meta_description" rows="2" maxlength="320" placeholder="প্রোডাক্টের ছোট বর্ণনা যা গুগল সার্চে দেখাবে">{{ old('meta_description', $product->meta_description) }}</textarea>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>ছবি ও বারকোড</h3>
-            <p class="desc">প্রোডাক্টের ছবি আপলোড করুন — বারকোড অটো তৈরি হবে</p>
-            <div class="a-field">
-                <label>প্রোডাক্টের ছবি {{ $product->exists ? '(অপরিবর্তিত রাখতে খালি রাখুন)' : '*' }}</label>
-                <input class="a-input" type="file" name="image" accept="image/*" {{ $product->exists ? '' : 'required' }}>
-                @if ($product->exists)
-                    <img src="{{ asset($p->image ?? $product->image) }}" alt="" style="width:70px;height:70px;object-fit:cover;border-radius:10px;margin-top:10px">
-                @endif
-            </div>
-            @if ($product->exists && $product->barcode)
-                <div class="a-field">
-                    <label>বারকোড</label>
-                    <div style="display:flex;align-items:center;gap:14px">
-                        <code style="font-size:15px;font-weight:800;letter-spacing:2px;background:rgba(5,150,105,.08);padding:8px 16px;border-radius:10px">{{ $product->barcode }}</code>
-                    </div>
-                </div>
-            @endif
-        </div>
-
-        <div class="card">
-            <h3>সাপ্লায়ার</h3>
-            <p class="desc">এই প্রোডাক্টটি কোন সাপ্লায়ারের কাছ থেকে নিয়েছেন — সাপ্লায়ার পেজে পারচেজ হিস্ট্রিতে দেখা যাবে</p>
+        {{-- ===== 5. সাপ্লায়ার ===== --}}
+        <div class="card pf-card">
+            <h3><span class="pf-ic" style="--pc:#b45309"><i class="fa-solid fa-truck"></i></span> সাপ্লায়ার</h3>
+            <p class="desc">প্রোডাক্টটি কোন সাপ্লায়ারের কাছ থেকে নিয়েছেন — সাপ্লায়ার পেজে পারচেজ হিস্ট্রিতে দেখা যাবে</p>
             <div class="fgrid">
                 <div class="a-field">
                     <label>সাপ্লায়ার (ড্রপডাউন)</label>
@@ -190,10 +183,92 @@
             </div>
         </div>
 
-        <button class="a-btn" style="padding:14px 30px;font-size:15px">
-            <i class="fa-solid fa-floppy-disk"></i>
-            {{ $product->exists ? 'আপডেট করুন' : 'প্রোডাক্ট তৈরি করুন' }}
-        </button>
-        <a class="a-btn ghost" href="{{ route('admin.products.index') }}" style="margin-left:8px;text-decoration:none">বাতিল</a>
+        {{-- ===== 6. স্ট্যাটাস + SEO ===== --}}
+        <div class="card pf-card">
+            <h3><span class="pf-ic" style="--pc:#16a34a"><i class="fa-solid fa-sliders"></i></span> স্ট্যাটাস ও SEO</h3>
+            <p class="desc">লাইভ/ফিচার্ড স্ট্যাটাস ও ঐচ্ছিক SEO তথ্য</p>
+            <div class="pf-status">
+                <label class="pf-check {{ old('is_active', $product->is_active ?? true) ? 'on' : '' }}">
+                    <input type="checkbox" name="is_active" value="1" {{ old('is_active', $product->is_active ?? true) ? 'checked' : '' }}>
+                    <span class="pf-check-ic"><i class="fa-solid fa-globe"></i></span>
+                    <span><b>লাইভ করুন</b><small>ল্যান্ডিং পেজে দেখাবে</small></span>
+                </label>
+                <label class="pf-check {{ old('is_featured', $product->is_featured ?? false) ? 'on' : '' }}">
+                    <input type="checkbox" name="is_featured" value="1" {{ old('is_featured', $product->is_featured ?? false) ? 'checked' : '' }}>
+                    <span class="pf-check-ic" style="--pc:#d97706"><i class="fa-solid fa-star"></i></span>
+                    <span><b>ফিচার্ড প্রোডাক্ট</b><small>বিশেষভাবে দেখানো হবে</small></span>
+                </label>
+            </div>
+            <div class="fgrid" style="margin-top:16px">
+                <div class="a-field">
+                    <label>Meta Title (ঐচ্ছিক)</label>
+                    <input class="a-input" name="meta_title" value="{{ old('meta_title', $product->meta_title) }}" maxlength="150" placeholder="{{ $product->name }} — আচারবাড়ি">
+                </div>
+                <div class="a-field">
+                    <label>Image Alt Text (ঐচ্ছিক)</label>
+                    <input class="a-input" name="image_alt" value="{{ old('image_alt', $product->image_alt) }}" maxlength="200" placeholder="{{ $product->name }} — খাঁটি দেশি আচার">
+                </div>
+            </div>
+            <div class="a-field">
+                <label>Meta Description (ঐচ্ছিক)</label>
+                <textarea class="a-input" name="meta_description" rows="2" maxlength="320" placeholder="প্রোডাক্টের ছোট বর্ণনা যা গুগল সার্চে দেখাবে">{{ old('meta_description', $product->meta_description) }}</textarea>
+            </div>
+        </div>
+
+        {{-- ===== SAVE BAR ===== --}}
+        <div class="pf-savebar">
+            <button class="a-btn" style="padding:14px 34px;font-size:15px">
+                <i class="fa-solid fa-floppy-disk"></i>
+                {{ $product->exists ? 'আপডেট করুন' : 'প্রোডাক্ট তৈরি করুন' }}
+            </button>
+            <a class="a-btn ghost" href="{{ route('admin.products.index') }}" style="text-decoration:none">বাতিল</a>
+        </div>
     </form>
+
+    <style>
+        .pf-card { border-top: 3px solid rgba(5, 150, 105, .25); }
+        .pf-card h3 { display: flex; align-items: center; gap: 10px; }
+        .pf-ic {
+            width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+            display: grid; place-items: center; font-size: 14px;
+            background: color-mix(in srgb, var(--pc, #059669) 12%, white);
+            color: var(--pc, #059669);
+        }
+        .pf-two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+        .pf-imgbox { background: rgba(5, 150, 105, .03); border: 1px dashed rgba(5, 150, 105, .25); border-radius: 12px; padding: 14px; }
+        .pf-preview {
+            margin-top: 12px; height: 110px; border-radius: 10px; background: #fff;
+            border: 1px solid rgba(5, 150, 105, .12); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 6px; color: #8b7355; font-size: 12px;
+            overflow: hidden;
+        }
+        .pf-preview i { font-size: 26px; color: rgba(5, 150, 105, .4); }
+        .pf-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+        .pf-hint { font-size: 11.5px; color: #8b7355; margin: 8px 0 0; }
+        .pf-status { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .pf-check {
+            display: flex; gap: 12px; align-items: center; cursor: pointer;
+            border: 1.5px solid rgba(5, 150, 105, .18); border-radius: 12px; padding: 12px 14px;
+            transition: .2s; background: #fff;
+        }
+        .pf-check:hover { border-color: rgba(5, 150, 105, .4); }
+        .pf-check.on { border-color: #059669; background: rgba(5, 150, 105, .05); }
+        .pf-check input { accent-color: #059669; width: 16px; height: 16px; flex-shrink: 0; }
+        .pf-check-ic {
+            width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+            display: grid; place-items: center; font-size: 15px;
+            background: rgba(5, 150, 105, .1); color: var(--pc, #059669);
+        }
+        .pf-check b { display: block; font-size: 13.5px; color: #12261d; }
+        .pf-check small { display: block; font-size: 11.5px; color: #8b7355; }
+        .pf-savebar {
+            display: flex; gap: 10px; align-items: center; margin-top: 4px;
+            background: #fff; border: 1px solid rgba(5, 150, 105, .15);
+            border-radius: 16px; padding: 14px 18px;
+            box-shadow: 0 14px 34px -22px rgba(6, 78, 59, .4);
+        }
+        @media (max-width: 760px) {
+            .pf-two, .pf-status { grid-template-columns: 1fr; }
+        }
+    </style>
 @endsection

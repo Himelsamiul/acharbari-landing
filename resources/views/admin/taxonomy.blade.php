@@ -15,7 +15,8 @@
         <div class="card">
             <h3>ক্যাটাগরি</h3>
             <p class="desc">প্রোডাক্টের ক্যাটাগরি (আচার, মধু ও ঘি…)</p>
-            <table class="tbl">
+            <input id="catSearch" class="a-input" type="search" placeholder="ক্যাটাগরি খুঁজুন..." autocomplete="off" style="margin-bottom:12px">
+            <table class="tbl" id="catTable">
                 <thead><tr><th>নাম</th><th>Key</th><th>প্রোডাক্ট</th><th></th></tr></thead>
                 <tbody>
                     @foreach ($categories as $cat)
@@ -58,7 +59,8 @@
         <div class="card">
             <h3>ব্র্যান্ড</h3>
             <p class="desc">প্রোডাক্টের ব্র্যান্ড</p>
-            <table class="tbl">
+            <input id="brandSearch" class="a-input" type="search" placeholder="ব্র্যান্ড খুঁজুন..." autocomplete="off" style="margin-bottom:12px">
+            <table class="tbl" id="brandTable">
                 <thead><tr><th>নাম</th><th>প্রোডাক্ট</th><th></th></tr></thead>
                 <tbody>
                     @foreach ($brands as $brand)
@@ -100,3 +102,24 @@
         @media (max-width: 900px) { .tax-grid { grid-template-columns: 1fr !important; } }
     </style>
 @endsection
+
+@push('scripts')
+    <script>
+        // live filter: type korle table row gulo instantly filter hoy
+        (function () {
+            function bind(inputId, tableId) {
+                var input = document.getElementById(inputId);
+                var table = document.getElementById(tableId);
+                if (!input || !table) return;
+                input.addEventListener('input', function () {
+                    var q = input.value.trim().toLowerCase();
+                    table.querySelectorAll('tbody tr').forEach(function (row) {
+                        row.style.display = row.innerText.toLowerCase().indexOf(q) !== -1 ? '' : 'none';
+                    });
+                });
+            }
+            bind('catSearch', 'catTable');
+            bind('brandSearch', 'brandTable');
+        })();
+    </script>
+@endpush

@@ -68,6 +68,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::get('/coupons', [Admin\CouponController::class, 'index'])->name('admin.coupons');
     Route::post('/coupons', [Admin\CouponController::class, 'store'])->name('admin.coupons.store');
+    Route::post('/coupons/{coupon}', [Admin\CouponController::class, 'update'])->name('admin.coupons.update');
     Route::post('/coupons/{coupon}/toggle', [Admin\CouponController::class, 'toggle'])->name('admin.coupons.toggle');
     Route::delete('/coupons/{coupon}', [Admin\CouponController::class, 'destroy'])->name('admin.coupons.destroy');
     Route::get('/reviews', [Admin\ReviewController::class, 'index'])->name('admin.reviews');
@@ -121,4 +122,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/admin-management', [Admin\AdminManagerController::class, 'store'])->name('admin.admins.store');
     Route::delete('/admin-management/{user}', [Admin\AdminManagerController::class, 'destroy'])
         ->name('admin.admins.destroy');
+
+    // notification bell: mark everything as read
+    Route::post('/notifications/read-all', function () {
+        \App\Models\OrderNotification::where('is_read', false)->update(['is_read' => true]);
+        return back();
+    })->name('admin.notifications.readAll');
 });

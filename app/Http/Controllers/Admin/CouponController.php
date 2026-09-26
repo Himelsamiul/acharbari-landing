@@ -8,11 +8,16 @@ use Illuminate\Http\Request;
 
 class CouponController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $coupons = Coupon::latest()->paginate(20);
+        $q = trim((string) $request->query('q', ''));
 
-        return view('admin.coupons.index', compact('coupons'));
+        $coupons = Coupon::when($q !== '', fn ($query) => $query->where('code', 'like', "%{$q}%"))
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.coupons.index', ['coupons' => $coupons, 'q' => $q]);
     }
 
     public function store(Request $request)
@@ -34,6 +39,25 @@ class CouponController extends Controller
         ]);
 
         return back()->with('success', 'কুপন "' . $code . '" তৈরি হয়েছে।');
+    }
+
+    public function update(Request $request, Coupon $coupon)
+    {
+        $data = $request->validate([
+            'code' => 'required|string|max:30|unique:coupons,code,' . $coupon->id,
+            'percent' => 'required|integer|min:1|max:90',
+            'expires_at' => 'nullable|date',
+        ]);
+
+        $code = strtoupper(preg_replace('/\s+/', '', $data['code']));
+
+        $coupon->update([
+            'code' => $code,
+            'percent' => $data['percent'],
+            'expires_at' => $data['expires_at'] ?? null,
+        ]);
+
+        return back()->with('success', 'কুপন "' . $code . '" আপডেট হয়েছে।');
     }
 
     public function toggle(Coupon $coupon)
