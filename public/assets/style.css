@@ -3159,10 +3159,10 @@ body {
     position: relative;
     overflow: hidden;
     background:
-        radial-gradient(850px 500px at 85% 5%, rgba(var(--ds-lime-neon-rgb), 0.16), transparent 60%),
+        radial-gradient(850px 500px at 85% 12%, rgba(var(--ds-lime-neon-rgb), 0.16), transparent 60%),
         radial-gradient(750px 480px at 10% 85%, rgba(var(--ds-accent-rgb), 0.14), transparent 60%),
         radial-gradient(500px 300px at 50% 50%, rgba(5, 150, 105, 0.06), transparent 60%),
-        linear-gradient(180deg, #ffffff 0%, #f7fbf9 50%, #f0fdf4 100%);
+        linear-gradient(180deg, #e9f6ef 0%, #f2faf6 55%, #f0fdf4 100%);
     padding: 72px 0 92px;
 }
 

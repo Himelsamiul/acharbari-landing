@@ -293,6 +293,60 @@
     </div>
     @endif
 
+    {{-- ================= ADMIN: floating preview bar (design preview mode only) ================= --}}
+    @if (request()->query('dp') !== null && auth()->check())
+        <div class="ab-pvbar" id="abPvBar">
+            <span class="ab-pvbar-badge"><i class="fa-solid fa-eye"></i> প্রিভিউ মোড</span>
+            <span class="ab-pvbar-note">ভিজিটররা এখনো পুরনো ডিজাইন দেখছে — পছন্দ হলে সেভ করুন</span>
+            <span class="ab-pvbar-actions">
+                <button type="button" onclick="abPvSave(this)"><i class="fa-solid fa-floppy-disk"></i> সেভ করুন</button>
+                <button type="button" class="ab-pvbar-cancel" onclick="location.href='{{ route('admin.settings.sections') }}'"><i class="fa-solid fa-xmark"></i> বাতিল</button>
+            </span>
+        </div>
+        <style>
+            .ab-pvbar {
+                position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+                z-index: 9999; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;
+                background: linear-gradient(135deg, #0d2b20, #064e3b); color: #fff;
+                border: 1px solid rgba(163,230,53,.35); border-radius: 999px;
+                padding: 10px 18px; box-shadow: 0 18px 40px -12px rgba(0,0,0,.5);
+                max-width: calc(100vw - 24px); font-family: 'Hind Siliguri', sans-serif;
+            }
+            .ab-pvbar-badge { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 800; color: #a3e635; white-space: nowrap; }
+            .ab-pvbar-note { font-size: 11.5px; opacity: .85; }
+            .ab-pvbar-actions { display: inline-flex; gap: 8px; }
+            .ab-pvbar button {
+                border: none; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 800;
+                border-radius: 999px; padding: 8px 16px; display: inline-flex; gap: 6px; align-items: center;
+                background: linear-gradient(135deg, #059669, #10b981); color: #fff;
+            }
+            .ab-pvbar button.ab-pvbar-cancel { background: rgba(255,255,255,.14); }
+        </style>
+        <script>
+            function abPvConfig() {
+                try {
+                    var cfg = JSON.parse(decodeURIComponent(escape(atob(new URLSearchParams(location.search).get('dp')))));
+                    return (cfg && typeof cfg === 'object') ? cfg : null;
+                } catch (e) { return null; }
+            }
+            function abPvSave(btn) {
+                var cfg = abPvConfig();
+                if (!cfg) { alert('প্রিভিউ কনফিগ পাওয়া যায়নি।'); return; }
+                btn.disabled = true;
+                var fd = new FormData();
+                fd.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+                fd.append('designs', JSON.stringify(cfg));
+                fetch('{{ route('admin.settings.sections.save') }}', { method: 'POST', body: fd })
+                    .then(function (r) {
+                        if (!r.ok) throw 0;
+                        btn.innerHTML = '<i class="fa-solid fa-check"></i> সেভ হয়েছে';
+                        setTimeout(function () { location.href = '{{ route('admin.settings.sections') }}'; }, 700);
+                    })
+                    .catch(function () { btn.disabled = false; alert('সেভ ব্যর্থ — আবার চেষ্টা করুন।'); });
+            }
+        </script>
+    @endif
+
     <!-- ================= PAGE SCRIPTS ================= -->
     <script src="{{ asset_v('assets/brand.js') }}" defer></script>
     <script src="{{ asset_v('assets/script.js') }}" defer></script>

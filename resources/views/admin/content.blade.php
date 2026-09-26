@@ -7,10 +7,23 @@
 @section('content')
     @php
         $s = $settings;
+        // DB value, else the default text from the active landing template —
+        // so every field shows the text visitors actually see right now
+        $effOf = function (string $key, string $lang) use ($s, $defaults) {
+            $v = trim((string) ($s[$key . '_' . $lang] ?? ''));
+            if ($v !== '') {
+                return $v;
+            }
+            $d = $defaults[$key] ?? [];
+            if ($lang === 'en' && ($d['en'] ?? '') === '') {
+                return $d['bn'] ?? '';
+            }
+            return $d[$lang] ?? '';
+        };
         // bilingual text-field pair (ab_t pattern: empty input keeps the landing default)
-        $tf = function (string $key, string $label, bool $long = false, string $ph = '') use ($s) {
-            $bn = e($s[$key . '_bn'] ?? '');
-            $en = e($s[$key . '_en'] ?? '');
+        $tf = function (string $key, string $label, bool $long = false, string $ph = '') use ($effOf) {
+            $bn = e($effOf($key, 'bn'));
+            $en = e($effOf($key, 'en'));
             $bnField = $long
                 ? '<textarea class="a-input" rows="2" name="' . $key . '_bn" placeholder="' . e($ph) . '">' . $bn . '</textarea>'
                 : '<input class="a-input" name="' . $key . '_bn" value="' . $bn . '" placeholder="' . e($ph) . '">';
@@ -65,7 +78,7 @@
 
     <div class="note-banner">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
-        <span>যেকোনো ঘর <b>খালি রাখলে</b> ডিফল্ট লেখা দেখাবে (✕ দিয়ে খালি করা যায়)। <b>প্রতিটি ট্যাবে নিচে একটাই সেভ বাটন</b> — পুরো ট্যাব একসাথে সেভ হয়। সেভ করা লেখায় ক্লিক করলে প্রিভিউতে সেই জায়গা হাইলাইট হবে।</span>
+        <span>ঘরগুলোতে <b>সাইটে এখন যে লেখা দেখাচ্ছে</b> সেটাই বসানো আছে — সরাসরি এডিট করুন। ✕ চাপলে ঘর খালি হয়ে ডিফল্টে ফিরে যায়। <b>প্রতিটি ট্যাবে নিচে একটাই সেভ বাটন</b> — পুরো ট্যাব একসাথে সেভ হয়। ঘরে ক্লিক করলে প্রিভিউতে সেই জায়গা হাইলাইট হবে।</span>
         <span style="display:inline-flex;gap:8px;margin-left:10px;flex-wrap:wrap">
             <a href="{{ url('/') }}" target="_blank" rel="noopener" class="a-btn" style="padding:5px 12px;font-size:12px"><i class="fa-solid fa-eye"></i> লাইভ প্রিভিউ</a>
         </span>
@@ -156,13 +169,13 @@
                 <div class="fgrid">
                     @foreach ([1, 2, 3, 4] as $i)
                         <div class="a-field"><label>স্ট্যাট {{ bn_num($i) }} — সংখ্যা (বাংলা)</label>
-                            <input class="a-input" name="hero_stat{{ $i }}_n_bn" value="{{ $rf($s['hero_stat' . $i . '_n_bn'] ?? '') }}" placeholder="যেমন: ১৫,০০০+"></div>
+                            <input class="a-input" name="hero_stat{{ $i }}_n_bn" value="{{ $rf($effOf('hero_stat' . $i . '_n', 'bn')) }}" placeholder="যেমন: ১৫,০০০+"></div>
                         <div class="a-field"><label>স্ট্যাট {{ bn_num($i) }} — সংখ্যা (English)</label>
-                            <input class="a-input" name="hero_stat{{ $i }}_n_en" value="{{ $rf($s['hero_stat' . $i . '_n_en'] ?? '') }}" placeholder="e.g. 15,000+"></div>
+                            <input class="a-input" name="hero_stat{{ $i }}_n_en" value="{{ $rf($effOf('hero_stat' . $i . '_n', 'en')) }}" placeholder="e.g. 15,000+"></div>
                         <div class="a-field"><label>স্ট্যাট {{ bn_num($i) }} — লেবেল (বাংলা)</label>
-                            <input class="a-input" name="hero_stat{{ $i }}_bn" value="{{ $rf($s['hero_stat' . $i . '_bn'] ?? '') }}" placeholder="যেমন: সন্তুষ্ট গ্রাহক"></div>
+                            <input class="a-input" name="hero_stat{{ $i }}_bn" value="{{ $rf($effOf('hero_stat' . $i, 'bn')) }}" placeholder="যেমন: সন্তুষ্ট গ্রাহক"></div>
                         <div class="a-field"><label>স্ট্যাট {{ bn_num($i) }} — লেবেল (English)</label>
-                            <input class="a-input" name="hero_stat{{ $i }}_en" value="{{ $rf($s['hero_stat' . $i . '_en'] ?? '') }}" placeholder="e.g. Happy customers"></div>
+                            <input class="a-input" name="hero_stat{{ $i }}_en" value="{{ $rf($effOf('hero_stat' . $i, 'en')) }}" placeholder="e.g. Happy customers"></div>
                     @endforeach
                 </div>
             </div>

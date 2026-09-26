@@ -388,6 +388,7 @@ class SettingController extends Controller
             }
         }
 
+        Setting::set('section_designs_prev', (string) Setting::get('section_designs', ''));
         Setting::set('section_designs', count($clean) ? json_encode($clean, JSON_UNESCAPED_UNICODE) : '');
 
         return back()->with('success', 'সেকশন ডিজাইন সেভ হয়েছে — ল্যান্ডিং পেজে দেখুন।');
@@ -397,7 +398,54 @@ class SettingController extends Controller
     {
         return view('admin.content', [
             'settings' => Setting::allCached(),
+            'defaults' => self::contentDefaults(),
         ]);
+    }
+
+    /**
+     * Scan the active landing templates for ab_t('key', 'bn', 'en') calls so the
+     * admin content page can show the real current text instead of empty fields.
+     * Only the ACTIVE design of each section is scanned (matches what renders).
+     */
+    public static function contentDefaults(): array
+    {
+        static $cache = null;
+        if (is_array($cache)) {
+            return $cache;
+        }
+
+        $files = [
+            resource_path('views/layouts/landing.blade.php'),
+            resource_path('views/home.blade.php'),
+        ];
+        foreach (['hero', 'trust', 'products', 'promises', 'how-it-works', 'why-us', 'faq', 'checkout', 'reviews', 'bottom-cta'] as $section) {
+            $path = resource_path('views/' . str_replace('.', '/', ab_section_view($section)) . '.blade.php');
+            if (is_file($path)) {
+                $files[] = $path;
+            }
+        }
+
+        // ab_t('key', 'bn default'[, 'en default']) — single/double quoted, escapes tolerated
+        $re = '/ab_t\(\s*([\'"])((?:[^\'"\\\\]|\\\\.)*?)\1\s*,\s*([\'"])((?:[^\'"\\\\]|\\\\.)*?)\3(?:\s*,\s*([\'"])((?:[^\'"\\\\]|\\\\.)*?)\5)?\s*[,)]/';
+
+        $defaults = [];
+        foreach ($files as $file) {
+            $src = @file_get_contents($file);
+            if ($src === false || !preg_match_all($re, $src, $hits, PREG_SET_ORDER)) {
+                continue;
+            }
+            foreach ($hits as $h) {
+                $key = $h[2];
+                if (!isset($defaults[$key])) {
+                    $defaults[$key] = [
+                        'bn' => stripcslashes($h[4]),
+                        'en' => isset($h[6]) ? stripcslashes($h[6]) : '',
+                    ];
+                }
+            }
+        }
+
+        return $cache = $defaults;
     }
 
     public function saveContent(Request $request)
