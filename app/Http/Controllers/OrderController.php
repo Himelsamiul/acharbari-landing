@@ -165,12 +165,29 @@ class OrderController extends Controller
         return view('order-success', compact('order'));
     }
 
-    /** Printable PDF invoice — all order details + tracking code. */
+    /** Printable PDF invoice — all order details + tracking code (English). */
     public function invoice($code)
     {
         $order = Order::where('order_code', $code)->with('items')->firstOrFail();
 
-        return \Barryvdh\DomPDF\Facade\Pdf::loadView('invoice', ['order' => $order])
+        // English brand name + optional logo, both configurable from admin settings
+        $brandName = trim(\App\Models\Setting::get('brand_en1', 'Achar') . ' ' . \App\Models\Setting::get('brand_en2', 'Bari'));
+        $logo = (string) \App\Models\Setting::get('logo_path', '');
+        $contactPhone = ab_contact('phone');
+
+        // prefer the English product name when the product still exists
+        $productNames = Product::whereIn('id', $order->items->pluck('product_id'))
+            ->get()
+            ->mapWithKeys(fn ($p) => [$p->id => $p->name_en ?: $p->name])
+            ->all();
+
+        return \Barryvdh\DomPDF\Facade\Pdf::loadView('invoice', [
+            'order' => $order,
+            'brandName' => $brandName !== '' ? $brandName : 'AcharBari',
+            'logo' => $logo,
+            'contactPhone' => $contactPhone,
+            'productNames' => $productNames,
+        ])
             ->setPaper('a4')
             ->download('invoice-' . $order->order_code . '.pdf');
     }
