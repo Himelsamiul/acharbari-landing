@@ -51,6 +51,7 @@
             color: #a3e635; font-size: 18px;
             overflow: hidden;
         }
+        .side-brand .logo-box img { background: #fff; padding: 3px; box-sizing: border-box; }
         .side-brand .logo-box img { width: 100%; height: 100%; object-fit: cover; }
         .side-brand b { font-size: 16px; }
         .side-brand span { display: block; font-size: 10.5px; opacity: .65; letter-spacing: 1.5px; }
