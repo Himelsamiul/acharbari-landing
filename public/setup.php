@@ -34,4 +34,10 @@ echo "\n== STORAGE LINK ==\n";
 \Illuminate\Support\Facades\Artisan::call('storage:link');
 echo \Illuminate\Support\Facades\Artisan::output();
 
+if (($_GET['seed'] ?? '') === '1') {
+    echo "\n== SEED ==\n";
+    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+    echo \Illuminate\Support\Facades\Artisan::output();
+}
+
 echo "\n== DONE ==\nSob thik ache. Ekhon ei setup.php file DELETE kore din (File Manager theke).";
