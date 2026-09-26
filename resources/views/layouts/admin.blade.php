@@ -466,10 +466,6 @@
                         <i class="fa-solid fa-jar"></i>
                     @endif
                 </div>
-                <div>
-                    <b>{{ ab_brand('bn') }}</b>
-                    <span>ADMIN PANEL</span>
-                </div>
             </div>
 
             <nav class="side-nav">
