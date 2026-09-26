@@ -30,3 +30,9 @@
             </div>
         </div>
     </section>
+<style>
+/* modern polish (scoped, additive) */
+.ds-faq { transition: box-shadow .25s ease, border-color .25s ease; }
+.ds-faq[open] { box-shadow: 0 18px 36px -26px rgba(6,78,59,.45); border-color: rgba(5,150,105,.4); }
+.ds-faq summary { transition: color .2s ease; }
+</style>

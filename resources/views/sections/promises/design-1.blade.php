@@ -45,3 +45,10 @@
             </div>
         </div>
     </section>
+<style>
+/* modern polish (scoped, additive) */
+.ds-bento-card { transition: transform .2s ease, box-shadow .25s ease; }
+.ds-bento-card:hover { transform: translateY(-4px); box-shadow: 0 26px 48px -26px rgba(6,78,59,.55); }
+.ds-seller-card-ic { transition: transform .3s ease; }
+.ds-bento-card:hover .ds-seller-card-ic { transform: scale(1.08) rotate(-3deg); }
+</style>

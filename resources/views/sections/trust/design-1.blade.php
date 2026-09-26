@@ -17,3 +17,7 @@
             @endforeach
         </div>
     </div>
+<style>
+/* modern polish (scoped, additive) */
+.ds-marquee { border-top: 1px solid rgba(5,150,105,.1); border-bottom: 1px solid rgba(5,150,105,.1); }
+</style>

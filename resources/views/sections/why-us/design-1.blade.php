@@ -56,3 +56,10 @@
             </div>
         </div>
     </section>
+<style>
+/* modern polish (scoped, additive) */
+.ds-bento-big, .ds-bento-cell { transition: transform .2s ease, box-shadow .25s ease; }
+.ds-bento-big:hover, .ds-bento-cell:hover { transform: translateY(-4px); box-shadow: 0 24px 46px -26px rgba(6,78,59,.5); }
+.ds-bento-cell .ds-ic { transition: transform .3s ease; }
+.ds-bento-cell:hover .ds-ic { transform: scale(1.1); }
+</style>

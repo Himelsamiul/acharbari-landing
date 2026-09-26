@@ -98,3 +98,9 @@
             <div class="swiper-pagination mt-8"></div>
         </div>
     </section>
+<style>
+/* modern polish (scoped, additive) */
+.reviews-swiper .swiper-slide > div { transition: transform .2s ease, box-shadow .25s ease; }
+.reviews-swiper .swiper-slide > div:hover { transform: translateY(-4px); box-shadow: 0 24px 46px -28px rgba(6,78,59,.5); }
+.rating-summary { border-radius: 20px; }
+</style>

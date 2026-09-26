@@ -332,3 +332,10 @@
             </div>
         </div>
     </section>
+<style>
+/* modern polish (scoped, additive) */
+#order-form .max-w-6xl { box-shadow: 0 34px 70px -36px rgba(6,78,59,.45); }
+#order-form input:focus, #order-form select:focus { box-shadow: 0 0 0 4px rgba(5,150,105,.1); }
+#landing-checkout-form button[type="submit"] { transition: transform .18s ease, box-shadow .25s ease; }
+#landing-checkout-form button[type="submit"]:hover { transform: translateY(-2px); }
+</style>

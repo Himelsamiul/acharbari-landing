@@ -435,6 +435,9 @@
         }
 
         /* ===== preview modal (compare + language + devices) ===== */
+        window.__pvIsolated = false;
+        window.__pvSection = null;
+
         function openPreview(url, title, showCompare) {
             document.getElementById('pvTitle').textContent = title;
             document.getElementById('pvCompare').hidden = !showCompare;
@@ -458,7 +461,11 @@
             sCur.classList.toggle('hidden', mode === 'new');
             sNew.classList.toggle('hidden', mode === 'current');
             if (mode !== 'new' && !skipSrc) {
-                document.getElementById('pvFrameCur').src = '{{ url('/') }}';
+                var curUrl = window.__pvIsolated
+                    ? pvSectionUrl(window.__pvSection, SAVED[window.__pvSection] || 1)
+                    : '{{ url('/') }}';
+                document.getElementById('pvFrameCur').src = curUrl;
+                pvAutoHeight(document.getElementById('pvFrameCur'), window.__pvIsolated);
             }
         }
         function setPvDevice(btn) {
@@ -476,11 +483,44 @@
                 } catch (e) { }
             });
         }
+        /* ===== isolated section preview: shows ONLY that section ===== */
+        function pvSectionUrl(sec, design) {
+            return '{{ url('/') }}/preview/section/' + sec + '?design=' + (design || 1);
+        }
+        // auto-fit iframe height to the isolated section content
+        function pvAutoHeight(ifr, enabled) {
+            ifr._abAuto = enabled;
+            ifr.style.height = enabled ? '220px' : '68vh';
+            if (enabled) {
+                setTimeout(function () {
+                    try {
+                        var h = Math.max(
+                            ifr.contentDocument.body.scrollHeight,
+                            ifr.contentDocument.documentElement.scrollHeight
+                        );
+                        if (h > 0) ifr.style.height = h + 'px';
+                    } catch (e) { }
+                }, 350);
+            }
+        }
         function previewSection(sec) {
-            openPreview('{{ url('/') }}' + configQuery() + anchorFor(sec), 'সেকশন প্রিভিউ', false);
+            var design = CURRENT[sec] || 1;
+            window.__pvIsolated = true;
+            window.__pvSection = sec;
+            openPreview(pvSectionUrl(sec, design), 'সেকশন প্রিভিউ — শুধু এই অংশ', false);
+            var fNew = document.getElementById('pvFrame');
+            fNew.addEventListener('load', pvFrameAutoFit);
+            pvAutoHeight(fNew, true);
+        }
+        function pvFrameAutoFit(e) {
+            pvAutoHeight(e.target, true);
         }
         function previewFull() {
+            window.__pvIsolated = false;
+            window.__pvSection = null;
             openPreview('{{ url('/') }}' + configQuery(), 'পুরো ল্যান্ডিং প্রিভিউ', true);
+            var f = document.getElementById('pvFrame');
+            pvAutoHeight(f, false);
         }
         function previewSectionTab() {
             window.open('{{ url('/') }}' + configQuery(), '_blank');

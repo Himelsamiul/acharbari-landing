@@ -36,3 +36,10 @@
             </div>
         </div>
     </section>
+<style>
+/* modern polish (scoped, additive) */
+.ds-step { transition: transform .2s ease, box-shadow .25s ease; border-radius: 16px; }
+.ds-step:hover { transform: translateY(-4px); box-shadow: 0 22px 44px -26px rgba(6,78,59,.45); }
+.ds-step-n { transition: transform .3s ease; }
+.ds-step:hover .ds-step-n { transform: scale(1.12); }
+</style>

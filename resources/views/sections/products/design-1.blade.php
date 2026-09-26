@@ -103,3 +103,12 @@
             </div>
         </div>
     </section>
+<style>
+/* modern polish (scoped, additive) */
+.ds-product-card { transition: transform .2s ease, box-shadow .25s ease; }
+.ds-product-card:hover { transform: translateY(-5px); box-shadow: 0 26px 50px -28px rgba(6,78,59,.5); }
+.ds-product-media img { transition: transform .4s ease; }
+.ds-product-card:hover .ds-product-media img { transform: scale(1.05); }
+.ds-filter-btn { transition: transform .15s ease, background .2s ease; }
+.ds-filter-btn:hover { transform: translateY(-2px); }
+</style>

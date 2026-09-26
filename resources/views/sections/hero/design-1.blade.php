@@ -123,3 +123,11 @@
             </div>
         </div>
     </section>
+<style>
+/* modern polish (scoped, additive) */
+.ds-hero-card { box-shadow: 0 34px 70px -34px rgba(6,78,59,.5); border: 1px solid rgba(5,150,105,.14); }
+.ds-hero-card .ds-hero-img-wrap { border-radius: 22px; }
+.ds-chip-hero { backdrop-filter: blur(6px); }
+.ds-btn { transition: transform .18s ease, box-shadow .25s ease; }
+.ds-btn:hover { transform: translateY(-2px); }
+</style>

@@ -31,3 +31,13 @@
             </div>
         </div>
     </section>
+<style>
+/* modern polish (scoped, additive) */
+.ds-cta { position: relative; overflow: hidden; }
+.ds-cta::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(70% 90% at 80% 0%, rgba(163,230,53,.14), transparent 60%);
+}
+.ds-cta .ds-btn { transition: transform .18s ease; }
+.ds-cta .ds-btn:hover { transform: translateY(-2px); }
+</style>

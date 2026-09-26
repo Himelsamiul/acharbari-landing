@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Route;
 
 // Public landing
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Isolated single-section render — used by the admin Section Design Studio preview
+Route::get('/preview/section/{section}', [HomeController::class, 'previewSection'])->name('preview.section');
 Route::get('/products', [ProductController::class, 'index'])->name('products');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
