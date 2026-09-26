@@ -27,9 +27,7 @@ jobs:
             set ssl:verify-certificate no
             set net:max-retries 3
             set net:timeout 30
-            debug 3
-            pwd
-            ls -la .
+            # FTP root site er public_html na — asol web root holo ./public_html
             mirror -R --verbose \
               --exclude-glob .git* \
               --exclude-glob .github \
@@ -38,7 +36,7 @@ jobs:
               --exclude-glob node_modules \
               --exclude-glob tests \
               --exclude DEPLOYMENT.md \
-              . ./
+              . ./public_html
             bye
           SCRIPT
 
