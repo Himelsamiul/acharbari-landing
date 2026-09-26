@@ -466,6 +466,9 @@
                         <i class="fa-solid fa-jar"></i>
                     @endif
                 </div>
+                <div>
+                    <b>{{ ab_brand('bn') }}</b>
+                </div>
             </div>
 
             <nav class="side-nav">
