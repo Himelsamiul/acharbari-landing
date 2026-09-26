@@ -1245,6 +1245,13 @@ window.switchSellerTab = function (tabName) {
     });
 };
 
+// "আরো দেখুন": reveal the products hidden beyond the initial batch
+function revealExtraProducts() {
+    document.querySelectorAll('.js-extra-product').forEach(function (c) { c.style.display = 'flex'; });
+    var b = document.getElementById('seeMoreProducts');
+    if (b) b.style.display = 'none';
+}
+
 // 3. Universal Category Filter Logic
 document.addEventListener('DOMContentLoaded', function () {
     var filterBtns = document.querySelectorAll('.ds-filter-btn');
@@ -1254,6 +1261,11 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', function () {
             filterBtns.forEach(function (b) { b.classList.remove('active'); });
             this.classList.add('active');
+
+            // category filtering must consider the hidden "see more" batch too
+            document.querySelectorAll('.js-extra-product').forEach(function (c) { c.style.display = 'flex'; });
+            var seeMore = document.getElementById('seeMoreProducts');
+            if (seeMore) seeMore.style.display = 'none';
 
             var filter = this.getAttribute('data-filter');
 

@@ -41,6 +41,21 @@ class TaxonomyController extends Controller
         return back()->with('success', 'ব্র্যান্ড "' . $data['name'] . '" যোগ হয়েছে।');
     }
 
+
+    public function toggleCategory(Category $category)
+    {
+        $category->update(['is_active' => ! $category->is_active]);
+
+        return back()->with('success', '"' . $category->name . '" ক্যাটাগরি এখন ' . ($category->is_active ? 'চালু' : 'বন্ধ') . '।');
+    }
+
+    public function toggleBrand(Brand $brand)
+    {
+        $brand->update(['is_active' => ! $brand->is_active]);
+
+        return back()->with('success', '"' . $brand->name . '" ব্র্যান্ড এখন ' . ($brand->is_active ? 'চালু' : 'বন্ধ') . '।');
+    }
+
     public function destroyCategory(Category $category)
     {
         $inUse = \App\Models\Product::where('category_key', $category->key)->count();

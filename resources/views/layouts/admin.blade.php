@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'ড্যাশবোর্ড') — আচারবাড়ি Admin</title>
+    <title>@yield('title', 'ড্যাশবোর্ড') — {{ ab_brand('bn') }} Admin</title>
     <link rel="icon" href="{{ asset($settings['favicon_path'] ?? 'assets/img/favicon.svg') }}" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -459,7 +459,7 @@
                     @endif
                 </div>
                 <div>
-                    <b>আচারবাড়ি</b>
+                    <b>{{ ab_brand('bn') }}</b>
                     <span>ADMIN PANEL</span>
                 </div>
             </div>
@@ -471,16 +471,16 @@
                     @php $pendingOrders = \App\Models\Order::where('status', 'pending')->count(); @endphp
                     @if ($pendingOrders > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $pendingOrders }} নতুন</span>@endif
                 </a>
-                <a class="side-link {{ request()->routeIs('admin.module', request()->route('module') === 'customers') ? 'active' : '' }}" href="{{ route('admin.module', 'customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->routeIs('admin.customers*') ? 'active' : '' }}" href="{{ route('admin.customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>
                 <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন
                     @php $openComplaints = \App\Models\Complaint::where('is_resolved', false)->count(); @endphp
                     @if ($openComplaints > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $openComplaints }} নতুন</span>@endif
                 </a>
-                <a class="side-link {{ request()->route('module') === 'suppliers' ? 'active' : '' }}" href="{{ route('admin.module', 'suppliers') }}"><i class="fa-solid fa-truck-field"></i> সাপ্লায়ার <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->routeIs('admin.suppliers*') ? 'active' : '' }}" href="{{ route('admin.suppliers') }}"><i class="fa-solid fa-truck-field"></i> সাপ্লায়ার</a>
                 <a class="side-link {{ request()->routeIs('admin.products.index') || request()->routeIs('admin.products.create') || request()->routeIs('admin.products.edit') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
                 <a class="side-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}"><i class="fa-solid fa-layer-group"></i> ক্যাটাগরি ও ব্র্যান্ড</a>
                 <a class="side-link {{ request()->routeIs('admin.coupons') ? 'active' : '' }}" href="{{ route('admin.coupons') }}"><i class="fa-solid fa-ticket"></i> কুপন</a>
-                <a class="side-link {{ request()->route('module') === 'reviews' ? 'active' : '' }}" href="{{ route('admin.module', 'reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}" href="{{ route('admin.reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ</a>
 
                 <div class="side-group-label">মার্কেটিং ও ট্র্যাকিং</div>
                 <a class="side-link {{ request()->route('module') === 'payments' ? 'active' : '' }}" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে <span class="draft-tag">ড্রাফট</span></a>
@@ -516,7 +516,7 @@
                     <button class="menu-btn" id="menuBtn" aria-label="মেনু"><i class="fa-solid fa-bars"></i></button>
                     <div>
                         <h2>@yield('page_title', 'ড্যাশবোর্ড')</h2>
-                        <p>@yield('page_sub', 'আচারবাড়ি অ্যাডমিন প্যানেল')</p>
+                        <p>@yield('page_sub', ab_brand('bn') . ' অ্যাডমিন প্যানেল')</p>
                     </div>
                 </div>
                 <div class="top-actions">
@@ -530,7 +530,7 @@
                 <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন</a>
                 <a class="side-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}"><i class="fa-solid fa-layer-group"></i> ক্যাটাগরি</a>
                 <a class="side-link {{ request()->routeIs('admin.products') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
-                <a class="side-link" href="{{ route('admin.module', 'customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>
+                <a class="side-link" href="{{ route('admin.customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>
                 <a class="side-link" href="{{ route('admin.module', 'seo') }}"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO</a>
                 <a class="side-link" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট</a>
             </nav>

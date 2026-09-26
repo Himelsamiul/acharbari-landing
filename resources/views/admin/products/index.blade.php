@@ -39,8 +39,15 @@
                         </td>
                         <td><code style="font-size:11px">{{ $p->barcode }}</code></td>
                         <td>
-                            @if ($p->is_active)<span class="pill ok">লাইভ</span>
-                            @else<span class="pill red">বন্ধ</span>@endif
+                            <div style="display:flex;align-items:center;gap:6px">
+                                @if ($p->is_active)<span class="pill ok">লাইভ</span>
+                                @else<span class="pill red">বন্ধ</span>@endif
+                                <form method="POST" action="{{ route('admin.products.toggle', $p) }}">
+                                    @csrf
+                                    <button class="btn-icon" type="submit" title="{{ $p->is_active ? 'বন্ধ করুন' : 'লাইভ করুন' }}">
+                                        <i class="fa-solid {{ $p->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i></button>
+                                </form>
+                            </div>
                         </td>
                         <td>
                             <div style="display:flex;gap:6px">

@@ -275,59 +275,6 @@
             <button class="a-btn" style="margin-top:14px"><i class="fa-solid fa-floppy-disk"></i> হেডিং সেভ করুন</button>
         </form>
 
-        {{-- rating bars --}}
-        <form method="POST" action="{{ route('admin.settings.content.save') }}" class="rep-form" style="margin-top:26px">
-            @csrf
-            <h3>রেটিং বার (৫ → ১ তারা)</h3>
-            <div class="rep" data-json="rating_json">
-                @foreach ($ratingRows as $row)
-                    <div class="rep-row">
-                        <input class="a-input" data-k="star" value="{{ $rf($row['star'] ?? '') }}" placeholder="তারা (1-5)" style="max-width:90px">
-                        <input class="a-input" data-k="pct" value="{{ $rf($row['pct'] ?? '') }}" placeholder="শতকরা %" style="max-width:110px">
-                        <input class="a-input" data-k="count_bn" value="{{ $rf($row['count_bn'] ?? '') }}" placeholder="সংখ্যা (বাংলা)" style="max-width:120px">
-                        <input class="a-input" data-k="count_en" value="{{ $rf($row['count_en'] ?? '') }}" placeholder="Count (English)" style="max-width:120px">
-                        <button type="button" class="btn-icon rep-del" title="মুছুন"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                @endforeach
-            </div>
-            <button type="button" class="a-btn ghost rep-add" style="margin-top:10px"><i class="fa-solid fa-plus"></i> নতুন বার</button>
-            <input type="hidden" name="rating_json">
-            <button class="a-btn" style="margin-top:14px"><i class="fa-solid fa-floppy-disk"></i> রেটিং বার সেভ করুন</button>
-        </form>
-
-        {{-- review cards --}}
-        <form method="POST" action="{{ route('admin.settings.content.save') }}" class="rep-form" style="margin-top:26px">
-            @csrf
-            <h3>গ্রাহক রিভিউ কার্ড</h3>
-            <p class="desc">ছবির ঘরে পাথ লিখুন (যেমন: assets/img/rev1.jpg) অথবা আগে আপলোড করা কোনো ছবির পাথ</p>
-            <div class="rep" data-json="reviews_json">
-                @foreach ($reviewRows as $row)
-                    <div class="rep-row rep-row-block">
-                        <div class="rep-line">
-                            <input class="a-input" data-k="name" value="{{ $rf($row['name'] ?? '') }}" placeholder="নাম">
-                            <input class="a-input" data-k="img" value="{{ $rf($row['img'] ?? '') }}" placeholder="ছবির পাথ">
-                            <input class="a-input" data-k="stars" value="{{ $rf($row['stars'] ?? 5) }}" placeholder="তারা" style="max-width:80px">
-                            <button type="button" class="btn-icon rep-del" title="মুছুন"><i class="fa-solid fa-trash-can"></i></button>
-                        </div>
-                        <div class="rep-line">
-                            <input class="a-input" data-k="loc_bn" value="{{ $rf($row['loc_bn'] ?? '') }}" placeholder="লোকেশন (বাংলা)">
-                            <input class="a-input" data-k="loc_en" value="{{ $rf($row['loc_en'] ?? '') }}" placeholder="Location (English)">
-                        </div>
-                        <div class="rep-line">
-                            <textarea class="a-input" rows="2" data-k="text_bn" placeholder="রিভিউ (বাংলা)">{{ $rf($row['text_bn'] ?? '') }}</textarea>
-                            <textarea class="a-input" rows="2" data-k="text_en" placeholder="Review (English)">{{ $rf($row['text_en'] ?? '') }}</textarea>
-                        </div>
-                        <div class="rep-line">
-                            <input class="a-input" data-k="likes_bn" value="{{ $rf($row['likes_bn'] ?? '') }}" placeholder="Like (বাংলা)">
-                            <input class="a-input" data-k="likes_en" value="{{ $rf($row['likes_en'] ?? '') }}" placeholder="Like (English)">
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-            <button type="button" class="a-btn ghost rep-add" style="margin-top:10px"><i class="fa-solid fa-plus"></i> নতুন রিভিউ</button>
-            <input type="hidden" name="reviews_json">
-            <button class="a-btn" style="margin-top:14px"><i class="fa-solid fa-floppy-disk"></i> রিভিউ সেভ করুন</button>
-        </form>
     </div>
 
     {{-- ================= TAB 4: FOOTER + NAV ================= --}}

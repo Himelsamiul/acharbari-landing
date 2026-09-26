@@ -11,9 +11,15 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status');
+        $q = trim((string) $request->query('q', ''));
 
         $orders = Order::when($status && in_array($status, Order::statuses()),
-                fn ($q) => $q->where('status', $status))
+                fn ($query) => $query->where('status', $status))
+            ->when($q !== '', fn ($query) => $query->where(function ($sub) use ($q) {
+                $sub->where('phone', 'like', "%{$q}%")
+                    ->orWhere('customer_name', 'like', "%{$q}%")
+                    ->orWhere('order_code', 'like', "%{$q}%");
+            }))
             ->latest()
             ->paginate(15)
             ->withQueryString();

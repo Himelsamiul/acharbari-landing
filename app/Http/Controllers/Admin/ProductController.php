@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Purchase;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -26,6 +28,7 @@ class ProductController extends Controller
             'product' => new Product(),
             'categories' => $categories,
             'brands' => $brands,
+            'suppliers' => Supplier::orderBy('name')->get(),
         ]);
     }
 
@@ -34,8 +37,22 @@ class ProductController extends Controller
         $data = $this->validateProduct($request);
         $data = $this->handleUpload($request, $data);
         $data['barcode'] = $this->nextBarcode();
+        $data['supplier_id'] = $request->filled('supplier_id') ? (int) $request->input('supplier_id') : null;
 
         $product = Product::create($data);
+
+        // initial stock bought from a supplier -> remember it as a purchase
+        $cost = (float) $request->input('purchase_cost', 0);
+        if ($data['supplier_id'] && $cost > 0 && (int) $data['stock'] > 0) {
+            Purchase::create([
+                'supplier_id' => $data['supplier_id'],
+                'product_id' => $product->id,
+                'quantity' => (int) $data['stock'],
+                'unit_cost' => $cost,
+                'purchased_at' => now()->toDateString(),
+                'note' => 'প্রোডাক্ট তৈরির সময় প্রাথমিক স্টক',
+            ]);
+        }
 
         return redirect()->route('admin.products.index')
             ->with('success', 'প্রোডাক্ট "' . $product->name . '" তৈরি হয়েছে (বারকোড: ' . $product->barcode . ')।');
@@ -47,6 +64,7 @@ class ProductController extends Controller
             'product' => $product,
             'categories' => Category::all(),
             'brands' => Brand::all(),
+            'suppliers' => Supplier::orderBy('name')->get(),
         ]);
     }
 
@@ -54,6 +72,7 @@ class ProductController extends Controller
     {
         $data = $this->validateProduct($request, $product);
         $data = $this->handleUpload($request, $data);
+        $data['supplier_id'] = $request->filled('supplier_id') ? (int) $request->input('supplier_id') : null;
 
         $product->update($data);
 
@@ -65,6 +84,14 @@ class ProductController extends Controller
     {
         $product->delete();
         return redirect()->route('admin.products.index')->with('success', 'প্রোডাক্ট মুছে ফেলা হয়েছে।');
+    }
+
+    /** Flip live/off on the products list. */
+    public function toggle(Product $product)
+    {
+        $product->update(['is_active' => ! $product->is_active]);
+
+        return back()->with('success', '"' . $product->name . '" এখন ' . ($product->is_active ? 'লাইভ' : 'বন্ধ') . '।');
     }
 
     private function validateProduct(Request $request, ?Product $product = null): array

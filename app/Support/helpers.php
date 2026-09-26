@@ -81,6 +81,18 @@ if (!function_exists('ab_contact')) {
     }
 }
 
+if (!function_exists('ab_brand')) {
+    /** Brand name assembled from admin brand settings ("Achar"+"Bari"). */
+    function ab_brand(string $lang = 'bn'): string
+    {
+        if ($lang === 'en') {
+            return trim(\App\Models\Setting::get('brand_en1', 'Achar') . \App\Models\Setting::get('brand_en2', 'Bari'));
+        }
+
+        return trim(\App\Models\Setting::get('brand_bn1', 'আচার') . \App\Models\Setting::get('brand_bn2', 'বাড়ি'));
+    }
+}
+
 if (!function_exists('ab_social')) {
     /**
      * Footer/chat social icon link: accepts a full URL pasted by the admin as-is,

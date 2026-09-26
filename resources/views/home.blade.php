@@ -2,7 +2,7 @@
 
 @section('nav', 'home')
 
-@section('title', 'আচারবাড়ি — ঘরে তৈরি খাঁটি দেশি আচার ও প্রিজার্ভ')
+@section('title', ab_brand('bn') . ' — ঘরে তৈরি খাঁটি দেশি আচার ও প্রিজার্ভ')
 
 @section('content')
 <!-- ================= HERO ================= -->
@@ -193,8 +193,13 @@
             <!-- Products Grid -->
             <div class="ds-product-grid" id="productGridContainer">
 
-                @foreach ($products as $p)
-                <article class="ds-product-card product-card" data-category="{{ $p->category_key }}" data-product-id="{{ $p->id }}" data-advance="0">
+                @php
+                    $homeVisible = 8;
+                @endphp
+                @foreach ($products as $i => $p)
+                <article class="ds-product-card product-card {{ $i >= $homeVisible ? 'js-extra-product' : '' }}"
+                    data-category="{{ $p->category_key }}" data-product-id="{{ $p->id }}" data-advance="0"
+                    @if ($i >= $homeVisible) style="display:none" @endif>
                     <div class="ds-product-media">
                         <img src="{{ asset(ab_img($p->image)) }}" alt="{{ $p->image_alt ?: $p->name }}" loading="lazy">
                         <div class="ds-product-badges">
@@ -239,6 +244,14 @@
                     </div>
                 </article>
                 @endforeach
+                @if ($products->count() > $homeVisible)
+                    <div style="grid-column:1/-1;text-align:center;margin-top:10px">
+                        <button type="button" class="ds-btn" id="seeMoreProducts" onclick="revealExtraProducts()">
+                            <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+                            <span data-en="See more">আরো দেখুন (<span class="js-extra-count">{{ $products->count() - $homeVisible }}</span>)</span>
+                        </button>
+                    </div>
+                @endif
             </div>
         </div>
     </section>
@@ -764,13 +777,6 @@
         $rvSub = ab_t('reviews_sub', 'সারা বাংলাদেশ থেকে আমাদের মূল্যবান গ্রাহকদের অভিজ্ঞতা', 'Experiences of our valued customers from all over Bangladesh');
         $rvScore = ab_t('rating_score', '৪.৯', '4.9');
         $rvTotal = ab_t('rating_total', '৫৩২টি ভেরিফাইড রিভিউ', 'Based on 532 verified reviews');
-        $ratingBars = ab_json('rating_items', [
-            ['star' => 5, 'pct' => 89, 'count_bn' => '৪৭২', 'count_en' => '472'],
-            ['star' => 4, 'pct' => 8, 'count_bn' => '৪১', 'count_en' => '41'],
-            ['star' => 3, 'pct' => 2, 'count_bn' => '১২', 'count_en' => '12'],
-            ['star' => 2, 'pct' => 0.8, 'count_bn' => '৪', 'count_en' => '4'],
-            ['star' => 1, 'pct' => 0.6, 'count_bn' => '৩', 'count_en' => '3'],
-        ]);
         $reviewCards = ab_json('reviews_items', [
             ['img' => 'assets/img/rev1.jpg', 'name' => 'নুসরাত জাহান', 'loc_bn' => 'ভেরিফাইড পারচেজ • ঢাকা', 'loc_en' => 'Verified Purchase • Dhaka', 'text_bn' => '"আমের কুচি আচারটা একদম ঠাকুমার বানানো আচারের মতোই লেগেছে! তেল বেশি না, ঝাল-নোনতা পারফেক্ট ব্যালেন্স। ঢাকায় একদিনের মধ্যেই ডেলিভারি পেয়েছি!"', 'text_en' => '"The mango kuchi achar tastes exactly like my grandmother used to make! Not too oily, perfectly spiced. Delivery arrived within a day in Dhaka!"', 'stars' => 5, 'likes_bn' => 'Like (২৪)', 'likes_en' => 'Like (24)'],
             ['img' => 'assets/img/rev2.jpg', 'name' => 'ফারহানা ইয়াসমিন', 'loc_bn' => 'ভেরিফাইড পারচেজ • চট্টগ্রাম', 'loc_en' => 'Verified Purchase • Chattogram', 'text_bn' => '"মিক্সড প্যাকের প্যাকেজিং দেখে মুগ্ধ! তিনটা আলাদা সিল করা জার, এক ফোঁটাও লিক হয়নি। জলপাই আচারটা বছরের পর বছর ধরে খাওয়া সেরা আচার!"', 'text_en' => '"The mixed pack packaging was amazing — three sealed jars, not a drop leaked. The olive pickle is the best I have had in years!"', 'stars' => 5, 'likes_bn' => 'Like (১৮)', 'likes_en' => 'Like (18)'],
@@ -778,6 +784,28 @@
             ['img' => 'assets/img/rev4.jpg', 'name' => 'মেহেজাবীন চৌধুরী', 'loc_bn' => 'ভেরিফাইড পারচেজ • সিলেট', 'loc_en' => 'Verified Purchase • Sylhet', 'text_bn' => '"ঘি খুলতেই পুরো রান্নাঘর ঘ্রাণে ভরে গেল! গরম ভাতে এক চামচ ঘি মানেই আসল স্বাদ। আপনার বোনের জন্য আরও ৩টা অর্ডার দিয়েছি।"', 'text_en' => '"The ghee aroma fills the whole kitchen! One spoon on hot rice and you are in heaven. Ordered 3 more jars for my sister."', 'stars' => 5, 'likes_bn' => 'Like (১৫)', 'likes_en' => 'Like (15)'],
             ['img' => 'assets/img/rev5.jpg', 'name' => 'সাবরিনা ইসলাম', 'loc_bn' => 'ভেরিফাইড পারচেজ • খুলনা', 'loc_en' => 'Verified Purchase • Khulna', 'text_bn' => '"প্রথমবার অনলাইনে আচার অর্ডার করলাম এবং অভিজ্ঞতা দারুণ! ডেলিভারি ম্যানের সামনে চেক করে টাকা দিলাম। রিকমেন্ডেড শপ।"', 'text_en' => '"First time ordering pickles online and the experience was great! Checked the parcel in front of the delivery man and then paid. Recommended shop."', 'stars' => 5, 'likes_bn' => 'Like (২৯)', 'likes_en' => 'Like (29)'],
         ]);
+
+        // rating summary auto-computed from the review cards (no manual bars needed)
+        $revN = count($reviewCards);
+        $starCounts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+        $starSum = 0;
+        foreach ($reviewCards as $rc) {
+            $st = max(1, min(5, (int) ($rc['stars'] ?? 5)));
+            $starCounts[$st]++;
+            $starSum += $st;
+        }
+        $avgRating = $revN ? round($starSum / $revN, 1) : 5.0;
+        $autoBars = [];
+        foreach ([5, 4, 3, 2, 1] as $st) {
+            $cnt = $starCounts[$st];
+            $autoBars[] = [
+                'star' => $st,
+                'pct' => $revN ? round($cnt * 100 / $revN) : 0,
+                'count_bn' => bn_num($cnt),
+                'count_en' => (string) $cnt,
+            ];
+        }
+        $ratingBars = $autoBars;
         $starSvgFull = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
         $starSvgHalf = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 2 8.91 8.26 2 9.27 7 14.14 5.82 21.02 12 17.77Z"/><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
     @endphp
@@ -790,11 +818,11 @@
 
         <div class="rating-summary">
             <div class="rs-score">
-                <div class="rs-big">{{ $rvScore['bn'] }}<span data-en="/5">/৫</span></div>
+                <div class="rs-big">{{ bn_num($avgRating) }}<span data-en="/5">/৫</span></div>
                 <div class="rs-stars">
                     <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 2 8.91 8.26 2 9.27 7 14.14 5.82 21.02 12 17.77Z"/><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 </div>
-                <div class="rs-total" data-en="{{ $rvTotal['en'] }}">{{ $rvTotal['bn'] }}</div>
+                <div class="rs-total" data-en="Based on {{ $revN }} verified reviews">{{ bn_num($revN) }} টি ভেরিফাইড রিভিউ</div>
             </div>
             <div class="rs-bars">
                 @foreach ($ratingBars as $bar)
@@ -820,6 +848,9 @@
                                 <div>
                                     <h4 class="font-bold text-sm text-[#d97706]">{{ $rev['name'] ?? '' }} <svg class="text-emerald-500 text-xs" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></h4>
                                     <p class="text-[10px] text-gray-500" data-en="{{ $rev['loc_en'] ?? '' }}">{{ $rev['loc_bn'] ?? '' }}</p>
+                                    @if (($rev['source'] ?? 'normal') === 'google')
+                                        <span class="inline-flex items-center gap-1 mt-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full border" style="border-color:#4285F4;color:#4285F4" data-en="Google Review">গুগল রিভিউ</span>
+                                    @endif
                                 </div>
                             </div>
                             <p class="text-sm text-gray-700 mb-3 flex-1" data-en="{{ $rev['text_en'] ?? '' }}">

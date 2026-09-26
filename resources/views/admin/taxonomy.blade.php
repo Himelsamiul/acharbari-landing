@@ -24,12 +24,21 @@
                             <td><code>{{ $cat->key }}</code></td>
                             <td>{{ $cat->products_count }}টি</td>
                             <td>
-                                <form method="POST" action="{{ route('admin.taxonomy.category.destroy', $cat) }}"
-                                    onsubmit="return confirm('ক্যাটাগরি মুছবেন?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
-                                </form>
+                                <div style="display:flex;gap:6px;align-items:center">
+                                    @if ($cat->is_active)<span class="pill ok">চালু</span>
+                                    @else<span class="pill red">বন্ধ</span>@endif
+                                    <form method="POST" action="{{ route('admin.taxonomy.category.toggle', $cat) }}">
+                                        @csrf
+                                        <button class="btn-icon" type="submit" title="{{ $cat->is_active ? 'বন্ধ করুন' : 'চালু করুন' }}">
+                                            <i class="fa-solid {{ $cat->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i></button>
+                                    </form>
+                                    <form method="POST" action="{{ route('admin.taxonomy.category.destroy', $cat) }}"
+                                        onsubmit="return confirm('ক্যাটাগরি মুছবেন?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -57,12 +66,21 @@
                             <td><b>{{ $brand->name }}</b></td>
                             <td>{{ $brand->products_count }}টি</td>
                             <td>
-                                <form method="POST" action="{{ route('admin.taxonomy.brand.destroy', $brand) }}"
-                                    onsubmit="return confirm('ব্র্যান্ড মুছবেন?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
-                                </form>
+                                <div style="display:flex;gap:6px;align-items:center">
+                                    @if ($brand->is_active)<span class="pill ok">চালু</span>
+                                    @else<span class="pill red">বন্ধ</span>@endif
+                                    <form method="POST" action="{{ route('admin.taxonomy.brand.toggle', $brand) }}">
+                                        @csrf
+                                        <button class="btn-icon" type="submit" title="{{ $brand->is_active ? 'বন্ধ করুন' : 'চালু করুন' }}">
+                                            <i class="fa-solid {{ $brand->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i></button>
+                                    </form>
+                                    <form method="POST" action="{{ route('admin.taxonomy.brand.destroy', $brand) }}"
+                                        onsubmit="return confirm('ব্র্যান্ড মুছবেন?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

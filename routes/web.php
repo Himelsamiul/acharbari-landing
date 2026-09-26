@@ -45,22 +45,44 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/complaints/{complaint}/toggle', [Admin\ComplaintController::class, 'toggle'])->name('admin.complaints.toggle');
     Route::delete('/complaints/{complaint}', [Admin\ComplaintController::class, 'destroy'])->name('admin.complaints.destroy');
 
+    // customers (derived from orders) — search + rename + delete
+    Route::get('/customers', [Admin\CustomerController::class, 'index'])->name('admin.customers');
+    Route::post('/customers/rename', [Admin\CustomerController::class, 'rename'])->name('admin.customers.rename');
+    Route::delete('/customers/{phone}', [Admin\CustomerController::class, 'destroy'])
+        ->where('phone', '[0-9]+')->name('admin.customers.destroy');
+
+    // suppliers + purchase history
+    Route::get('/suppliers', [Admin\SupplierController::class, 'index'])->name('admin.suppliers');
+    Route::post('/suppliers', [Admin\SupplierController::class, 'store'])->name('admin.suppliers.store');
+    Route::get('/suppliers/{supplier}/edit', [Admin\SupplierController::class, 'edit'])->name('admin.suppliers.edit');
+    Route::get('/suppliers/{supplier}', [Admin\SupplierController::class, 'show'])->name('admin.suppliers.show');
+    Route::post('/suppliers/{supplier}', [Admin\SupplierController::class, 'update'])->name('admin.suppliers.update');
+    Route::post('/suppliers/{supplier}/toggle', [Admin\SupplierController::class, 'toggle'])->name('admin.suppliers.toggle');
+    Route::delete('/suppliers/{supplier}', [Admin\SupplierController::class, 'destroy'])->name('admin.suppliers.destroy');
+    Route::post('/suppliers/{supplier}/purchases', [Admin\SupplierController::class, 'storePurchase'])->name('admin.suppliers.purchases.store');
+    Route::delete('/purchases/{purchase}', [Admin\SupplierController::class, 'destroyPurchase'])->name('admin.purchases.destroy');
+
     Route::get('/coupons', [Admin\CouponController::class, 'index'])->name('admin.coupons');
     Route::post('/coupons', [Admin\CouponController::class, 'store'])->name('admin.coupons.store');
     Route::post('/coupons/{coupon}/toggle', [Admin\CouponController::class, 'toggle'])->name('admin.coupons.toggle');
     Route::delete('/coupons/{coupon}', [Admin\CouponController::class, 'destroy'])->name('admin.coupons.destroy');
+    Route::get('/reviews', [Admin\ReviewController::class, 'index'])->name('admin.reviews');
+    Route::post('/reviews', [Admin\ReviewController::class, 'save'])->name('admin.reviews.save');
     Route::get('/products', [Admin\ProductController::class, 'index'])->name('admin.products.index');
     Route::get('/products/create', [Admin\ProductController::class, 'create'])->name('admin.products.create');
     Route::post('/products', [Admin\ProductController::class, 'store'])->name('admin.products.store');
     Route::get('/products/{product}/edit', [Admin\ProductController::class, 'edit'])->name('admin.products.edit');
     Route::put('/products/{product}', [Admin\ProductController::class, 'update'])->name('admin.products.update');
+    Route::post('/products/{product}/toggle', [Admin\ProductController::class, 'toggle'])->name('admin.products.toggle');
     Route::delete('/products/{product}', [Admin\ProductController::class, 'destroy'])->name('admin.products.destroy');
 
     Route::get('/taxonomy', [Admin\TaxonomyController::class, 'index'])->name('admin.taxonomy');
     Route::get('/modules/{module}', [Admin\ModuleController::class, 'show'])->name('admin.module');
     Route::post('/taxonomy/category', [Admin\TaxonomyController::class, 'storeCategory'])->name('admin.taxonomy.category.store');
+    Route::post('/taxonomy/category/{category}/toggle', [Admin\TaxonomyController::class, 'toggleCategory'])->name('admin.taxonomy.category.toggle');
     Route::delete('/taxonomy/category/{category}', [Admin\TaxonomyController::class, 'destroyCategory'])->name('admin.taxonomy.category.destroy');
     Route::post('/taxonomy/brand', [Admin\TaxonomyController::class, 'storeBrand'])->name('admin.taxonomy.brand.store');
+    Route::post('/taxonomy/brand/{brand}/toggle', [Admin\TaxonomyController::class, 'toggleBrand'])->name('admin.taxonomy.brand.toggle');
     Route::delete('/taxonomy/brand/{brand}', [Admin\TaxonomyController::class, 'destroyBrand'])->name('admin.taxonomy.brand.destroy');
 
     Route::get('/settings/brand', [Admin\SettingController::class, 'brand'])->name('admin.settings.brand');
