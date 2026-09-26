@@ -13,34 +13,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: FTP upload (changed files only)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          local-dir: ./
-          # FTP user (deploy@khorak.shop) er home nijei /home/khorak/public_html —
-          # tai relative root e upload korlei thik jaygay pore
-          server-dir: ./
-          log-level: standard
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.github/**
-            **/node_modules/**
-            **/tests/**
-            **/storage/logs/**
-            **/storage/framework/**
-            **/storage/app/private/**
-            **/public/storage
-            .env
-            .env.example
-            .env.backup
-            DEPLOYMENT.md
-            README.md
+      - name: FTP upload (changed files only, never deletes)
+        env:
+          FTP_USER: ${{ secrets.FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          command -v lftp >/dev/null || sudo apt-get install -y -qq lftp
+          lftp -u "$FTP_USER","$FTP_PASS" ftp://khorak.shop << 'SCRIPT'
+            set ftp:ssl-allow yes
+            set ftp:ssl-protect-data yes
+            set net:max-retries 3
+            set net:timeout 30
+            mirror -R --verbose \
+              --exclude-glob .git* \
+              --exclude-glob .github \
+              --exclude .env \
+              --exclude .env.example \
+              --exclude-glob node_modules \
+              --exclude-glob tests \
+              --exclude DEPLOYMENT.md \
+              . ./
+            bye
+          SCRIPT
 
       # deploy er por live DB te notun migration chalano hoy
       # (server e setup.php ache — APP_KEY chara keu chalate parbe na)
