@@ -7,6 +7,11 @@
 @section('content')
     @php $labels = \App\Models\Order::statusLabels(); @endphp
 
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+        <a class="a-btn" href="{{ route('order.invoice', $order->order_code) }}" target="_blank" rel="noopener">
+            <i class="fa-solid fa-file-pdf"></i> ইনভয়েস (PDF) ডাউনলোড</a>
+    </div>
+
     <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start" class="order-grid">
         <div class="card">
             <h3><i class="fa-solid fa-jar"></i> অর্ডারের আইটেমসমূহ</h3>
@@ -43,7 +48,12 @@
                     <div style="color:#5f7a6d"><i class="fa-solid fa-phone" style="color:#059669;width:18px"></i> {{ $order->phone }}</div>
                     <div style="color:#5f7a6d"><i class="fa-solid fa-location-dot" style="color:#059669;width:18px"></i> {{ $order->address }}</div>
                     <div style="color:#5f7a6d"><i class="fa-solid fa-truck" style="color:#059669;width:18px"></i>
-                        {{ $order->area === 'inside' ? 'ঢাকার ভিতরে (৳80)' : 'ঢাকার বাহিরে (৳150)' }}</div>
+                        @if ($order->district)
+                            {{ $order->district }} জেলা — ডেলিভারি চার্জ ৳{{ number_format($order->shipping_cost) }}
+                        @else
+                            {{ $order->area === 'inside' ? 'ঢাকার ভিতরে' : 'ঢাকার বাহিরে' }} (৳{{ number_format($order->shipping_cost) }})
+                        @endif
+                    </div>
                     <div style="color:#5f7a6d"><i class="fa-solid fa-credit-card" style="color:#059669;width:18px"></i>
                         {{ strtoupper($order->payment_method) }}</div>
                 </div>

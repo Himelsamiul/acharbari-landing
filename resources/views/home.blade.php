@@ -6,7 +6,7 @@
 
 @section('content')
 <!-- ================= HERO ================= -->
-    <section class="ds-hero">
+    <section class="ds-hero" id="ds-hero">
         <div class="ds-container ds-hero-grid">
             <div class="ds-hero-copy">
                 @php $t = ab_t('hero_chip', 'গ্রামবাংলার সেরা স্বাদ — ক্যাশ অন ডেলিভারিতে', 'Finest village-made taste — Cash on Delivery'); @endphp
@@ -526,6 +526,23 @@
                             </div>
                             <p class="text-[11px] text-gray-500 mt-2" data-en="{{ $couponNote['en'] }}">{{ $couponNote['bn'] }}</p>
                             <p class="lp-coupon-msg" id="couponMsg" hidden></p>
+                            @php
+                                $activeCoupons = \App\Models\Coupon::activeMap();
+                            @endphp
+                            @if (count($activeCoupons))
+                                <div class="mt-3" id="coupon_list">
+                                    <p class="text-[11px] font-bold text-gray-600 mb-1.5" data-en="Available coupons — tap to apply:">চালু কুপন — ক্লিক করলেই প্রয়োগ হবে:</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach ($activeCoupons as $cCode => $cPct)
+                                            <button type="button" onclick="applyCouponFromList('{{ $cCode }}')"
+                                                class="lp-coupon-chip inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full border border-dashed border-amber-400 bg-amber-50 text-amber-700 hover:bg-amber-100 transition"
+                                                data-en="{{ $cCode }} — {{ $cPct }}% off">
+                                                🎟️ {{ $cCode }} — {{ bn_num($cPct) }}% ছাড়
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="cartlist p-4">
@@ -620,6 +637,7 @@
                                     <label class="block text-xs font-bold text-gray-700 mb-1" for="area"><span
                                             data-en="{{ $fArea['en'] }}">{{ $fArea['bn'] }}</span></label>
                                     <input type="hidden" name="area" id="landing_area_input" value="inside">
+                                    <input type="hidden" name="district" id="landing_district_input" value="">
 
                                     <div id="landing-area-empty" class="">
                                         <input type="text"
@@ -638,9 +656,12 @@
                                             <select id="area"
                                                 class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white"
                                                 required="">
-                                                <option value="inside" data-charge="{{ $dIn }}" selected>{{ $areaIn['bn'] }} {{ bn_num($dIn) }} টাকা (৳{{ $dIn }})</option>
-                                                <option value="outside" data-charge="{{ $dOut }}">{{ $areaOut['bn'] }} {{ bn_num($dOut) }} টাকা (৳{{ $dOut }})</option>
-                                                <!-- options swapped by script.js per language -->
+                                                @foreach (ab_districts() as $d)
+                                                    <option value="{{ $d['en'] }}" data-charge="{{ $d['charge'] }}"
+                                                        data-area="{{ strcasecmp($d['en'], 'Dhaka') === 0 ? 'inside' : 'outside' }}">
+                                                        {{ $d['bn'] }} ({{ $d['en'] }}) — ৳{{ bn_num($d['charge']) }}
+                                                    </option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div id="landing-free-delivery-wrap" class="hidden">
@@ -842,7 +863,7 @@
                 <a href="tel:{{ ab_contact('phone') }}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg> {{ ab_contact('phone') }}</a>
                 <a href="https://wa.me/{{ ab_contact('whatsapp') }}" target="_blank" rel="noopener"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg> WhatsApp</a>
                 <a href="{{ ab_contact('facebook') }}" target="_blank" rel="noopener"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg> <span data-en="Facebook Page">Facebook Page</span></a>
-                <a href="{{ route('track') }}" style="text-decoration:none;color:inherit"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/><path d="M11 8a3 3 0 0 1 3 3"/></svg> <span
+                <a href="{{ route('track') }}" onclick="openTrackModal();return false;" style="text-decoration:none;color:inherit"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/><path d="M11 8a3 3 0 0 1 3 3"/></svg> <span
                         data-en="Order Track">অর্ডার ট্র্যাক</span></a>
                 <button onclick="openComplaintModal()"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
                     <span data-en="Complaint">কমপ্লেইন</span></button>

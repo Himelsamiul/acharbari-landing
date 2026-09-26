@@ -67,6 +67,13 @@
     <div class="note-banner">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
         <span>যেকোনো ঘর <b>খালি রাখলে</b> ল্যান্ডিং পেজে বর্তমান ডিফল্ট লেখা দেখাবে — কোনো ঘর ফাঁকা দেখাবে না। বদলাতে চাইলে নতুন লেখা বসিয়ে সেভ করুন, আবার ডিফল্টে ফিরতে ঘরটি মুছে খালি করে সেভ করুন।</span>
+        <span style="display:inline-flex;gap:8px;margin-left:10px;flex-wrap:wrap">
+            <a href="{{ url('/') }}#ds-hero" target="_blank" rel="noopener" class="a-btn ghost" style="padding:5px 12px;font-size:12px">হিরো প্রিভিউ</a>
+            <a href="{{ url('/') }}#ds-products" target="_blank" rel="noopener" class="a-btn ghost" style="padding:5px 12px;font-size:12px">প্রোডাক্ট প্রিভিউ</a>
+            <a href="{{ url('/') }}#order-form" target="_blank" rel="noopener" class="a-btn ghost" style="padding:5px 12px;font-size:12px">অর্ডার ফর্ম প্রিভিউ</a>
+            <a href="{{ url('/') }}#lp-footer" target="_blank" rel="noopener" class="a-btn ghost" style="padding:5px 12px;font-size:12px">Footer প্রিভিউ</a>
+            <a href="{{ url('/') }}" target="_blank" rel="noopener" class="a-btn" style="padding:5px 12px;font-size:12px"><i class="fa-solid fa-eye"></i> সম্পূর্ণ লাইভ প্রিভিউ</a>
+        </span>
     </div>
 
     <div class="filter-tabs" id="contentTabs">
@@ -336,7 +343,7 @@
 
             <h3 style="margin-top:22px">Footer</h3>
             <div class="fgrid">{!! $tf('footer_tag', 'Footer-এর বর্ণনা', true) !!}</div>
-            <div class="fgrid">{!! $tf('footer_col_links', 'কলাম টাইটেল — কুইক লিংক') !!}{!! $tf('footer_col_contact', 'কলাম টাইটেল — যোগাযোগ') !!}{!! $tf('footer_fb', 'ফেসবুক পেজ লেখা') !!}{!! $tf('footer_admin', 'অ্যাডমিন লিংক লেখা') !!}</div>
+            <div class="fgrid">{!! $tf('footer_col_links', 'কলাম টাইটেল — কুইক লিংক') !!}{!! $tf('footer_col_contact', 'কলাম টাইটেল — যোগাযোগ') !!}{!! $tf('footer_fb', 'ফেসবুক পেজ লেখা') !!}</div>
             <div class="fgrid">{!! $tf('footer_rights', 'কপিরাইট লাইন (সর্বস্বত্ব সংরক্ষিত)') !!}{!! $tf('footer_made', 'Made with love লাইন') !!}</div>
             <p class="desc">কপিরাইটের বছর অটো বসে • ফোন/WhatsApp/Facebook যোগাযোগ <a href="{{ route('admin.settings.brand') }}">লোগো ও ব্র্যান্ড</a> পেজ থেকে বদলান।</p>
             <button class="a-btn" style="margin-top:14px"><i class="fa-solid fa-floppy-disk"></i> Footer সেভ করুন</button>

@@ -485,6 +485,7 @@
                 <div class="side-group-label">মার্কেটিং ও ট্র্যাকিং</div>
                 <a class="side-link {{ request()->route('module') === 'payments' ? 'active' : '' }}" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে <span class="draft-tag">ড্রাফট</span></a>
                 <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
+                <a class="side-link {{ request()->routeIs('admin.settings.delivery') ? 'active' : '' }}" href="{{ route('admin.settings.delivery') }}"><i class="fa-solid fa-truck-fast"></i> ডেলিভারি এরিয়া</a>
 
                 <div class="side-group-label">সাইট সাজানো</div>
                 <a class="side-link {{ request()->routeIs('admin.settings.content') ? 'active' : '' }}" href="{{ route('admin.settings.content') }}"><i class="fa-solid fa-pen-to-square"></i> ল্যান্ডিং কনটেন্ট</a>
@@ -498,7 +499,6 @@
                 <a class="side-link {{ request()->routeIs('admin.sitemap') ? 'active' : '' }}" href="{{ route('admin.sitemap') }}"><i class="fa-solid fa-sitemap"></i> Sitemap</a>
 
                 <div class="side-group-label">অ্যাকাউন্ট</div>
-                <a class="side-link" href="{{ url('/') }}" target="_blank"><i class="fa-solid fa-globe"></i> সাইট দেখুন</a>
             </nav>
 
             <div class="side-foot">
@@ -520,7 +520,6 @@
                     </div>
                 </div>
                 <div class="top-actions">
-                    <a class="side-link" style="background:#fff;color:#1f4234;border-radius:12px" href="{{ url('/') }}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> সাইট দেখুন</a>
                     <div class="avatar-chip"><span class="av">AD</span> {{ auth()->user()->name ?? 'Admin' }} <i class="fa-solid fa-circle" style="font-size:7px;color:#16a34a"></i></div>
                 </div>
             </div>

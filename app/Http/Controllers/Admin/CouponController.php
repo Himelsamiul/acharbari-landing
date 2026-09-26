@@ -23,13 +23,17 @@ class CouponController extends Controller
             'expires_at' => 'nullable|date|after:now',
         ]);
 
+        // normalize: strip all whitespace + uppercase so customers can type
+        // the code with or without spaces ("ACHAR 10" and "ACHAR10" match)
+        $code = strtoupper(preg_replace('/\s+/', '', $data['code']));
+
         Coupon::create([
-            'code' => strtoupper($data['code']),
+            'code' => $code,
             'percent' => $data['percent'],
             'expires_at' => $data['expires_at'] ?? null,
         ]);
 
-        return back()->with('success', 'কুপন "' . strtoupper($data['code']) . '" তৈরি হয়েছে।');
+        return back()->with('success', 'কুপন "' . $code . '" তৈরি হয়েছে।');
     }
 
     public function toggle(Coupon $coupon)

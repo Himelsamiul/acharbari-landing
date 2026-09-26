@@ -13,7 +13,9 @@
             </div>
             <a class="a-btn" href="{{ route('admin.products.create') }}"><i class="fa-solid fa-plus"></i> নতুন প্রোডাক্ট</a>
         </div>
-        <table class="tbl">
+        <input type="text" id="productSearch" class="a-input" autocomplete="off"
+            placeholder="🔍 নাম, ক্যাটাগরি, ব্র্যান্ড বা বারকোড দিয়ে খুঁজুন…" style="max-width:340px;margin-bottom:12px">
+        <table class="tbl" id="productTable">
             <thead>
                 <tr><th>প্রোডাক্ট</th><th>ক্যাটাগরি/ব্র্যান্ড</th><th>দাম</th><th>VAT</th><th>স্টক</th><th>বারকোড</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr>
             </thead>
@@ -57,4 +59,14 @@
             </tbody>
         </table>
     </div>
+
+    <script>
+        // client-side product search: matches any text in the row
+        document.getElementById('productSearch').addEventListener('input', function () {
+            var q = this.value.trim().toLowerCase();
+            document.querySelectorAll('#productTable tbody tr').forEach(function (tr) {
+                tr.style.display = tr.textContent.toLowerCase().indexOf(q) !== -1 ? '' : 'none';
+            });
+        });
+    </script>
 @endsection

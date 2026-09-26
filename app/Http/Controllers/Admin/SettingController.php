@@ -122,6 +122,50 @@ class SettingController extends Controller
         return back()->with('success', 'ডিফল্ট (হার্বাল গ্রিন) থিমে ফিরে গেছে।');
     }
 
+    /** District-wise delivery: which districts get delivery and at what charge. */
+    public function delivery()
+    {
+        return view('admin.delivery', [
+            'districts' => ab_districts(),
+            'allDistricts' => ab_districts_all(),
+        ]);
+    }
+
+    public function saveDelivery(Request $request)
+    {
+        $data = $request->validate([
+            'districts' => 'required|array|max:64',
+            'districts.*.en' => 'required|string|max:60',
+            'districts.*.charge' => 'required|integer|min:0|max:5000',
+        ]);
+
+        $all = collect(ab_districts_all())->keyBy('en');
+        $configured = [];
+
+        foreach ($data['districts'] as $row) {
+            $district = $all[trim($row['en'])] ?? null;
+            if (! $district) {
+                continue; // ignore unknown district names coming from the client
+            }
+
+            $configured[] = [
+                'en' => $district['en'],
+                'bn' => $district['bn'],
+                'charge' => (int) $row['charge'],
+            ];
+        }
+
+        if (count($configured) === 0) {
+            return back()->withErrors(['districts' => 'অন্তত একটি জেলায় ডেলিভারি চালু রাখুন।']);
+        }
+
+        Setting::setMany([
+            'delivery_districts' => json_encode($configured, JSON_UNESCAPED_UNICODE),
+        ]);
+
+        return back()->with('success', 'ডেলিভারি এরিয়া সেভ হয়েছে — ' . count($configured) . ' টি জেলায় ডেলিভারি চালু আছে।');
+    }
+
     /** Landing content: hero / sections / order form / footer (ab_t + ab_json keys). */
     public const CONTENT_TEXT_KEYS = [
         // hero
@@ -164,7 +208,7 @@ class SettingController extends Controller
         'cta_h2a', 'cta_h2b', 'cta_sub', 'cta_btn',
         // nav + footer
         'logo_pill', 'nav_home', 'nav_products', 'nav_why', 'nav_reviews', 'nav_faq', 'nav_order',
-        'footer_tag', 'footer_col_links', 'footer_col_contact', 'footer_fb', 'footer_admin', 'footer_rights', 'footer_made',
+        'footer_tag', 'footer_col_links', 'footer_col_contact', 'footer_fb', 'footer_rights', 'footer_made',
     ];
 
     public function content()

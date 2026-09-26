@@ -42,6 +42,7 @@ php artisan view:cache
 - `public/` document root hishebe set koro (Apache/Nginx) — `php artisan serve` production e na
 - HTTPS forced (og:url, sitemap URLs er jonno important)
 - `storage/` ar `bootstrap/cache/` writable koro
+- `php artisan storage:link` chalao — na korle product image gulo dekhabe na
 
 ## 6. Verify (deploy er pore)
 

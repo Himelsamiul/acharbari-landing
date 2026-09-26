@@ -14,6 +14,7 @@ Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product
 
 // Public order tracking
 Route::get('/track', [OrderController::class, 'track'])->name('track');
+Route::get('/order/track-json', [OrderController::class, 'trackJson'])->name('order.track.json');
 
 // Public complaint submit (landing modal, fetch JSON)
 Route::post('/complaint-store', [ComplaintController::class, 'store'])->name('complaint.store');
@@ -25,6 +26,7 @@ Route::get('/sitemap.xml', [Admin\SitemapController::class, 'xml'])->name('sitem
 // Orders
 Route::post('/order', [OrderController::class, 'store'])->name('order.store');
 Route::get('/order/success/{code}', [OrderController::class, 'success'])->name('order.success');
+Route::get('/order/invoice/{code}', [OrderController::class, 'invoice'])->name('order.invoice');
 
 // Admin auth
 Route::get('/admin/login', [Admin\AuthController::class, 'showLogin'])->name('admin.login');
@@ -65,6 +67,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/settings/brand', [Admin\SettingController::class, 'saveBrand'])->name('admin.settings.brand.save');
     Route::get('/settings/theme', [Admin\SettingController::class, 'theme'])->name('admin.settings.theme');
     Route::post('/settings/theme', [Admin\SettingController::class, 'saveTheme'])->name('admin.settings.theme.save');
+    Route::post('/settings/theme/custom', [Admin\SettingController::class, 'saveCustomTheme'])->name('admin.settings.theme.custom');
+    Route::post('/settings/theme/reset', [Admin\SettingController::class, 'resetTheme'])->name('admin.settings.theme.reset');
+    Route::get('/settings/delivery', [Admin\SettingController::class, 'delivery'])->name('admin.settings.delivery');
+    Route::post('/settings/delivery', [Admin\SettingController::class, 'saveDelivery'])->name('admin.settings.delivery.save');
     Route::get('/settings/content', [Admin\SettingController::class, 'content'])->name('admin.settings.content');
     Route::post('/settings/content', [Admin\SettingController::class, 'saveContent'])->name('admin.settings.content.save');
     Route::get('/settings/tracking', [Admin\SettingController::class, 'tracking'])->name('admin.settings.tracking');
