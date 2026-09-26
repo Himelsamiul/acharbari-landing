@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'ড্যাশবোর্ড') — আচারবাড়ি Admin</title>
-    <link rel="icon" href="{{ asset($settings['favicon_path'] ?: 'assets/img/favicon.svg') }}" type="image/svg+xml">
+    <title>@yield('title', 'ড্যাশবোর্ড') — {{ ab_brand('bn') }} Admin</title>
+    <link rel="icon" href="{{ asset($settings['favicon_path'] ?? 'assets/img/favicon.svg') }}" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -86,6 +86,14 @@
             padding: 16px 14px 6px;
         }
         .side-group-label:first-child { padding-top: 4px; }
+        .side-toggle { width: 100%; border: 0; background: transparent; cursor: pointer; text-align: left; }
+        .side-chevron { margin-left: auto; font-size: 11px; transition: transform .18s ease; opacity: .7; }
+        .side-chevron.open { transform: rotate(180deg); }
+        .side-sub { display: none; flex-direction: column; gap: 2px; margin: 2px 0 4px; padding-left: 14px; border-left: 2px solid rgba(255,255,255,.14); margin-left: 17px; }
+        .side-sub.open { display: flex; }
+        .side-sub-link { font-size: 13px; padding: 7px 12px; border-radius: 8px; color: rgba(255,255,255,.82); text-decoration: none; }
+        .side-sub-link:hover { background: rgba(255,255,255,.08); color: #fff; }
+        .side-sub-link.active { background: rgba(255,255,255,.14); color: #fff; font-weight: 700; }
         .draft-tag {
             margin-left: auto;
             font-size: 8.5px;
@@ -443,6 +451,7 @@
         }
         .mobile-nav .side-link.active { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
     </style>
+    @yield('styles')
 </head>
 
 <body>
@@ -460,7 +469,7 @@
                     @endif
                 </div>
                 <div>
-                    <b>আচারবাড়ি</b>
+                    <b>{{ ab_brand('bn') }}</b>
                     <span>ADMIN PANEL</span>
                 </div>
             </div>
@@ -472,34 +481,74 @@
                     @php $pendingOrders = \App\Models\Order::where('status', 'pending')->count(); @endphp
                     @if ($pendingOrders > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $pendingOrders }} নতুন</span>@endif
                 </a>
-                <a class="side-link {{ request()->routeIs('admin.module', request()->route('module') === 'customers') ? 'active' : '' }}" href="{{ route('admin.module', 'customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক <span class="draft-tag">ড্রাফট</span></a>
                 <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন
                     @php $openComplaints = \App\Models\Complaint::where('is_resolved', false)->count(); @endphp
                     @if ($openComplaints > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $openComplaints }} নতুন</span>@endif
                 </a>
-                <a class="side-link {{ request()->route('module') === 'suppliers' ? 'active' : '' }}" href="{{ route('admin.module', 'suppliers') }}"><i class="fa-solid fa-truck-field"></i> সাপ্লায়ার <span class="draft-tag">ড্রাফট</span></a>
-                <a class="side-link {{ request()->routeIs('admin.products.index') || request()->routeIs('admin.products.create') || request()->routeIs('admin.products.edit') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
-                <a class="side-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}"><i class="fa-solid fa-layer-group"></i> ক্যাটাগরি ও ব্র্যান্ড</a>
-                <a class="side-link {{ request()->routeIs('admin.coupons') ? 'active' : '' }}" href="{{ route('admin.coupons') }}"><i class="fa-solid fa-ticket"></i> কুপন</a>
-                <a class="side-link {{ request()->route('module') === 'reviews' ? 'active' : '' }}" href="{{ route('admin.module', 'reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ <span class="draft-tag">ড্রাফট</span></a>
 
-                <div class="side-group-label">মার্কেটিং ও ট্র্যাকিং</div>
-                <a class="side-link {{ request()->route('module') === 'payments' ? 'active' : '' }}" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে <span class="draft-tag">ড্রাফট</span></a>
+                @php
+                    $inProductGroup = request()->routeIs('admin.products.*')
+                        || request()->routeIs('admin.suppliers*')
+                        || request()->routeIs('admin.customers*')
+                        || request()->routeIs('admin.taxonomy')
+                        || request()->routeIs('admin.coupons*')
+                        || request()->routeIs('admin.settings.delivery');
+                @endphp
+                <button type="button" class="side-link side-toggle {{ $inProductGroup ? 'active' : '' }}"
+                    onclick="toggleProductSub()">
+                    <i class="fa-solid fa-jar"></i> প্রোডাক্ট
+                    <i class="fa-solid fa-chevron-down side-chevron {{ $inProductGroup ? 'open' : '' }}"></i>
+                </button>
+                <div class="side-sub {{ $inProductGroup ? 'open' : '' }}" id="productSub">
+                    <a class="side-sub-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">সব প্রোডাক্ট</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.suppliers*') ? 'active' : '' }}" href="{{ route('admin.suppliers') }}">সাপ্লায়ার</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.customers*') ? 'active' : '' }}" href="{{ route('admin.customers') }}">গ্রাহক</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}">ক্যাটাগরি ও ব্র্যান্ড</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.coupons*') ? 'active' : '' }}" href="{{ route('admin.coupons') }}">কুপন</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.settings.delivery') ? 'active' : '' }}" href="{{ route('admin.settings.delivery') }}">ডেলিভারি এরিয়া</a>
+                </div>
+                <a class="side-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}" href="{{ route('admin.reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ</a>
+
+                <a class="side-link {{ request()->routeIs('admin.settings.payment') ? 'active' : '' }}" href="{{ route('admin.settings.payment') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে</a>
                 <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
 
-                <div class="side-group-label">সাইট সাজানো</div>
-                <a class="side-link {{ request()->routeIs('admin.settings.content') ? 'active' : '' }}" href="{{ route('admin.settings.content') }}"><i class="fa-solid fa-pen-to-square"></i> ল্যান্ডিং কনটেন্ট</a>
-                <a class="side-link {{ request()->routeIs('admin.settings.brand') ? 'active' : '' }}" href="{{ route('admin.settings.brand') }}"><i class="fa-solid fa-jar"></i> লোগো ও ব্র্যান্ড</a>
-                <a class="side-link {{ request()->routeIs('admin.settings.theme') ? 'active' : '' }}" href="{{ route('admin.settings.theme') }}"><i class="fa-solid fa-palette"></i> থিম কালার</a>
+                @php
+                    $inSiteGroup = request()->routeIs('admin.settings.content')
+                        || request()->routeIs('admin.settings.brand')
+                        || request()->routeIs('admin.settings.theme');
+                @endphp
+                <button type="button" class="side-link side-toggle {{ $inSiteGroup ? 'active' : '' }}"
+                    onclick="toggleSideSub('siteSub')">
+                    <i class="fa-solid fa-pen-to-square"></i> ল্যান্ডিং কনটেন্ট
+                    <i class="fa-solid fa-chevron-down side-chevron {{ $inSiteGroup ? 'open' : '' }}"></i>
+                </button>
+                <div class="side-sub {{ $inSiteGroup ? 'open' : '' }}" id="siteSub">
+                    <a class="side-sub-link {{ request()->routeIs('admin.settings.content') ? 'active' : '' }}" href="{{ route('admin.settings.content') }}">ল্যান্ডিং কনটেন্ট</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.settings.brand') ? 'active' : '' }}" href="{{ route('admin.settings.brand') }}">লোগো ও ব্র্যান্ড</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.settings.theme') ? 'active' : '' }}" href="{{ route('admin.settings.theme') }}">থিম কালার</a>
+                </div>
 
-                <div class="side-group-label">SEO</div>
-                <a class="side-link {{ request()->routeIs('admin.seo') ? 'active' : '' }}" href="{{ route('admin.seo') }}"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO Settings</a>
-                <a class="side-link {{ request()->routeIs('admin.robots') ? 'active' : '' }}" href="{{ route('admin.robots') }}"><i class="fa-solid fa-robot"></i> robots.txt</a>
-                <a class="side-link {{ request()->routeIs('admin.redirects.*') ? 'active' : '' }}" href="{{ route('admin.redirects.index') }}"><i class="fa-solid fa-rotate"></i> 301 Redirects</a>
-                <a class="side-link {{ request()->routeIs('admin.sitemap') ? 'active' : '' }}" href="{{ route('admin.sitemap') }}"><i class="fa-solid fa-sitemap"></i> Sitemap</a>
+                @php
+                    $inSeoGroup = request()->routeIs('admin.seo')
+                        || request()->routeIs('admin.robots')
+                        || request()->routeIs('admin.redirects.*')
+                        || request()->routeIs('admin.sitemap');
+                @endphp
+                <button type="button" class="side-link side-toggle {{ $inSeoGroup ? 'active' : '' }}"
+                    onclick="toggleSideSub('seoSub')">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i> SEO Settings
+                    <i class="fa-solid fa-chevron-down side-chevron {{ $inSeoGroup ? 'open' : '' }}"></i>
+                </button>
+                <div class="side-sub {{ $inSeoGroup ? 'open' : '' }}" id="seoSub">
+                    <a class="side-sub-link {{ request()->routeIs('admin.seo') ? 'active' : '' }}" href="{{ route('admin.seo') }}">SEO Settings</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.robots') ? 'active' : '' }}" href="{{ route('admin.robots') }}">robots.txt</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.redirects.*') ? 'active' : '' }}" href="{{ route('admin.redirects.index') }}">301 Redirects</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.sitemap') ? 'active' : '' }}" href="{{ route('admin.sitemap') }}">Sitemap</a>
+                </div>
 
                 <div class="side-group-label">অ্যাকাউন্ট</div>
-                <a class="side-link" href="{{ url('/') }}" target="_blank"><i class="fa-solid fa-globe"></i> সাইট দেখুন</a>
+
+                <a class="side-link {{ request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন ম্যানেজমেন্ট</a>
             </nav>
 
             <div class="side-foot">
@@ -517,11 +566,41 @@
                     <button class="menu-btn" id="menuBtn" aria-label="মেনু"><i class="fa-solid fa-bars"></i></button>
                     <div>
                         <h2>@yield('page_title', 'ড্যাশবোর্ড')</h2>
-                        <p>@yield('page_sub', 'আচারবাড়ি অ্যাডমিন প্যানেল')</p>
+                        <p>@yield('page_sub', ab_brand('bn') . ' অ্যাডমিন প্যানেল')</p>
                     </div>
                 </div>
                 <div class="top-actions">
-                    <a class="side-link" style="background:#fff;color:#1f4234;border-radius:12px" href="{{ url('/') }}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> সাইট দেখুন</a>
+                    @php
+                        $notifCount = \App\Models\OrderNotification::where('is_read', false)->count();
+                        $notifItems = \App\Models\OrderNotification::with('order')->latest()->take(8)->get();
+                    @endphp
+                    <div class="notif-wrap">
+                        <button type="button" class="notif-bell" onclick="toggleNotif(event)" aria-label="নোটিফিকেশন">
+                            <i class="fa-{{ $notifCount > 0 ? 'solid' : 'regular' }} fa-bell"></i>
+                            @if ($notifCount > 0)<span class="notif-badge">{{ $notifCount > 9 ? '9+' : $notifCount }}</span>@endif
+                        </button>
+                        <div class="notif-drop" id="notifDrop">
+                            <div class="notif-head">
+                                <b>নোটিফিকেশন</b>
+                                @if ($notifCount > 0)
+                                    <form method="POST" action="{{ route('admin.notifications.readAll') }}">
+                                        @csrf
+                                        <button type="submit" class="notif-readall">সব পড়া হয়েছে</button>
+                                    </form>
+                                @endif
+                            </div>
+                            @forelse ($notifItems as $n)
+                                <a href="{{ $n->order ? route('admin.orders.show', $n->order) : route('admin.orders.index') }}"
+                                    class="notif-item {{ $n->is_read ? '' : 'unread' }}">
+                                    <b>নতুন অর্ডার #{{ $n->order?->order_code ?? '—' }}</b>
+                                    <span>{{ $n->order?->customer_name }} — ৳{{ number_format($n->order?->total ?? 0) }}</span>
+                                    <small>{{ optional($n->created_at)->diffForHumans() }}</small>
+                                </a>
+                            @empty
+                                <p class="notif-empty">কোনো নোটিফিকেশন নেই</p>
+                            @endforelse
+                        </div>
+                    </div>
                     <div class="avatar-chip"><span class="av">AD</span> {{ auth()->user()->name ?? 'Admin' }} <i class="fa-solid fa-circle" style="font-size:7px;color:#16a34a"></i></div>
                 </div>
             </div>
@@ -532,9 +611,10 @@
                 <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন</a>
                 <a class="side-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}"><i class="fa-solid fa-layer-group"></i> ক্যাটাগরি</a>
                 <a class="side-link {{ request()->routeIs('admin.products') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
-                <a class="side-link" href="{{ route('admin.module', 'customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>
+                <a class="side-link" href="{{ route('admin.customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>
                 <a class="side-link" href="{{ route('admin.module', 'seo') }}"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO</a>
-                <a class="side-link" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট</a>
+                <a class="side-link {{ request()->routeIs('admin.settings.payment') ? 'active' : '' }}" href="{{ route('admin.settings.payment') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট</a>
+                <a class="side-link {{ request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন</a>
             </nav>
 
             @if (session('success'))
@@ -546,6 +626,57 @@
     </div>
 
     <div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastText"></span></div>
+    <style>
+        .notif-wrap { position: relative; }
+        .notif-bell {
+            position: relative; width: 40px; height: 40px; border-radius: 12px;
+            border: 1px solid rgba(5, 150, 105, .18); background: #fff; cursor: pointer;
+            color: #1f4234; font-size: 16px; transition: .2s;
+        }
+        .notif-bell:hover { background: rgba(5, 150, 105, .06); }
+        .notif-badge {
+            position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px;
+            padding: 0 5px; border-radius: 999px; background: #dc2626; color: #fff;
+            font-size: 10.5px; font-weight: 800; display: grid; place-items: center;
+            border: 2px solid #fff;
+        }
+        .notif-drop {
+            display: none; position: absolute; right: 0; top: 48px; width: 320px; max-width: 88vw;
+            background: #fff; border: 1px solid rgba(5, 150, 105, .15); border-radius: 14px;
+            box-shadow: 0 24px 50px -18px rgba(6, 78, 59, .35); overflow: hidden; z-index: 60;
+        }
+        .notif-drop.open { display: block; }
+        .notif-head {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 14px; background: rgba(5, 150, 105, .05);
+            border-bottom: 1px solid rgba(5, 150, 105, .1); font-size: 13px; color: #12261d;
+        }
+        .notif-readall {
+            border: none; background: none; cursor: pointer; font-family: inherit;
+            font-size: 11.5px; font-weight: 700; color: #059669;
+        }
+        .notif-readall:hover { text-decoration: underline; }
+        .notif-item {
+            display: block; padding: 10px 14px; text-decoration: none;
+            border-bottom: 1px solid rgba(5, 150, 105, .07);
+        }
+        .notif-item:hover { background: rgba(5, 150, 105, .04); }
+        .notif-item.unread { background: rgba(5, 150, 105, .07); }
+        .notif-item b { display: block; font-size: 12.5px; color: #12261d; }
+        .notif-item span { display: block; font-size: 12px; color: #5f7a6d; margin-top: 2px; }
+        .notif-item small { display: block; font-size: 11px; color: #8b7355; margin-top: 2px; }
+        .notif-empty { padding: 18px 14px; text-align: center; color: #8b7355; font-size: 12.5px; margin: 0; }
+    </style>
+    <script>
+        function toggleNotif(e) {
+            e.stopPropagation();
+            document.getElementById('notifDrop').classList.toggle('open');
+        }
+        document.addEventListener('click', function (e) {
+            var drop = document.getElementById('notifDrop');
+            if (drop && !e.target.closest('.notif-wrap')) drop.classList.remove('open');
+        });
+    </script>
     <script>
         function showToast(msg) {
             var t = document.getElementById('toast');
@@ -576,6 +707,18 @@
         })();
     </script>
     @stack('scripts')
+    <script>
+        function toggleSideSub(id) {
+            var sub = document.getElementById(id);
+            sub.classList.toggle('open');
+            var btn = sub.previousElementSibling;
+            var chev = btn ? btn.querySelector('.side-chevron') : null;
+            if (chev) chev.classList.toggle('open');
+            btn.setAttribute('aria-expanded', sub.classList.contains('open') ? 'true' : 'false');
+        }
+
+        function toggleProductSub() { toggleSideSub('productSub'); }
+    </script>
 </body>
 
 </html>

@@ -2,11 +2,11 @@
 
 @section('nav', 'home')
 
-@section('title', 'আচারবাড়ি — ঘরে তৈরি খাঁটি দেশি আচার ও প্রিজার্ভ')
+@section('title', ab_brand('bn') . ' — ঘরে তৈরি খাঁটি দেশি আচার ও প্রিজার্ভ')
 
 @section('content')
 <!-- ================= HERO ================= -->
-    <section class="ds-hero">
+    <section class="ds-hero" id="ds-hero">
         <div class="ds-container ds-hero-grid">
             <div class="ds-hero-copy">
                 @php $t = ab_t('hero_chip', 'গ্রামবাংলার সেরা স্বাদ — ক্যাশ অন ডেলিভারিতে', 'Finest village-made taste — Cash on Delivery'); @endphp
@@ -193,8 +193,13 @@
             <!-- Products Grid -->
             <div class="ds-product-grid" id="productGridContainer">
 
-                @foreach ($products as $p)
-                <article class="ds-product-card product-card" data-category="{{ $p->category_key }}" data-product-id="{{ $p->id }}" data-advance="0">
+                @php
+                    $homeVisible = 8;
+                @endphp
+                @foreach ($products as $i => $p)
+                <article class="ds-product-card product-card {{ $i >= $homeVisible ? 'js-extra-product' : '' }}"
+                    data-category="{{ $p->category_key }}" data-product-id="{{ $p->id }}" data-advance="0"
+                    @if ($i >= $homeVisible) style="display:none" @endif>
                     <div class="ds-product-media">
                         <img src="{{ asset(ab_img($p->image)) }}" alt="{{ $p->image_alt ?: $p->name }}" loading="lazy">
                         <div class="ds-product-badges">
@@ -239,6 +244,14 @@
                     </div>
                 </article>
                 @endforeach
+                @if ($products->count() > $homeVisible)
+                    <div style="grid-column:1/-1;text-align:center;margin-top:10px">
+                        <button type="button" class="ds-btn" id="seeMoreProducts" onclick="revealExtraProducts()">
+                            <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+                            <span data-en="See more">আরো দেখুন (<span class="js-extra-count">{{ $products->count() - $homeVisible }}</span>)</span>
+                        </button>
+                    </div>
+                @endif
             </div>
         </div>
     </section>
@@ -494,9 +507,9 @@
                     $payT = ab_t('pay_method', 'পেমেন্ট মেথড', 'Payment Method');
                     $codT = ab_t('pay_cod', 'ক্যাশ অন ডেলিভারি', 'Cash On Delivery');
                     $codS = ab_t('pay_cod_sub', 'আগে পার্সেল দেখুন, তারপর টাকা দিন', 'Check the parcel first, then pay');
-                    $onlT = ab_t('pay_online', 'অনলাইন পেমেন্ট — বিকাশ / নগদ / রকেট / উপায়', 'Online Payment — bKash / Nagad / Rocket / Upay');
-                    $onlNA = ab_t('pay_online_note_a', 'অর্ডার কনফার্ম হওয়ার পর আমাদের প্রতিনিধি কল দিয়ে ', 'Our agent will call you after confirming the order with send-money instructions to ');
-                    $onlNB = ab_t('pay_online_note_b', ' নম্বরে সেন্ড মানির বিস্তারিত জানিয়ে দেবেন।', '.');
+                    $onlT = ab_t('pay_online', 'অনলাইন পেমেন্ট — বিকাশ / নগদ', 'Online Payment — bKash / Nagad');
+                    $onlNA = ab_t('pay_online_note_a', 'অর্ডার কনফার্ম করলে সরাসরি ', 'After confirming you go straight ');
+                    $onlNB = ab_t('pay_online_note_b', ' পেমেন্ট পেজে নিয়ে যাওয়া হবে — সেখানে পেমেন্ট শেষ করুন।', ' to the payment page to complete the payment.');
                     $confirmBtn = ab_t('confirm_order', 'অর্ডার কনফার্ম করুন', 'Confirm Order');
                     $tr1 = ab_t('trust_1', 'নিরাপদ অর্ডার', 'Secure order');
                     $tr2 = ab_t('trust_2', 'দেখে টাকা দিন', 'Pay after checking');
@@ -526,6 +539,23 @@
                             </div>
                             <p class="text-[11px] text-gray-500 mt-2" data-en="{{ $couponNote['en'] }}">{{ $couponNote['bn'] }}</p>
                             <p class="lp-coupon-msg" id="couponMsg" hidden></p>
+                            @php
+                                $activeCoupons = \App\Models\Coupon::activeMap();
+                            @endphp
+                            @if (count($activeCoupons))
+                                <div class="mt-3" id="coupon_list">
+                                    <p class="text-[11px] font-bold text-gray-600 mb-1.5" data-en="Available coupons — tap to apply:">চালু কুপন — ক্লিক করলেই প্রয়োগ হবে:</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach ($activeCoupons as $cCode => $cPct)
+                                            <button type="button" onclick="applyCouponFromList('{{ $cCode }}')"
+                                                class="lp-coupon-chip inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full border border-dashed border-amber-400 bg-amber-50 text-amber-700 hover:bg-amber-100 transition"
+                                                data-en="{{ $cCode }} — {{ $cPct }}% off">
+                                                🎟️ {{ $cCode }} — {{ bn_num($cPct) }}% ছাড়
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="cartlist p-4">
@@ -620,6 +650,7 @@
                                     <label class="block text-xs font-bold text-gray-700 mb-1" for="area"><span
                                             data-en="{{ $fArea['en'] }}">{{ $fArea['bn'] }}</span></label>
                                     <input type="hidden" name="area" id="landing_area_input" value="inside">
+                                    <input type="hidden" name="district" id="landing_district_input" value="">
 
                                     <div id="landing-area-empty" class="">
                                         <input type="text"
@@ -638,9 +669,12 @@
                                             <select id="area"
                                                 class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white"
                                                 required="">
-                                                <option value="inside" data-charge="{{ $dIn }}" selected>{{ $areaIn['bn'] }} {{ bn_num($dIn) }} টাকা (৳{{ $dIn }})</option>
-                                                <option value="outside" data-charge="{{ $dOut }}">{{ $areaOut['bn'] }} {{ bn_num($dOut) }} টাকা (৳{{ $dOut }})</option>
-                                                <!-- options swapped by script.js per language -->
+                                                @foreach (ab_districts() as $d)
+                                                    <option value="{{ $d['en'] }}" data-charge="{{ $d['charge'] }}"
+                                                        data-area="{{ strcasecmp($d['en'], 'Dhaka') === 0 ? 'inside' : 'outside' }}">
+                                                        {{ $d['bn'] }} ({{ $d['en'] }}) — ৳{{ bn_num($d['charge']) }}
+                                                    </option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div id="landing-free-delivery-wrap" class="hidden">
@@ -671,6 +705,7 @@
                                                     checked="" class="accent-emerald-600">
                                             </label>
                                         </div>
+                                        @if (ab_online_payment())
                                         <button type="button" class="pay-toggle" id="onlinePayToggle"
                                             onclick="toggleOnlinePay()">
                                             <span class="pay-toggle-l">
@@ -682,34 +717,29 @@
                                         <div class="pay-collapse" id="onlinePayWrap">
                                             <div class="pay-collapse-in">
                                                 <div class="grid grid-cols-2 gap-2">
+                                                    @if (\App\Services\Payment\BkashGateway::enabled())
                                                     <label class="pay-opt" style="--pbc:#e2136e">
                                                         <span class="pay-ic"><img src="{{ asset('assets/img/pay/bkash.svg') }}" alt="bKash"></span>
-                                                        <span class="pay-tx"><b>bKash</b><small data-en="Send money">সেন্ড মানি</small></span>
+                                                        <span class="pay-tx"><b>bKash</b><small data-en="Pay online">অনলাইনে পেমেন্ট</small></span>
                                                         <input type="radio" name="payment_method" value="bkash">
                                                     </label>
+                                                    @endif
+                                                    @if (\App\Services\Payment\NagadGateway::enabled())
                                                     <label class="pay-opt" style="--pbc:#f6921e">
                                                         <span class="pay-ic"><img src="{{ asset('assets/img/pay/nagad.svg') }}" alt="Nagad"></span>
-                                                        <span class="pay-tx"><b>Nagad</b><small data-en="Send money">সেন্ড মানি</small></span>
+                                                        <span class="pay-tx"><b>Nagad</b><small data-en="Pay online">অনলাইনে পেমেন্ট</small></span>
                                                         <input type="radio" name="payment_method" value="nagad">
                                                     </label>
-                                                    <label class="pay-opt" style="--pbc:#8c3494">
-                                                        <span class="pay-ic">Rk</span>
-                                                        <span class="pay-tx"><b>Rocket</b><small data-en="Send money">সেন্ড মানি</small></span>
-                                                        <input type="radio" name="payment_method" value="rocket">
-                                                    </label>
-                                                    <label class="pay-opt" style="--pbc:#d1202f">
-                                                        <span class="pay-ic">Up</span>
-                                                        <span class="pay-tx"><b>Upay</b><small data-en="Send money">সেন্ড মানি</small></span>
-                                                        <input type="radio" name="payment_method" value="upay">
-                                                    </label>
+                                                    @endif
                                                 </div>
                                                 <div id="payOnlineNote">
                                                     <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                                                    <span data-en="{{ $onlNA['en'] }}{{ ab_contact('phone') }}{{ $onlNB['en'] }}">
-                                                        {{ $onlNA['bn'] }}{{ ab_contact('phone') }}{{ $onlNB['bn'] }}</span>
+                                                    <span data-en="{{ $onlNA['en'] }}{{ $onlNB['en'] }}">
+                                                        {{ $onlNA['bn'] }}{{ $onlNB['bn'] }}</span>
                                                 </div>
                                             </div>
                                         </div>
+                                        @endif
                                     </div>
                                     <div id="payment-error" class="hidden mt-2 text-sm font-bold text-red-600">
                                         <span data-en="Please select a payment method.">অনুগ্রহ করে একটি পেমেন্ট মেথড সিলেক্ট করুন।</span>
@@ -743,20 +773,29 @@
         $rvSub = ab_t('reviews_sub', 'সারা বাংলাদেশ থেকে আমাদের মূল্যবান গ্রাহকদের অভিজ্ঞতা', 'Experiences of our valued customers from all over Bangladesh');
         $rvScore = ab_t('rating_score', '৪.৯', '4.9');
         $rvTotal = ab_t('rating_total', '৫৩২টি ভেরিফাইড রিভিউ', 'Based on 532 verified reviews');
-        $ratingBars = ab_json('rating_items', [
-            ['star' => 5, 'pct' => 89, 'count_bn' => '৪৭২', 'count_en' => '472'],
-            ['star' => 4, 'pct' => 8, 'count_bn' => '৪১', 'count_en' => '41'],
-            ['star' => 3, 'pct' => 2, 'count_bn' => '১২', 'count_en' => '12'],
-            ['star' => 2, 'pct' => 0.8, 'count_bn' => '৪', 'count_en' => '4'],
-            ['star' => 1, 'pct' => 0.6, 'count_bn' => '৩', 'count_en' => '3'],
-        ]);
-        $reviewCards = ab_json('reviews_items', [
-            ['img' => 'assets/img/rev1.jpg', 'name' => 'নুসরাত জাহান', 'loc_bn' => 'ভেরিফাইড পারচেজ • ঢাকা', 'loc_en' => 'Verified Purchase • Dhaka', 'text_bn' => '"আমের কুচি আচারটা একদম ঠাকুমার বানানো আচারের মতোই লেগেছে! তেল বেশি না, ঝাল-নোনতা পারফেক্ট ব্যালেন্স। ঢাকায় একদিনের মধ্যেই ডেলিভারি পেয়েছি!"', 'text_en' => '"The mango kuchi achar tastes exactly like my grandmother used to make! Not too oily, perfectly spiced. Delivery arrived within a day in Dhaka!"', 'stars' => 5, 'likes_bn' => 'Like (২৪)', 'likes_en' => 'Like (24)'],
-            ['img' => 'assets/img/rev2.jpg', 'name' => 'ফারহানা ইয়াসমিন', 'loc_bn' => 'ভেরিফাইড পারচেজ • চট্টগ্রাম', 'loc_en' => 'Verified Purchase • Chattogram', 'text_bn' => '"মিক্সড প্যাকের প্যাকেজিং দেখে মুগ্ধ! তিনটা আলাদা সিল করা জার, এক ফোঁটাও লিক হয়নি। জলপাই আচারটা বছরের পর বছর ধরে খাওয়া সেরা আচার!"', 'text_en' => '"The mixed pack packaging was amazing — three sealed jars, not a drop leaked. The olive pickle is the best I have had in years!"', 'stars' => 5, 'likes_bn' => 'Like (১৮)', 'likes_en' => 'Like (18)'],
-            ['img' => 'assets/img/rev3.jpg', 'name' => 'তানজিনা আক্তার', 'loc_bn' => 'ভেরিফাইড পারচেজ • রাজশাহী', 'loc_en' => 'Verified Purchase • Rajshahi', 'text_bn' => '"অবশেষে খাঁটি কাঁচা মধু পেলাম! শীতে প্রাকৃতিকভাবে সেট হয়ে গেছে — খাঁটি হওয়ার সবচেয়ে বড় প্রমাণ। পুরো পরিবারের সবাই খুব পছন্দ করেছে।"', 'text_en' => '"Finally found pure raw Sundarban honey! It crystallised naturally in winter — proof that it is real. The whole family loves it."', 'stars' => 5, 'likes_bn' => 'Like (৩১)', 'likes_en' => 'Like (31)'],
-            ['img' => 'assets/img/rev4.jpg', 'name' => 'মেহেজাবীন চৌধুরী', 'loc_bn' => 'ভেরিফাইড পারচেজ • সিলেট', 'loc_en' => 'Verified Purchase • Sylhet', 'text_bn' => '"ঘি খুলতেই পুরো রান্নাঘর ঘ্রাণে ভরে গেল! গরম ভাতে এক চামচ ঘি মানেই আসল স্বাদ। আপনার বোনের জন্য আরও ৩টা অর্ডার দিয়েছি।"', 'text_en' => '"The ghee aroma fills the whole kitchen! One spoon on hot rice and you are in heaven. Ordered 3 more jars for my sister."', 'stars' => 5, 'likes_bn' => 'Like (১৫)', 'likes_en' => 'Like (15)'],
-            ['img' => 'assets/img/rev5.jpg', 'name' => 'সাবরিনা ইসলাম', 'loc_bn' => 'ভেরিফাইড পারচেজ • খুলনা', 'loc_en' => 'Verified Purchase • Khulna', 'text_bn' => '"প্রথমবার অনলাইনে আচার অর্ডার করলাম এবং অভিজ্ঞতা দারুণ! ডেলিভারি ম্যানের সামনে চেক করে টাকা দিলাম। রিকমেন্ডেড শপ।"', 'text_en' => '"First time ordering pickles online and the experience was great! Checked the parcel in front of the delivery man and then paid. Recommended shop."', 'stars' => 5, 'likes_bn' => 'Like (২৯)', 'likes_en' => 'Like (29)'],
-        ]);
+        $reviewCards = ab_json('reviews_items', ab_reviews_default());
+
+        // rating summary auto-computed from the review cards (no manual bars needed)
+        $revN = count($reviewCards);
+        $starCounts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+        $starSum = 0;
+        foreach ($reviewCards as $rc) {
+            $st = max(1, min(5, (int) ($rc['stars'] ?? 5)));
+            $starCounts[$st]++;
+            $starSum += $st;
+        }
+        $avgRating = $revN ? round($starSum / $revN, 1) : 5.0;
+        $autoBars = [];
+        foreach ([5, 4, 3, 2, 1] as $st) {
+            $cnt = $starCounts[$st];
+            $autoBars[] = [
+                'star' => $st,
+                'pct' => $revN ? round($cnt * 100 / $revN) : 0,
+                'count_bn' => bn_num($cnt),
+                'count_en' => (string) $cnt,
+            ];
+        }
+        $ratingBars = $autoBars;
         $starSvgFull = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
         $starSvgHalf = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 2 8.91 8.26 2 9.27 7 14.14 5.82 21.02 12 17.77Z"/><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
     @endphp
@@ -769,11 +808,11 @@
 
         <div class="rating-summary">
             <div class="rs-score">
-                <div class="rs-big">{{ $rvScore['bn'] }}<span data-en="/5">/৫</span></div>
+                <div class="rs-big">{{ bn_num($avgRating) }}<span data-en="/5">/৫</span></div>
                 <div class="rs-stars">
                     <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 2 8.91 8.26 2 9.27 7 14.14 5.82 21.02 12 17.77Z"/><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 </div>
-                <div class="rs-total" data-en="{{ $rvTotal['en'] }}">{{ $rvTotal['bn'] }}</div>
+                <div class="rs-total" data-en="Based on {{ $revN }} verified reviews">{{ bn_num($revN) }} টি ভেরিফাইড রিভিউ</div>
             </div>
             <div class="rs-bars">
                 @foreach ($ratingBars as $bar)
@@ -799,6 +838,9 @@
                                 <div>
                                     <h4 class="font-bold text-sm text-[#d97706]">{{ $rev['name'] ?? '' }} <svg class="text-emerald-500 text-xs" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></h4>
                                     <p class="text-[10px] text-gray-500" data-en="{{ $rev['loc_en'] ?? '' }}">{{ $rev['loc_bn'] ?? '' }}</p>
+                                    @if (($rev['source'] ?? 'normal') === 'google')
+                                        <span class="inline-flex items-center gap-1 mt-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full border" style="border-color:#4285F4;color:#4285F4" data-en="Google Review">গুগল রিভিউ</span>
+                                    @endif
                                 </div>
                             </div>
                             <p class="text-sm text-gray-700 mb-3 flex-1" data-en="{{ $rev['text_en'] ?? '' }}">
@@ -839,10 +881,16 @@
                 <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> <span data-en="{{ $ctaB['en'] }}">{{ $ctaB['bn'] }}</span>
             </button>
             <div class="ds-cta-links">
+                @if (ab_contact('phone') !== '')
                 <a href="tel:{{ ab_contact('phone') }}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg> {{ ab_contact('phone') }}</a>
+                @endif
+                @if (ab_contact('whatsapp') !== '')
                 <a href="https://wa.me/{{ ab_contact('whatsapp') }}" target="_blank" rel="noopener"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg> WhatsApp</a>
+                @endif
+                @if (ab_contact('facebook') !== '')
                 <a href="{{ ab_contact('facebook') }}" target="_blank" rel="noopener"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg> <span data-en="Facebook Page">Facebook Page</span></a>
-                <a href="{{ route('track') }}" style="text-decoration:none;color:inherit"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/><path d="M11 8a3 3 0 0 1 3 3"/></svg> <span
+                @endif
+                <a href="{{ route('track') }}" onclick="openTrackModal();return false;" style="text-decoration:none;color:inherit"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/><path d="M11 8a3 3 0 0 1 3 3"/></svg> <span
                         data-en="Order Track">অর্ডার ট্র্যাক</span></a>
                 <button onclick="openComplaintModal()"><svg class="text-lg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
                     <span data-en="Complaint">কমপ্লেইন</span></button>

@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>অর্ডার সফল — আচারবাড়ি</title>
-    <link rel="icon" href="{{ asset($settings['favicon_path'] ?: 'assets/img/favicon.svg') }}" type="image/svg+xml">
+    <title>অর্ডার সফল — {{ ab_brand('bn') }}</title>
+    <link rel="icon" href="{{ asset($settings['favicon_path'] ?? 'assets/img/favicon.svg') }}" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -154,13 +154,28 @@
             <div class="sum-row"><span>ডেলিভারি চার্জ</span><span>৳{{ number_format($order->shipping_cost) }}</span></div>
             <div class="sum-row total"><span>সর্বমোট ({{ strtoupper($order->payment_method) }})</span>
                 <span>৳{{ number_format($order->total) }}</span></div>
+            @if ($order->payment_method !== 'cod')
+                @if ($order->payment_status === 'paid')
+                    <div class="sum-row" style="color:#059669;font-weight:700"><span>পেমেন্ট স্ট্যাটাস</span><span>পরিশোধ হয়েছে ✓ @if($order->payment_txn_id)<small style="display:block;color:#8b7355">TrxID: {{ $order->payment_txn_id }}</small>@endif</span></div>
+                @elseif ($order->payment_status === 'pending')
+                    <div class="sum-row" style="color:#b45309;font-weight:700"><span>পেমেন্ট স্ট্যাটাস</span><span>পেন্ডিং — পেমেন্ট সম্পন্ন হয়নি</span></div>
+                @else
+                    <div class="sum-row" style="color:#dc2626;font-weight:700"><span>পেমেন্ট স্ট্যাটাস</span><span>ব্যর্থ — আমাদের প্রতিনিধি কল করে পেমেন্ট নিশ্চিত করবেন</span></div>
+                @endif
+            @endif
             <div style="display:flex;gap:10px;margin-top:18px">
+                @if (ab_contact('whatsapp') !== '')
                 <a class="btn-home" style="flex:1" target="_blank" rel="noopener"
                     href="https://wa.me/{{ ab_contact('whatsapp') }}?text={{ rawurlencode('আসসালামু আলাইকুম! আমার অর্ডার #' . $order->order_code . ' কনফার্ম করতে চাই।') }}">
                     WhatsApp-এ কনফার্ম করুন</a>
+                @endif
                 <a class="btn-home" style="flex:1;background:linear-gradient(135deg,#0f766e,#059669);box-shadow:0 14px 30px -12px rgba(15,118,110,.7)"
                     href="{{ route('track') }}?code={{ $order->order_code }}&phone={{ $order->phone }}">অর্ডার ট্র্যাক করুন</a>
             </div>
+            <a class="btn-home" style="margin-top:10px;background:linear-gradient(135deg,#b45309,#d97706);box-shadow:0 14px 30px -12px rgba(180,83,9,.6)"
+                href="{{ route('order.invoice', $order->order_code) }}" download>
+                <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                ইনভয়েস ডাউনলোড করুন (PDF)</a>
             <a class="btn-home" href="{{ url('/') }}" style="margin-top:10px;background:transparent;color:#059669;border:1.5px solid #a7f3d0;box-shadow:none"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> হোমে ফিরে যান</a>
         </div>
     </div>

@@ -8,15 +8,23 @@
     @php $labels = \App\Models\Order::statusLabels(); @endphp
 
     <div class="filter-tabs">
-        <a class="filter-tab {{ is_null($status) ? 'active' : '' }}" href="{{ route('admin.orders.index') }}">সব <b>({{ array_sum($counts) }})</b></a>
+        <a class="filter-tab {{ is_null($status) ? 'active' : '' }}" href="{{ route('admin.orders.index', request('q') ? ['q' => request('q')] : []) }}">সব <b>({{ array_sum($counts) }})</b></a>
         @foreach ($labels as $key => $label)
-            <a class="filter-tab {{ $status === $key ? 'active' : '' }}" href="{{ route('admin.orders.index', ['status' => $key]) }}">{{ $label }} <b>({{ $counts[$key] ?? 0 }})</b></a>
+            <a class="filter-tab {{ $status === $key ? 'active' : '' }}" href="{{ route('admin.orders.index', array_filter(['status' => $key, 'q' => request('q')])) }}">{{ $label }} <b>({{ $counts[$key] ?? 0 }})</b></a>
         @endforeach
     </div>
 
     <div class="card">
         <h3>অর্ডার তালিকা</h3>
         <p class="desc">স্ট্যাটাস পরিবর্তন করতে সিলেক্ট ব্যবহার করুন — সাথে সাথে সেভ হয়</p>
+
+        <div style="margin:0 0 16px">
+            <input id="orderSearch" class="a-input" type="search" value="{{ request('q') }}"
+                placeholder="কাস্টমারের নাম, মোবাইল বা ইনভয়েস দিয়ে খুঁজুন..."
+                autocomplete="off" style="max-width:360px">
+        </div>
+
+        <div id="ordersArea">
         @if ($orders->isEmpty())
             <p style="text-align:center;color:#8b7355;font-size:13px;padding:24px 0">এই ফিল্টারে কোনো অর্ডার নেই।</p>
         @else
@@ -59,5 +67,46 @@
                 {{ $orders->links() }}
             </div>
         @endif
+        </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        // live search: type kori ar table auto-update hoy (page reload chara)
+        (function () {
+            var input = document.getElementById('orderSearch');
+            var area = document.getElementById('ordersArea');
+            if (!input || !area) return;
+
+            var timer = null;
+            var controller = null;
+
+            function run() {
+                var q = input.value.trim();
+                var url = new URL(window.location.href);
+                if (q) { url.searchParams.set('q', q); } else { url.searchParams.delete('q'); }
+
+                if (controller) controller.abort();
+                controller = new AbortController();
+
+                area.style.opacity = '.5';
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, signal: controller.signal })
+                    .then(function (r) { return r.text(); })
+                    .then(function (html) {
+                        var doc = new DOMParser().parseFromString(html, 'text/html');
+                        var fresh = doc.getElementById('ordersArea');
+                        if (fresh) area.innerHTML = fresh.innerHTML;
+                        window.history.replaceState(null, '', url);
+                        area.style.opacity = '';
+                    })
+                    .catch(function () { area.style.opacity = ''; });
+            }
+
+            input.addEventListener('input', function () {
+                clearTimeout(timer);
+                timer = setTimeout(run, 350);
+            });
+        })();
+    </script>
+@endpush

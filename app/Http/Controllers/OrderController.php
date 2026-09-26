@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderNotification;
 use App\Models\Product;
+use App\Services\Payment\BkashGateway;
+use App\Services\Payment\NagadGateway;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -15,12 +17,22 @@ class OrderController extends Controller
 {
     public function store(Request $request)
     {
+        // online methods follow the admin gateways — COD is always allowed (universal)
+        $payMethods = ['cod'];
+        if (BkashGateway::enabled()) {
+            $payMethods[] = 'bkash';
+        }
+        if (NagadGateway::enabled()) {
+            $payMethods[] = 'nagad';
+        }
+
         $data = $request->validate([
             'customer_name' => 'required|string|max:120',
             'phone' => 'required|string|min:10|max:15',
             'address' => 'required|string|max:500',
             'area' => 'required|in:inside,outside',
-            'payment_method' => 'required|in:cod,bkash,nagad,rocket,upay',
+            'district' => 'nullable|string|max:100',
+            'payment_method' => 'required|in:' . implode(',', $payMethods),
             'coupon_code' => 'nullable|string|max:30',
             'items' => 'required|json',
         ]);
@@ -73,19 +85,45 @@ class OrderController extends Controller
             }
         }
 
-        $shipping = $data['area'] === 'inside'
-            ? ab_charge('delivery_charge_inside', 80)
-            : ab_charge('delivery_charge_outside', 150);
+        // Delivery: admin-configured district-wise charges, legacy inside/outside fallback
+        $districts = ab_districts();
+        $districtName = trim((string) ($data['district'] ?? ''));
+        $area = $data['area'];
+
+        if ($districtName !== '') {
+            $match = null;
+            foreach ($districts as $d) {
+                if (strcasecmp((string) $d['en'], $districtName) === 0) {
+                    $match = $d;
+                    break;
+                }
+            }
+
+            if (! $match) {
+                return back()->withErrors(['district' => 'দুঃখিত — এই এলাকায় আমরা এখন ডেলিভারি করি না।']);
+            }
+
+            $shipping = (int) $match['charge'];
+            $area = strcasecmp($districtName, 'Dhaka') === 0 ? 'inside' : 'outside';
+            $districtName = $match['en'];
+        } else {
+            $shipping = $area === 'inside'
+                ? ab_charge('delivery_charge_inside', 80)
+                : ab_charge('delivery_charge_outside', 150);
+        }
+
         $total = max(0, $subtotal - $discount) + $vatTotal + $shipping;
 
-        $order = DB::transaction(function () use ($data, $lines, $subtotal, $discount, $couponCode, $vatTotal, $shipping, $total) {
+        $order = DB::transaction(function () use ($data, $lines, $subtotal, $discount, $couponCode, $vatTotal, $shipping, $total, $area, $districtName) {
             $order = Order::create([
                 'order_code' => 'AB-' . strtoupper(uniqid()),
                 'customer_name' => $data['customer_name'],
                 'phone' => $data['phone'],
                 'address' => $data['address'],
-                'area' => $data['area'],
+                'area' => $area,
+                'district' => $districtName !== '' ? $districtName : null,
                 'payment_method' => $data['payment_method'],
+                'payment_status' => in_array($data['payment_method'], ['bkash', 'nagad']) ? 'pending' : null,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'coupon_code' => $couponCode,
@@ -130,13 +168,77 @@ class OrderController extends Controller
             report($e); // SMTP configured না থাকলেও order flow থামবে না
         }
 
+        // API payment: hand the customer to the bKash / Nagad checkout page.
+        // The gateway redirects back to PaymentController, which verifies and flags paid/failed.
+        if (in_array($order->payment_method, ['bkash', 'nagad'])) {
+            $payUrl = $this->initiateGatewayPayment($order);
+
+            if ($payUrl) {
+                return redirect()->away($payUrl);
+            }
+
+            // gateway not ready / call failed — order stays, agent follows up on the call
+            $order->update(['payment_status' => 'failed']);
+        }
+
         return redirect()->route('order.success', $order->order_code);
+    }
+
+    /** Ask the chosen gateway for a checkout URL. */
+    private function initiateGatewayPayment(Order $order): ?string
+    {
+        try {
+            if ($order->payment_method === 'bkash' && BkashGateway::ready()) {
+                return BkashGateway::createPayment($order, route('payment.callback.bkash', $order->order_code))['bkashURL'] ?? null;
+            }
+
+            if ($order->payment_method === 'nagad' && NagadGateway::ready()) {
+                return NagadGateway::initialize($order, route('payment.callback.nagad', $order->order_code));
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return null;
     }
 
     public function success($code)
     {
         $order = Order::where('order_code', $code)->with('items')->firstOrFail();
         return view('order-success', compact('order'));
+    }
+
+    /** Printable PDF invoice — all order details + tracking code (English). */
+    public function invoice($code)
+    {
+        $order = Order::where('order_code', $code)->with('items')->firstOrFail();
+
+        // English brand name + optional logo, both configurable from admin settings
+        $brandName = trim(\App\Models\Setting::get('brand_en1', 'Achar') . ' ' . \App\Models\Setting::get('brand_en2', 'Bari'));
+        $logo = (string) \App\Models\Setting::get('logo_path', '');
+        $contactPhone = ab_contact('phone');
+
+        // prefer the English product name when the product still exists
+        $productNames = Product::whereIn('id', $order->items->pluck('product_id'))
+            ->get()
+            ->mapWithKeys(fn ($p) => [$p->id => $p->name_en ?: $p->name])
+            ->all();
+
+        // product barcodes (scanable on the printed invoice)
+        $productBarcodes = Product::whereIn('id', $order->items->pluck('product_id'))
+            ->pluck('barcode', 'id')
+            ->all();
+
+        return \Barryvdh\DomPDF\Facade\Pdf::loadView('invoice', [
+            'order' => $order,
+            'brandName' => $brandName !== '' ? $brandName : 'AcharBari',
+            'logo' => $logo,
+            'contactPhone' => $contactPhone,
+            'productNames' => $productNames,
+            'productBarcodes' => $productBarcodes,
+        ])
+            ->setPaper('a4')
+            ->download('invoice-' . $order->order_code . '.pdf');
     }
 
     /** Public order tracking: requires BOTH tracking code and phone (privacy) */
@@ -154,5 +256,62 @@ class OrderController extends Controller
         }
 
         return view('track', compact('order', 'code', 'phone'));
+    }
+
+    /** JSON lookup for the landing-page tracking modal (phone and/or tracking code). */
+    public function trackJson(Request $request)
+    {
+        $phone = trim((string) $request->query('phone', ''));
+        $code = strtoupper(trim((string) $request->query('invoice_id', '')));
+
+        if ($phone === '' && $code === '') {
+            return response()->json(['success' => false, 'message' => 'মোবাইল নম্বর অথবা ট্র্যাকিং কোড দিন।']);
+        }
+
+        $query = Order::with('items')->latest('id');
+        if ($code !== '') {
+            $query->where('order_code', $code);
+            if ($phone !== '') {
+                $query->where('phone', $phone);
+            }
+        } else {
+            $query->where('phone', $phone);
+        }
+        $orders = $query->limit(5)->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'কোনো অর্ডার পাওয়া যায়নি — তথ্য মিলিয়ে আবার চেষ্টা করুন।']);
+        }
+
+        $labels = Order::statusLabels();
+        $images = Product::whereIn('id', $orders->flatMap->items->pluck('product_id'))
+            ->pluck('image', 'id');
+
+        return response()->json([
+            'success' => true,
+            'orders' => $orders->map(function ($o) use ($labels, $images) {
+                return [
+                    'invoice_id' => $o->order_code,
+                    'date' => $o->created_at->format('d M Y, h:i A'),
+                    'status' => $labels[$o->status] ?? $o->status,
+                    'customer_name' => $o->customer_name,
+                    'customer_phone' => $o->phone,
+                    'area' => $o->district ?: ($o->area === 'inside' ? 'ঢাকার ভিতরে' : 'ঢাকার বাহিরে'),
+                    'address' => $o->address,
+                    'subtotal' => (float) $o->subtotal,
+                    'shipping_charge' => (float) $o->shipping_cost,
+                    'discount' => (float) $o->discount,
+                    'grand_total' => (float) $o->total,
+                    'items' => $o->items->map(function ($i) use ($images) {
+                        return [
+                            'image' => asset($images[$i->product_id] ?? 'assets/img/prod_mix.webp'),
+                            'name' => $i->product_name,
+                            'price' => (float) $i->price,
+                            'qty' => (int) $i->quantity,
+                        ];
+                    })->all(),
+                ];
+            })->all(),
+        ]);
     }
 }

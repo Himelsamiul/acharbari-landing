@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Purchase;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -14,7 +16,19 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::orderBy('sort_order')->get();
-        return view('admin.products.index', compact('products'));
+        $ids = $products->pluck('id');
+
+        // dependency tracking: kon product e order/purchase ase — delete er age dekhano lage
+        $orderCounts = \App\Models\OrderItem::whereIn('product_id', $ids)
+            ->selectRaw('product_id, COUNT(DISTINCT order_id) as c')
+            ->groupBy('product_id')
+            ->pluck('c', 'product_id');
+        $purchaseCounts = \App\Models\Purchase::whereIn('product_id', $ids)
+            ->selectRaw('product_id, COUNT(*) as c')
+            ->groupBy('product_id')
+            ->pluck('c', 'product_id');
+
+        return view('admin.products.index', compact('products', 'orderCounts', 'purchaseCounts'));
     }
 
     public function create()
@@ -26,6 +40,7 @@ class ProductController extends Controller
             'product' => new Product(),
             'categories' => $categories,
             'brands' => $brands,
+            'suppliers' => Supplier::orderBy('name')->get(),
         ]);
     }
 
@@ -33,9 +48,24 @@ class ProductController extends Controller
     {
         $data = $this->validateProduct($request);
         $data = $this->handleUpload($request, $data);
-        $data['barcode'] = $this->nextBarcode();
+        // barcode: admin typed nijer moto — khali rakhle auto-generate hobe
+        $data['barcode'] = trim((string) ($data['barcode'] ?? '')) !== '' ? $data['barcode'] : $this->nextBarcode();
+        $data['supplier_id'] = $request->filled('supplier_id') ? (int) $request->input('supplier_id') : null;
 
         $product = Product::create($data);
+
+        // initial stock bought from a supplier -> remember it as a purchase
+        $cost = (float) $request->input('purchase_cost', 0);
+        if ($data['supplier_id'] && $cost > 0 && (int) $data['stock'] > 0) {
+            Purchase::create([
+                'supplier_id' => $data['supplier_id'],
+                'product_id' => $product->id,
+                'quantity' => (int) $data['stock'],
+                'unit_cost' => $cost,
+                'purchased_at' => now()->toDateString(),
+                'note' => 'প্রোডাক্ট তৈরির সময় প্রাথমিক স্টক',
+            ]);
+        }
 
         return redirect()->route('admin.products.index')
             ->with('success', 'প্রোডাক্ট "' . $product->name . '" তৈরি হয়েছে (বারকোড: ' . $product->barcode . ')।');
@@ -47,6 +77,7 @@ class ProductController extends Controller
             'product' => $product,
             'categories' => Category::all(),
             'brands' => Brand::all(),
+            'suppliers' => Supplier::orderBy('name')->get(),
         ]);
     }
 
@@ -54,6 +85,7 @@ class ProductController extends Controller
     {
         $data = $this->validateProduct($request, $product);
         $data = $this->handleUpload($request, $data);
+        $data['supplier_id'] = $request->filled('supplier_id') ? (int) $request->input('supplier_id') : null;
 
         $product->update($data);
 
@@ -63,8 +95,34 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        // order/purchase e thakle delete block — 500 na, clear bangla message
+        $orderCount = \App\Models\OrderItem::where('product_id', $product->id)->distinct('order_id')->count('order_id');
+        $purchaseCount = \App\Models\Purchase::where('product_id', $product->id)->count();
+
+        if ($orderCount > 0 || $purchaseCount > 0) {
+            $parts = [];
+            if ($orderCount > 0) {
+                $parts[] = $orderCount . 'টি অর্ডারে';
+            }
+            if ($purchaseCount > 0) {
+                $parts[] = $purchaseCount . 'টি পারচেজে';
+            }
+
+            return back()->withErrors([
+                'product' => '"' . $product->name . '" মুছে ফেলা যাবে না — প্রোডাক্টটি ' . implode(' ও ', $parts) . ' ব্যবহৃত হয়েছে। এর বদলে প্রোডাক্টটি বন্ধ করে দিন।',
+            ]);
+        }
+
         $product->delete();
         return redirect()->route('admin.products.index')->with('success', 'প্রোডাক্ট মুছে ফেলা হয়েছে।');
+    }
+
+    /** Flip live/off on the products list. */
+    public function toggle(Product $product)
+    {
+        $product->update(['is_active' => ! $product->is_active]);
+
+        return back()->with('success', '"' . $product->name . '" এখন ' . ($product->is_active ? 'লাইভ' : 'বন্ধ') . '।');
     }
 
     private function validateProduct(Request $request, ?Product $product = null): array
@@ -89,6 +147,7 @@ class ProductController extends Controller
             'rating' => 'nullable|numeric|min:0|max:5',
             'reviews_count' => 'nullable|integer|min:0',
             'sort_order' => 'nullable|integer|min:0',
+            'barcode' => 'nullable|string|max:40|unique:products,barcode' . ($product ? ',' . $product->id : ''),
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',

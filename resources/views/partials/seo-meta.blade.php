@@ -3,7 +3,7 @@
     $p = $product ?? null;
     $sectionTitle = trim($__env->getSections()['title'] ?? '');
 
-    $defTitle = $S::get('seo_title', 'আচারবাড়ি — ঘরে তৈরি খাঁটি দেশি আচার ও প্রিজার্ভ');
+    $defTitle = $S::get('seo_title') ?: (ab_brand('bn') . ' — ঘরে তৈরি খাঁটি দেশি আচার ও প্রিজার্ভ');
     $defDesc = $S::get('seo_desc', 'ঘরে তৈরি খাঁটি দেশি আচার, মধু, ঘি ও চাটনি — প্রিজার্ভেটিভ মুক্ত, ক্যাশ অন ডেলিভারিতে সারা বাংলাদেশে হোম ডেলিভারি।');
     $defKw = $S::get('seo_keywords', 'deshi achar, mango pickle, আচারবাড়ি, homemade pickle BD, sundarban honey, deshi ghee, tamarind chutney');
 

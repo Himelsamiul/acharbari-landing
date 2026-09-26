@@ -39,9 +39,15 @@ class SettingController extends Controller
             'logo' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:2048',
             'favicon' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg,ico|max:1024',
             'contact_phone' => 'nullable|string|max:20',
-            'contact_whatsapp' => 'nullable|string|max:20',
+            'contact_whatsapp' => 'nullable|string|max:255',
             'contact_messenger' => 'nullable|string|max:60',
             'contact_facebook' => 'nullable|url|max:255',
+        ], [
+            'brand_bn1.required' => 'ব্র্যান্ডের বাংলা নামের প্রথম অংশ দিন।',
+            'brand_en1.required' => 'ব্র্যান্ডের English নামের Part 1 দিন।',
+            'contact_phone.max' => 'ফোন নম্বরটি খুব লম্বা — সর্বোচ্চ ২০ অক্ষর।',
+            'contact_facebook.url' => 'Facebook লিংকটি পুরো লিখুন — শুরুতে https:// থাকতে হবে (যেমন: https://facebook.com/yourpage)।',
+            'contact_facebook.max' => 'Facebook লিংকটি খুব লম্বা।',
         ]);
 
         $pairs = [
@@ -122,6 +128,50 @@ class SettingController extends Controller
         return back()->with('success', 'ডিফল্ট (হার্বাল গ্রিন) থিমে ফিরে গেছে।');
     }
 
+    /** District-wise delivery: which districts get delivery and at what charge. */
+    public function delivery()
+    {
+        return view('admin.delivery', [
+            'districts' => ab_districts(),
+            'allDistricts' => ab_districts_all(),
+        ]);
+    }
+
+    public function saveDelivery(Request $request)
+    {
+        $data = $request->validate([
+            'districts' => 'required|array|max:64',
+            'districts.*.en' => 'required|string|max:60',
+            'districts.*.charge' => 'required|integer|min:0|max:5000',
+        ]);
+
+        $all = collect(ab_districts_all())->keyBy('en');
+        $configured = [];
+
+        foreach ($data['districts'] as $row) {
+            $district = $all[trim($row['en'])] ?? null;
+            if (! $district) {
+                continue; // ignore unknown district names coming from the client
+            }
+
+            $configured[] = [
+                'en' => $district['en'],
+                'bn' => $district['bn'],
+                'charge' => (int) $row['charge'],
+            ];
+        }
+
+        if (count($configured) === 0) {
+            return back()->withErrors(['districts' => 'অন্তত একটি জেলায় ডেলিভারি চালু রাখুন।']);
+        }
+
+        Setting::setMany([
+            'delivery_districts' => json_encode($configured, JSON_UNESCAPED_UNICODE),
+        ]);
+
+        return back()->with('success', 'ডেলিভারি এরিয়া সেভ হয়েছে — ' . count($configured) . ' টি জেলায় ডেলিভারি চালু আছে।');
+    }
+
     /** Landing content: hero / sections / order form / footer (ab_t + ab_json keys). */
     public const CONTENT_TEXT_KEYS = [
         // hero
@@ -164,7 +214,7 @@ class SettingController extends Controller
         'cta_h2a', 'cta_h2b', 'cta_sub', 'cta_btn',
         // nav + footer
         'logo_pill', 'nav_home', 'nav_products', 'nav_why', 'nav_reviews', 'nav_faq', 'nav_order',
-        'footer_tag', 'footer_col_links', 'footer_col_contact', 'footer_fb', 'footer_admin', 'footer_rights', 'footer_made',
+        'footer_tag', 'footer_col_links', 'footer_col_contact', 'footer_fb', 'footer_rights', 'footer_made',
     ];
 
     public function content()
@@ -198,12 +248,19 @@ class SettingController extends Controller
 
         $pairs = [];
         foreach (self::CONTENT_TEXT_KEYS as $key) {
+            // shudhu submit-howa key update hoy — onno tab er custom lekha haray na
+            if (! array_key_exists($key . '_bn', $data) && ! array_key_exists($key . '_en', $data)) {
+                continue;
+            }
             $pairs[$key . '_bn'] = trim((string) ($data[$key . '_bn'] ?? ''));
             $pairs[$key . '_en'] = trim((string) ($data[$key . '_en'] ?? ''));
         }
 
         // repeater groups — empty/invalid JSON clears the override so blade defaults return
         foreach (['marquee' => 'marquee_items', 'faq' => 'faq_items', 'reviews' => 'reviews_items', 'rating' => 'rating_items'] as $field => $setting) {
+            if (! array_key_exists($field . '_json', $data)) {
+                continue; // onno tab er repeater untouched thakbe
+            }
             $rows = json_decode((string) ($data[$field . '_json'] ?? ''), true);
             $pairs[$setting] = (is_array($rows) && count($rows))
                 ? json_encode($rows, JSON_UNESCAPED_UNICODE)
@@ -229,6 +286,51 @@ class SettingController extends Controller
         Setting::setMany($pairs);
 
         return back()->with('success', 'ল্যান্ডিং কনটেন্ট সেভ হয়েছে — ল্যান্ডিং পেজে দেখুন।');
+    }
+
+    /** Payment: online payment (bKash / Nagad) on/off + send-money numbers. */
+    public function payment()
+    {
+        return view('admin.payment', [
+            'settings' => Setting::allCached(),
+        ]);
+    }
+
+    public function savePayment(Request $request)
+    {
+        $data = $request->validate([
+            'online_payment_enabled' => 'nullable|boolean',
+            'bkash_enabled' => 'nullable|boolean',
+            'bkash_mode' => 'nullable|in:sandbox,live',
+            'bkash_app_key' => 'nullable|string|max:120',
+            'bkash_app_secret' => 'nullable|string|max:120',
+            'bkash_username' => 'nullable|string|max:120',
+            'bkash_password' => 'nullable|string|max:120',
+            'nagad_enabled' => 'nullable|boolean',
+            'nagad_mode' => 'nullable|in:sandbox,live',
+            'nagad_merchant_id' => 'nullable|string|max:120',
+            'nagad_public_key' => 'nullable|string|max:5000',
+            'nagad_private_key' => 'nullable|string|max:5000',
+        ]);
+
+        Setting::setMany([
+            'online_payment_enabled' => $request->boolean('online_payment_enabled') ? '1' : '',
+            // bKash (Tokenized Checkout)
+            'bkash_enabled' => $request->boolean('bkash_enabled') ? '1' : '',
+            'bkash_mode' => $data['bkash_mode'] ?? 'sandbox',
+            'bkash_app_key' => trim($data['bkash_app_key'] ?? ''),
+            'bkash_app_secret' => trim($data['bkash_app_secret'] ?? ''),
+            'bkash_username' => trim($data['bkash_username'] ?? ''),
+            'bkash_password' => trim($data['bkash_password'] ?? ''),
+            // Nagad (PGW)
+            'nagad_enabled' => $request->boolean('nagad_enabled') ? '1' : '',
+            'nagad_mode' => $data['nagad_mode'] ?? 'sandbox',
+            'nagad_merchant_id' => trim($data['nagad_merchant_id'] ?? ''),
+            'nagad_public_key' => trim($data['nagad_public_key'] ?? ''),
+            'nagad_private_key' => trim($data['nagad_private_key'] ?? ''),
+        ]);
+
+        return back()->with('success', 'পেমেন্ট সেটিংস সেভ হয়েছে — চেকআউটে দেখুন।');
     }
 
     /** Tracking pixels: FB / GA4 / GTM / TikTok. */

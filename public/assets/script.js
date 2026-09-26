@@ -386,16 +386,6 @@ function updateAdvanceBoxForProduct(productId) {
     if (note) note.classList.remove('hidden');
 }
 
-function submitCoupon() {
-    var code = document.getElementById('coupon_input') ? document.getElementById('coupon_input').value : '';
-    if (code) {
-        document.getElementById('hidden_coupon_code').value = code;
-        document.getElementById('coupon-form').submit();
-    } else {
-        alert('Please enter a coupon code');
-    }
-}
-
 // Update the cart and highlight the selected card (campaign-style)
 // ===== Landing Products Data (for tracking) =====
 window.landingProducts = {
@@ -453,7 +443,7 @@ function updateAreaVisibility() {
         areaSelectWrap.classList.toggle('hidden', isFree);
         freeDeliveryWrap.classList.toggle('hidden', !isFree);
         if (areaSelect) areaSelect.toggleAttribute('required', !isFree);
-        if (areaInput) areaInput.value = isFree ? 'free_shipping' : (areaSelect ? areaSelect.value : 'free_shipping');
+        if (areaInput) areaInput.value = isFree ? 'inside' : (areaSelect ? ((areaSelect.selectedOptions && areaSelect.selectedOptions[0] && areaSelect.selectedOptions[0].getAttribute('data-area')) || 'inside') : 'inside');
     }
 }
 
@@ -592,26 +582,12 @@ if (window.jQuery) { $(document).ready(function () {
 
     $("#area").on("change", function () {
         var areaInput = document.getElementById('landing_area_input');
-        if (areaInput) areaInput.value = $(this).val();
+        var sel = this;
+        // district select → keep the legacy inside/outside hidden field valid
+        if (areaInput) {
+            areaInput.value = (sel.selectedOptions && sel.selectedOptions[0] && sel.selectedOptions[0].getAttribute('data-area')) || 'inside';
+        }
         saveLandingIncompleteOrder();
-        var id = $(this).val();
-        $.ajax({
-            type: "GET",
-            data: { id: id },
-            url: "/shipping-charge",
-            dataType: "html",
-            success: function (response) {
-                $('.cartlist').html(response);
-                // Shipping change affects grand total; recompute due if advance visible
-                var selectedIds = [];
-                document.querySelectorAll('input[name="landing_products[]"]:checked').forEach(function (cb) {
-                    selectedIds.push(parseInt(cb.value));
-                });
-                if (selectedIds.length > 0) {
-                    updateAdvanceBoxMultiProduct(selectedIds);
-                }
-            }
-        });
     });
 
     // (payment validation moved to the modern handler below)
@@ -746,7 +722,7 @@ function doTrack() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> খুঁজছি...';
 
-    var url = '/customer/order-track/json?';
+    var url = '/order/track-json?';
     if (phone) url += 'phone=' + encodeURIComponent(phone);
     if (invoice) url += (phone ? '&' : '') + 'invoice_id=' + encodeURIComponent(invoice);
 
@@ -889,7 +865,7 @@ function submitComplaint() {
         headers: {
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : 'xUCZgiihBezSd99HFloc5A3POiIfMNSLGOVjHPsO'
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : ''
         },
         body: formData
     })
@@ -1269,6 +1245,13 @@ window.switchSellerTab = function (tabName) {
     });
 };
 
+// "আরো দেখুন": reveal the products hidden beyond the initial batch
+function revealExtraProducts() {
+    document.querySelectorAll('.js-extra-product').forEach(function (c) { c.style.display = 'flex'; });
+    var b = document.getElementById('seeMoreProducts');
+    if (b) b.style.display = 'none';
+}
+
 // 3. Universal Category Filter Logic
 document.addEventListener('DOMContentLoaded', function () {
     var filterBtns = document.querySelectorAll('.ds-filter-btn');
@@ -1278,6 +1261,11 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', function () {
             filterBtns.forEach(function (b) { b.classList.remove('active'); });
             this.classList.add('active');
+
+            // category filtering must consider the hidden "see more" batch too
+            document.querySelectorAll('.js-extra-product').forEach(function (c) { c.style.display = 'flex'; });
+            var seeMore = document.getElementById('seeMoreProducts');
+            if (seeMore) seeMore.style.display = 'none';
 
             var filter = this.getAttribute('data-filter');
 
@@ -1771,7 +1759,10 @@ document.addEventListener('keydown', function (e) {
         if (sel) sel.toggleAttribute('required', list.length > 0);
         // keep the hidden "area" field in sync (server validates inside|outside)
         var areaInput = document.getElementById('landing_area_input');
-        if (areaInput) areaInput.value = (list.length && sel) ? sel.value : 'inside';
+        if (areaInput) areaInput.value = (list.length && sel && sel.selectedOptions[0]) ? (sel.selectedOptions[0].getAttribute('data-area') || 'inside') : 'inside';
+        // and the chosen district (server validates it against admin-configured districts)
+        var districtInput = document.getElementById('landing_district_input');
+        if (districtInput) districtInput.value = (list.length && sel) ? sel.value : '';
 
         try { landingCartItems = list.map(function (pid) { return parseInt(pid, 10); }); } catch (e) { }
     }
@@ -1835,6 +1826,15 @@ document.addEventListener('keydown', function (e) {
             msg.textContent = AB.t('কুপনটি প্রযোজ্য নয়। (ডেমো কুপন: ACHAR10)', 'Coupon not valid. (Demo coupon: ACHAR10)');
         }
         render();
+    };
+
+    // coupon chips from the "চালু কুপন" list → fill + apply in one tap
+    window.applyCouponFromList = function (code) {
+        var input = document.getElementById('coupon_input');
+        if (!input) return;
+        if (coupon && coupon.code === String(code).toUpperCase()) return; // already applied
+        input.value = code;
+        window.submitCoupon();
     };
 
     // delivery area change → recalc totals

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ asset($settings['favicon_path'] ?: 'assets/img/favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset($settings['favicon_path'] ?? 'assets/img/favicon.svg') }}" type="image/svg+xml">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,12 +36,10 @@
         $navReviews = ab_t('nav_reviews', 'রিভিউ', 'Reviews');
         $navFaq = ab_t('nav_faq', 'প্রশ্ন-উত্তর', 'FAQ');
         $navOrder = ab_t('nav_order', 'অর্ডার করুন', 'Order Now');
-        $logoPill = ab_t('logo_pill', 'খাঁটি', 'Pure');
         $footerTag = ab_t('footer_tag', 'ঘরে তৈরি খাঁটি দেশি আচার, মধু ও ঘি — সারা বাংলাদেশে ক্যাশ অন ডেলিভারিতে হোম ডেলিভারি।', 'Homemade deshi pickles, honey & ghee — delivered to your home across Bangladesh with Cash on Delivery.');
         $footerLinksH = ab_t('footer_col_links', 'কুইক লিংক', 'Quick Links');
         $footerContactH = ab_t('footer_col_contact', 'যোগাযোগ ও সাপোর্ট', 'Contact & Support');
         $footerFb = ab_t('footer_fb', 'ফেসবুক পেজ', 'Facebook Page');
-        $footerAdmin = ab_t('footer_admin', 'অ্যাডমিন ডেমো', 'Admin Demo');
         $footerRights = ab_t('footer_rights', 'সর্বস্বত্ব সংরক্ষিত', 'All rights reserved');
         $footerMade = ab_t('footer_made', 'Made with love by', 'Made with love by');
     @endphp
@@ -64,10 +62,9 @@
                     @endif
                 </span>
                 <span class="ds-logo-tx">
-                    <span data-lang="bn">{{ $settings['brand_bn1'] }}<em>{{ $settings['brand_bn2'] }}</em></span>
-                    <span data-lang="en">{{ $settings['brand_en1'] }}<em>{{ $settings['brand_en2'] }}</em></span>
+                    <span data-lang="bn">{{ $settings['brand_bn1'] ?? 'আচার' }}<em>{{ $settings['brand_bn2'] ?? 'বাড়ি' }}</em></span>
+                    <span data-lang="en">{{ $settings['brand_en1'] ?? 'Achar' }}<em>{{ $settings['brand_en2'] ?? 'Bari' }}</em></span>
                 </span>
-                <span class="ds-logo-pill">{{ $logoPill['bn'] }}</span>
             </a>
 
             <!-- Central Floating Pill Navigation -->
@@ -81,6 +78,9 @@
                 <a href="{{ url('/#ds-why') }}" class="ds-nav-pill {{ ($nav ?? '') === 'why' ? 'active' : '' }}" data-en="{{ $navWhy['en'] }}">{{ $navWhy['bn'] }}</a>
                 <a href="{{ url('/#ds-reviews') }}" class="ds-nav-pill" data-en="{{ $navReviews['en'] }}">{{ $navReviews['bn'] }}</a>
                 <a href="{{ url('/#ds-faq') }}" class="ds-nav-pill" data-en="{{ $navFaq['en'] }}">{{ $navFaq['bn'] }}</a>
+                <a href="{{ route('track') }}" class="ds-nav-pill" onclick="openTrackModal();return false;">
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/><path d="M11 8a3 3 0 0 1 3 3"/></svg> <span data-en="Track">ট্র্যাক</span>
+                </a>
             </nav>
 
             <!-- Right Action Buttons -->
@@ -120,6 +120,9 @@
                 <a href="{{ url("/") }}#ds-faq" class="ds-mob-link" onclick="toggleMobileNav()">
                     <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> <span data-en="{{ $navFaq['en'] }}">{{ $navFaq['bn'] }}</span>
                 </a>
+                <a href="{{ route('track') }}" class="ds-mob-link" onclick="toggleMobileNav(); openTrackModal(); return false;">
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/><path d="M11 8a3 3 0 0 1 3 3"/></svg> <span data-en="Track Order">অর্ডার ট্র্যাক করুন</span>
+                </a>
                 <div class="ds-mob-lang">
                     <div class="ds-lang-switch" role="group" aria-label="Language / ভাষা">
                         <button type="button" class="ds-lang-btn on" data-lang-btn="bn"
@@ -145,7 +148,7 @@
     </header>
     @yield('content')
 
-<footer class="lp-footer">
+<footer class="lp-footer" id="lp-footer">
         <div class="lp-footer-glow"></div>
         <div class="lp-footer-in">
             <div class="lp-f-brand">
@@ -166,25 +169,39 @@
                     <span class="lp-f-logo-tx" data-ab-brand-logo>{{ $settings['brand_bn1'] ?? 'আচার' }}<em>{{ $settings['brand_bn2'] ?? 'বাড়ি' }}</em></span>
                 </a>
                 <p class="lp-f-tag" data-en="{{ $footerTag['en'] }}">{{ $footerTag['bn'] }}</p>
+                @php
+                    $phone = ab_contact('phone');
+                    $wa = ab_contact('whatsapp');
+                    $ms = ab_contact('messenger');
+                    $fb = ab_contact('facebook');
+                @endphp
                 <div class="lp-f-social">
-                    <a href="{{ ab_contact('facebook') }}" target="_blank" rel="noopener" aria-label="Facebook" data-brand="facebook">
+                    @if ($fb !== '')
+                    <a href="{{ ab_social('facebook', 'https://facebook.com/') }}" target="_blank" rel="noopener" aria-label="Facebook" data-brand="facebook">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                     </a>
-                    <a href="https://m.me/{{ ab_contact('messenger') }}" target="_blank" rel="noopener" aria-label="Messenger" data-brand="messenger">
+                    @endif
+                    @if ($ms !== '')
+                    <a href="{{ ab_social('messenger', 'https://m.me/') }}" target="_blank" rel="noopener" aria-label="Messenger" data-brand="messenger">
                         <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     </a>
-                    <a href="https://wa.me/{{ ab_contact('whatsapp') }}" target="_blank" rel="noopener" aria-label="WhatsApp" data-brand="whatsapp">
-                        <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                    @endif
+                    @if ($wa !== '')
+                    <a href="{{ ab_social('whatsapp', 'https://wa.me/') }}" target="_blank" rel="noopener" aria-label="WhatsApp" data-brand="whatsapp">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
                     </a>
-                    <a href="tel:{{ ab_contact('phone') }}" aria-label="Hotline" data-brand="phone">
+                    @endif
+                    @if ($phone !== '')
+                    <a href="tel:{{ $phone }}" aria-label="Hotline" data-brand="phone">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg>
                     </a>
+                    @endif
                 </div>
                 <div class="lp-f-pay">
-                    <span class="img-chip"><img src="{{ asset('assets/img/pay/bkash.svg') }}" alt="bKash"></span>
-                    <span class="img-chip"><img src="{{ asset('assets/img/pay/nagad.svg') }}" alt="Nagad"></span>
-                    <span>Rocket</span>
-                    <span>Upay</span>
+                    @if (ab_online_payment())
+                        <span class="img-chip"><img src="{{ asset('assets/img/pay/bkash.svg') }}" alt="bKash"></span>
+                        <span class="img-chip"><img src="{{ asset('assets/img/pay/nagad.svg') }}" alt="Nagad"></span>
+                    @endif
                     <span data-en="Cash on Delivery">ক্যাশ অন ডেলিভারি</span>
                 </div>
             </div>
@@ -195,16 +212,24 @@
                 <a href="{{ route('products') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></svg> <span data-en="{{ $navProducts['en'] }}">{{ $navProducts['bn'] }}</span></a>
                 <a href="{{ url("/") }}#ds-why"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg> <span data-en="{{ $navWhy['en'] }}">{{ $navWhy['bn'] }}</span></a>
                 <a href="{{ url("/") }}#ds-faq"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> <span data-en="{{ $navFaq['en'] }}">{{ $navFaq['bn'] }}</span></a>
+                <a href="{{ route('track') }}" onclick="openTrackModal();return false;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/><path d="M11 8a3 3 0 0 1 3 3"/></svg> <span data-en="Track Order">অর্ডার ট্র্যাক করুন</span></a>
             </div>
 
+            @if ($phone !== '' || $wa !== '' || $fb !== '')
             <div class="lp-f-col">
                 <h4 data-en="{{ $footerContactH['en'] }}">{{ $footerContactH['bn'] }}</h4>
-                <a href="tel:{{ ab_contact('phone') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg> {{ ab_contact('phone') }}</a>
-                <a href="https://wa.me/{{ ab_contact('whatsapp') }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg> WhatsApp</a>
-                <a href="{{ ab_contact('facebook') }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                @if ($phone !== '')
+                <a href="tel:{{ $phone }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg> {{ $phone }}</a>
+                @endif
+                @if ($wa !== '')
+                <a href="https://wa.me/{{ $wa }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg> WhatsApp</a>
+                @endif
+                @if ($fb !== '')
+                <a href="{{ $fb }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                     <span data-en="{{ $footerFb['en'] }}">{{ $footerFb['bn'] }}</span></a>
-                <a href="{{ route('admin.login') }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span data-en="{{ $footerAdmin['en'] }}">{{ $footerAdmin['bn'] }}</span></a>
+                @endif
             </div>
+            @endif
         </div>
 
         <div class="lp-f-bar">
@@ -416,22 +441,30 @@
     </div>
 
     <!-- ================= FLOATING CHAT WIDGET ================= -->
+    @if ($phone !== '' || $wa !== '' || $ms !== '')
     <div class="chat-widget">
         <div class="chat-options" id="chatOptions">
-            <a class="chat-btn whatsapp" href="https://wa.me/{{ ab_contact('whatsapp') }}" target="_blank" rel="noopener" aria-label="WhatsApp">
+            @if ($wa !== '')
+            <a class="chat-btn whatsapp" href="{{ ab_social('whatsapp', 'https://wa.me/') }}" target="_blank" rel="noopener" aria-label="WhatsApp">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
             </a>
-            <a class="chat-btn messenger" href="https://m.me/{{ ab_contact('messenger') }}" target="_blank" rel="noopener" aria-label="Messenger">
+            @endif
+            @if ($ms !== '')
+            <a class="chat-btn messenger" href="{{ ab_social('messenger', 'https://m.me/') }}" target="_blank" rel="noopener" aria-label="Messenger">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             </a>
-            <a class="chat-btn hotline" href="tel:{{ ab_contact('phone') }}" aria-label="Hotline">
+            @endif
+            @if ($phone !== '')
+            <a class="chat-btn hotline" href="tel:{{ $phone }}" aria-label="Hotline">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg>
             </a>
+            @endif
         </div>
         <button type="button" class="chat-toggle" id="chatToggle" aria-label="Chat with us" aria-expanded="false">
             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/></svg>
         </button>
     </div>
+    @endif
 
     <!-- ================= PAGE SCRIPTS ================= -->
     <script src="{{ asset_v('assets/brand.js') }}" defer></script>

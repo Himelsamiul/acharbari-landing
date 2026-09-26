@@ -2,7 +2,7 @@
 
 @section('nav', 'products')
 
-@section('title', ($product->meta_title ?: $product->name . ' — আচারবাড়ি'))
+@section('title', ($product->meta_title ?: $product->name . ' — ' . ab_brand('bn')))
 
 @section('content')
     <section class="ds-section" style="padding-top:34px">
