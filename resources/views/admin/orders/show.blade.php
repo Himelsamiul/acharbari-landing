@@ -74,7 +74,7 @@
                     </button>
                 </form>
 
-                <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return confirm('অর্ডারটি মুছে ফেলবেন? এটি ফিরে আসবে না।')" style="margin-top:10px">
+                <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return swConfirmSubmit(event, 'অর্ডারটি মুছে ফেলবেন? এটি ফিরে আসবে না।')" style="margin-top:10px">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="a-btn" style="width:100%;background:#fff;color:#dc2626;border:1.5px solid rgba(220,38,38,.4);box-shadow:none;font-size:12.5px;padding:10px">

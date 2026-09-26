@@ -695,9 +695,20 @@
             tab.addEventListener('click', function (e) {
                 e.preventDefault();
                 if (tab.classList.contains('active')) return;
-                if (dirty && !confirm('এই ট্যাবে অসংরক্ষিত পরিবর্তন আছে — ট্যাব বদলালে হারিয়ে যাবে। তবুও বদলাবেন?')) return;
-                showTab(tab.dataset.tab);
-                localStorage.setItem(TAB_KEY, tab.dataset.tab);
+                var target = tab.dataset.tab;
+                var doSwitch = function () {
+                    showTab(target);
+                    localStorage.setItem(TAB_KEY, target);
+                };
+                if (dirty) {
+                    swConfirm({
+                        title: 'অসংরক্ষিত পরিবর্তন আছে',
+                        text: 'ট্যাব বদলালে এই ট্যাবের পরিবর্তন হারিয়ে যাবে। তবুও বদলাবেন?',
+                        confirmText: 'হ্যাঁ, বদলান'
+                    }).then(function (ok) { if (ok) doSwitch(); });
+                    return;
+                }
+                doSwitch();
             });
         });
 

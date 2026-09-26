@@ -679,12 +679,38 @@
             if (drop && !e.target.closest('.notif-wrap')) drop.classList.remove('open');
         });
     </script>
+    <script src="{{ asset('assets/vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
     <script>
-        function showToast(msg) {
-            var t = document.getElementById('toast');
-            document.getElementById('toastText').textContent = msg;
-            t.classList.add('show');
-            setTimeout(function () { t.classList.remove('show'); }, 2400);
+        /* ===== SweetAlert2 global helpers (toast + confirm) ===== */
+        var SW_TOKEN = document.querySelector('meta[name="csrf-token"]');
+        function showToast(msg, icon) {
+            Swal.fire({
+                toast: true, position: 'bottom-end', icon: icon || 'success',
+                title: msg, showConfirmButton: false, timer: 2600, timerProgressBar: true
+            });
+        }
+        function swConfirm(opts) {
+            var o = typeof opts === 'string' ? { title: opts } : (opts || {});
+            return Swal.fire({
+                title: o.title || 'আপনি নিশ্চিত?',
+                text: o.text || '',
+                icon: o.icon || 'warning',
+                showCancelButton: true,
+                confirmButtonText: o.confirmText || 'হ্যাঁ, নিশ্চিত',
+                cancelButtonText: o.cancelText || 'বাতিল',
+                confirmButtonColor: '#059669',
+                cancelButtonColor: '#9ca3af',
+                reverseButtons: true
+            }).then(function (r) { return r.isConfirmed; });
+        }
+        /* delete-form helper: async Swal confirm then real submit (bypasses this handler) */
+        function swConfirmSubmit(e, title, text) {
+            e.preventDefault();
+            var form = e.target;
+            swConfirm({ title: title, text: text || '' }).then(function (ok) {
+                if (ok) { form.onsubmit = null; form.submit(); }
+            });
+            return false;
         }
         @if (session('success'))
             document.addEventListener('DOMContentLoaded', function () { showToast(@js(session('success'))); });

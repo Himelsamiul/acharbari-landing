@@ -62,7 +62,7 @@
                                 </form>
                             </td>
                             <td>
-                                <form method="POST" action="{{ route('admin.redirects.destroy', $r) }}" onsubmit="return confirm('রিডাইরেক্টটি মুছে ফেলবেন?')">
+                                <form method="POST" action="{{ route('admin.redirects.destroy', $r) }}" onsubmit="return swConfirmSubmit(event, 'রিডাইরেক্টটি মুছে ফেলবেন?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-icon" title="মুছুন"><i class="fa-solid fa-trash"></i></button>

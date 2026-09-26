@@ -78,7 +78,7 @@
                         <td><small style="color:#8b7355">{{ $pu->note }}</small></td>
                         <td>
                             <form method="POST" action="{{ route('admin.purchases.destroy', $pu) }}"
-                                onsubmit="return confirm('রেকর্ড মুছলে স্টক থেকেও পরিমাণটা কমে যাবে — নিশ্চিত?')">
+                                onsubmit="return swConfirmSubmit(event, 'রেকর্ড মুছলে স্টক থেকেও পরিমাণটা কমে যাবে — নিশ্চিত?')">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>

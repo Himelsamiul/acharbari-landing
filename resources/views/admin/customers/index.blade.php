@@ -38,7 +38,7 @@
                                 <button type="button" class="side-link" style="background:rgba(37,99,235,.08);color:#1e40af;border-radius:10px;padding:7px 12px;width:auto;border:0;cursor:pointer"
                                     onclick="renameCustomer(@js($c->phone), @js($c->name))"><i class="fa-solid fa-pen"></i></button>
                                 <form method="POST" action="{{ route('admin.customers.destroy', $c->phone) }}"
-                                    onsubmit="return confirm('গ্রাহক ({{ $c->phone }}) এর {{ $c->orders_count }} টি অর্ডার সহ সব ডেটা মুছে যাবে — নিশ্চিত?')">
+                                    onsubmit="return swConfirmSubmit(event, 'গ্রাহক ({{ $c->phone }}) এর {{ $c->orders_count }} টি অর্ডার সহ সব ডেটা মুছে যাবে — নিশ্চিত?')">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>

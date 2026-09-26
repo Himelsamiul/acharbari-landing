@@ -76,7 +76,7 @@
                                         <i class="fa-solid {{ $s->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i></button>
                                 </form>
                                 <form method="POST" action="{{ route('admin.suppliers.destroy', $s) }}"
-                                    onsubmit="return confirm('সাপ্লায়ার ও তার পারচেজ হিস্ট্রি মুছে ফেলবেন?')">
+                                    onsubmit="return swConfirmSubmit(event, 'সাপ্লায়ার ও তার পারচেজ হিস্ট্রি মুছে ফেলবেন?')">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>

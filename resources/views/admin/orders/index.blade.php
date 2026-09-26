@@ -52,7 +52,7 @@
                                 </form>
                             </td>
                             <td>
-                                <form method="POST" action="{{ route('admin.orders.destroy', $o) }}" onsubmit="return confirm('অর্ডারটি মুছে ফেলবেন?')">
+                                <form method="POST" action="{{ route('admin.orders.destroy', $o) }}" onsubmit="return swConfirmSubmit(event, 'অর্ডারটি মুছে ফেলবেন?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-icon" title="মুছুন"><i class="fa-solid fa-trash"></i></button>

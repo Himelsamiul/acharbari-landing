@@ -373,15 +373,24 @@
         }
 
         function resetAll() {
-            if (DIRTY && !confirm('সব পরিবর্তন ডিফল্টে ফিরিয়ে নেওয়া হবে — নিশ্চিত?')) return;
-            SECTIONS.forEach(function (sec) {
-                CURRENT[sec] = 1;
-                document.querySelectorAll('.design-card[data-section="' + sec + '"]').forEach(function (c) {
-                    c.classList.toggle('selected', parseInt(c.dataset.design, 10) === 1);
+            var doReset = function () {
+                SECTIONS.forEach(function (sec) {
+                    CURRENT[sec] = 1;
+                    document.querySelectorAll('.design-card[data-section="' + sec + '"]').forEach(function (c) {
+                        c.classList.toggle('selected', parseInt(c.dataset.design, 10) === 1);
+                    });
                 });
-            });
-            markDirty();
-            refreshSummary();
+                markDirty();
+                refreshSummary();
+            };
+            if (DIRTY) {
+                swConfirm({
+                    title: 'সব পরিবর্তন ডিফল্টে ফিরিয়ে নেওয়া হবে — নিশ্চিত?',
+                    confirmText: 'হ্যাঁ, ডিফল্টে যান'
+                }).then(function (ok) { if (ok) doReset(); });
+                return;
+            }
+            doReset();
         }
 
         /* ===== save (no reload) + undo ===== */

@@ -34,7 +34,7 @@
                                             <i class="fa-solid {{ $cat->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i></button>
                                     </form>
                                     <form method="POST" action="{{ route('admin.taxonomy.category.destroy', $cat) }}"
-                                        onsubmit="return confirm('ক্যাটাগরি মুছবেন?')">
+                                        onsubmit="return swConfirmSubmit(event, 'ক্যাটাগরি মুছবেন?')">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
@@ -77,7 +77,7 @@
                                             <i class="fa-solid {{ $brand->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i></button>
                                     </form>
                                     <form method="POST" action="{{ route('admin.taxonomy.brand.destroy', $brand) }}"
-                                        onsubmit="return confirm('ব্র্যান্ড মুছবেন?')">
+                                        onsubmit="return swConfirmSubmit(event, 'ব্র্যান্ড মুছবেন?')">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>

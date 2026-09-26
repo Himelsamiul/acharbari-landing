@@ -94,7 +94,7 @@
                                 </button>
                             </form>
                             <form method="POST" action="{{ route('admin.complaints.destroy', $complaint) }}"
-                                onsubmit="return confirm('কমপ্লেইনটি মুছে ফেলবেন?')">
+                                onsubmit="return swConfirmSubmit(event, 'কমপ্লেইনটি মুছে ফেলবেন?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="cmp-act del" title="মুছুন"><i class="fa-solid fa-trash-can"></i></button>

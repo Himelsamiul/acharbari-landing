@@ -653,11 +653,13 @@
                 '<span class="my-del" role="button" title="মুছে ফেলুন">×</span>';
             btn.querySelector('.my-del').addEventListener('click', function (e) {
                 e.stopPropagation();
-                if (!confirm('"' + m.name + '" থিমটি মুছে ফেলবেন?')) return;
-                var fd = new FormData();
-                fd.append('_token', TOKEN);
-                fd.append('id', m.id);
-                postForm(MY_DEL_URL, fd).then(function () { btn.remove(); }).catch(showErr);
+                swConfirm({ title: '"' + m.name + '" থিমটি মুছে ফেলবেন?', icon: 'warning' }).then(function (ok) {
+                    if (!ok) return;
+                    var fd = new FormData();
+                    fd.append('_token', TOKEN);
+                    fd.append('id', m.id);
+                    postForm(MY_DEL_URL, fd).then(function () { btn.remove(); }).catch(showErr);
+                });
             });
             bindCard(btn, m.id, m.theme, m.name);
             myGrid.appendChild(btn);
@@ -1123,13 +1125,18 @@
                 });
         }
         function clearIndustry() {
-            if (!confirm('ডিফল্ট আচারবাড়ি লুকে ফিরে যেতে হবে? (থিম হার্বাল গ্রিন হবে)')) return;
-            var fd = new FormData();
-            fd.append('_token', '{{ csrf_token() }}');
-            fetch('{{ route('admin.settings.industry.clear') }}', {
-                method: 'POST',
-                headers: { 'Accept': 'application/json' },
-                body: fd
+            swConfirm({
+                title: 'ডিফল্ট আচারবাড়ি লুকে ফিরে যেতে হবে?',
+                text: 'থিম হার্বাল গ্রিন হবে।',
+                confirmText: 'হ্যাঁ, ফিরে যান'
+            }).then(function (ok) {
+                if (!ok) return;
+                var fd = new FormData();
+                fd.append('_token', '{{ csrf_token() }}');
+                fetch('{{ route('admin.settings.industry.clear') }}', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json' },
+                    body: fd
             })
                 .then(function (r) { return r.json(); })
                 .then(function (j) { showToast(j.message); setTimeout(function () { window.location.reload(); }, 700); })

@@ -61,7 +61,7 @@
                         <td style="white-space:nowrap">
                             @if ($admin->id !== $currentId)
                                 <form method="POST" action="{{ route('admin.admins.destroy', $admin) }}" style="display:inline"
-                                    onsubmit="return confirm('অ্যাডমিন "{{ $admin->name }}" মুছে ফেলবেন?')">
+                                    onsubmit="return swConfirmSubmit(event, 'অ্যাডমিন "{{ $admin->name }}" মুছে ফেলবেন?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn" style="padding:6px 12px;font-size:12px;background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.3);color:#dc2626">মুছুন</button>

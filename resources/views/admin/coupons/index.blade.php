@@ -69,7 +69,7 @@
                                     <button type="submit" class="btn" style="padding:6px 12px;font-size:12px">{{ $coupon->is_active ? 'বন্ধ করুন' : 'চালু করুন' }}</button>
                                 </form>
                                 <form method="POST" action="{{ route('admin.coupons.destroy', $coupon) }}" style="display:inline"
-                                    onsubmit="return confirm('কুপনটি মুছে ফেলবেন?')">
+                                    onsubmit="return swConfirmSubmit(event, 'কুপনটি মুছে ফেলবেন?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn" style="padding:6px 12px;font-size:12px;background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.3);color:#dc2626">মুছুন</button>

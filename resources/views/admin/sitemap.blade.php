@@ -90,7 +90,7 @@
                                 </form>
                             </td>
                             <td>
-                                <form method="POST" action="{{ route('admin.sitemap.destroy', $u) }}" onsubmit="return confirm('URL-টি মুছে ফেলবেন?')">
+                                <form method="POST" action="{{ route('admin.sitemap.destroy', $u) }}" onsubmit="return swConfirmSubmit(event, 'URL-টি মুছে ফেলবেন?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-icon" title="মুছুন"><i class="fa-solid fa-trash"></i></button>

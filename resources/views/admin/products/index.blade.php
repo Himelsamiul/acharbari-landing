@@ -72,7 +72,7 @@
                                     </button>
                                 @else
                                     <form method="POST" action="{{ route('admin.products.destroy', $p) }}"
-                                        onsubmit="return confirm('প্রোডাক্টটি মুছে ফেলবেন?')">
+                                        onsubmit="return swConfirmSubmit(event, 'প্রোডাক্টটি মুছে ফেলবেন?')">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
