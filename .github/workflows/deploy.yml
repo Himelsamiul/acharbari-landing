@@ -22,7 +22,9 @@ jobs:
           protocol: ftps
           port: 21
           local-dir: ./
-          server-dir: public_html/
+          # FTP user (deploy@khorak.shop) er home nijei /home/khorak/public_html —
+          # tai relative root e upload korlei thik jaygay pore
+          server-dir: ./
           log-level: standard
           exclude: |
             **/.git*
