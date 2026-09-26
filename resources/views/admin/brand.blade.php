@@ -113,12 +113,12 @@
                     <input class="a-input" name="contact_phone" value="{{ $settings['contact_phone'] ?? '01707373692' }}" placeholder="01707373692">
                 </div>
                 <div class="a-field">
-                    <label>WhatsApp নম্বর (country code সহ)</label>
-                    <input class="a-input" name="contact_whatsapp" value="{{ $settings['contact_whatsapp'] ?? '8801707373692' }}" placeholder="8801707373692">
+                    <label>WhatsApp — নম্বর বা পুরো লিংক</label>
+                    <input class="a-input" name="contact_whatsapp" value="{{ $settings['contact_whatsapp'] ?? '8801707373692' }}" placeholder="8801707373692 অথবা https://wa.me/8801707373692">
                 </div>
                 <div class="a-field">
-                    <label>Messenger ইউজারনেম</label>
-                    <input class="a-input" name="contact_messenger" value="{{ $settings['contact_messenger'] ?? 'AcharBari' }}" placeholder="AcharBari">
+                    <label>Messenger — ইউজারনেম বা পুরো লিংক</label>
+                    <input class="a-input" name="contact_messenger" value="{{ $settings['contact_messenger'] ?? 'AcharBari' }}" placeholder="AcharBari অথবা https://m.me/AcharBari">
                 </div>
                 <div class="a-field">
                     <label>Facebook পেজ URL</label>

@@ -81,6 +81,28 @@ if (!function_exists('ab_contact')) {
     }
 }
 
+if (!function_exists('ab_social')) {
+    /**
+     * Footer/chat social icon link: accepts a full URL pasted by the admin as-is,
+     * or builds one by prefixing a bare handle/number ("AcharBari" -> https://m.me/AcharBari).
+     * Falls back to the same defaults as ab_contact when the setting is empty.
+     */
+    function ab_social(string $key, string $prefix): string
+    {
+        $value = trim((string) ab_contact($key));
+
+        if ($value === '') {
+            return '#';
+        }
+
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+
+        return $prefix . $value;
+    }
+}
+
 if (!function_exists('bn_num')) {
     function bn_num($num): string
     {

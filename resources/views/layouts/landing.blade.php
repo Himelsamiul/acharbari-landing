@@ -172,13 +172,13 @@
                 </a>
                 <p class="lp-f-tag" data-en="{{ $footerTag['en'] }}">{{ $footerTag['bn'] }}</p>
                 <div class="lp-f-social">
-                    <a href="{{ ab_contact('facebook') }}" target="_blank" rel="noopener" aria-label="Facebook" data-brand="facebook">
+                    <a href="{{ ab_social('facebook', 'https://facebook.com/') }}" target="_blank" rel="noopener" aria-label="Facebook" data-brand="facebook">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                     </a>
-                    <a href="https://m.me/{{ ab_contact('messenger') }}" target="_blank" rel="noopener" aria-label="Messenger" data-brand="messenger">
+                    <a href="{{ ab_social('messenger', 'https://m.me/') }}" target="_blank" rel="noopener" aria-label="Messenger" data-brand="messenger">
                         <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     </a>
-                    <a href="https://wa.me/{{ ab_contact('whatsapp') }}" target="_blank" rel="noopener" aria-label="WhatsApp" data-brand="whatsapp">
+                    <a href="{{ ab_social('whatsapp', 'https://wa.me/') }}" target="_blank" rel="noopener" aria-label="WhatsApp" data-brand="whatsapp">
                         <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
                     </a>
                     <a href="tel:{{ ab_contact('phone') }}" aria-label="Hotline" data-brand="phone">
@@ -423,10 +423,10 @@
     <!-- ================= FLOATING CHAT WIDGET ================= -->
     <div class="chat-widget">
         <div class="chat-options" id="chatOptions">
-            <a class="chat-btn whatsapp" href="https://wa.me/{{ ab_contact('whatsapp') }}" target="_blank" rel="noopener" aria-label="WhatsApp">
+            <a class="chat-btn whatsapp" href="{{ ab_social('whatsapp', 'https://wa.me/') }}" target="_blank" rel="noopener" aria-label="WhatsApp">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
             </a>
-            <a class="chat-btn messenger" href="https://m.me/{{ ab_contact('messenger') }}" target="_blank" rel="noopener" aria-label="Messenger">
+            <a class="chat-btn messenger" href="{{ ab_social('messenger', 'https://m.me/') }}" target="_blank" rel="noopener" aria-label="Messenger">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             </a>
             <a class="chat-btn hotline" href="tel:{{ ab_contact('phone') }}" aria-label="Hotline">
