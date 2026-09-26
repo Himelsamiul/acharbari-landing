@@ -13,7 +13,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: FTP upload (changed files only, never deletes)
+      - name: Stamp deploy version
+        run: git rev-parse --short HEAD > public/version.txt
+
+      - name: FTP upload (full overwrite, never deletes)
         env:
           FTP_USER: ${{ secrets.FTP_USERNAME }}
           FTP_PASS: ${{ secrets.FTP_PASSWORD }}
@@ -28,7 +31,7 @@ jobs:
             set net:max-retries 3
             set net:timeout 30
             # FTP root site er public_html na — asol web root holo ./public_html
-            mirror -R --verbose \
+            mirror -R --verbose --overwrite \
               --exclude-glob .git* \
               --exclude-glob .github \
               --exclude .env \
