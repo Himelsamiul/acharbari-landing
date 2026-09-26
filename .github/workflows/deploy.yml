@@ -1,9 +1,10 @@
-name: Deploy to khorak.shop (Laravel)
+name: Deploy to Live (cPanel)
 
+# main e push = live site e automatic deploy
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+  workflow_dispatch: {} # Actions tab theke manually o chalano jay
 
 jobs:
   deploy:
@@ -12,66 +13,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup PHP 8.2
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, xml, ctype, iconv, openssl, pdo_mysql, fileinfo, curl, tokenizer
-          coverage: none
-
-      - name: Install production dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-      - name: Prepare public entry files
-        run: |
-          # deployed layout: Laravel root = public_html → adjust index.php paths
-          sed "s|'../vendor/autoload.php'|'./vendor/autoload.php'|; s|'/../bootstrap/app.php'|'./bootstrap/app.php'|" public/index.php > deploy-index.php
-          # combined .htaccess: block sensitive dirs + Laravel front controller
-          { echo "# --- block sensitive app directories ---"
-            echo "<IfModule mod_rewrite.c>"
-            echo "RewriteEngine On"
-            echo "RewriteRule ^(app|bootstrap|config|database|routes|tests|resources|vendor)/ - [F,L]"
-            echo "</IfModule>"
-            echo "<FilesMatch \"^\.env$|^composer\.(json|lock)$|^\.gitignore$\">"
-            echo "Require all denied"
-            echo "</FilesMatch>"
-            cat public/.htaccess
-          } > deploy-htaccess
-          mkdir -p _deploy_public
-          cp deploy-index.php _deploy_public/index.php
-          cp deploy-htaccess _deploy_public/.htaccess
-
-      - name: Upload application (root) via FTP
+      - name: FTP upload (changed files only)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: khorak.shop
-          username: deploy@khorak.shop
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftpes
           port: 21
           local-dir: ./
-          server-dir: ./
+          server-dir: public_html/
+          log-level: standard
           exclude: |
             **/.git*
-            **/.github*
-            **/.netlify*
-            **/_backup_original*
-            **/.cpanel.yml
-            **/.env
+            **/.git*/**
+            **/.github/**
             **/node_modules/**
             **/tests/**
-            **/public/index.php
-            **/public/.htaccess
-            **/_deploy_public/**
+            **/storage/logs/**
+            **/storage/framework/**
+            **/storage/app/private/**
+            **/public/storage
+            .env
+            .env.example
+            .env.backup
+            DEPLOYMENT.md
+            README.md
 
-      - name: Upload public entry files via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: khorak.shop
-          username: deploy@khorak.shop
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          local-dir: ./_deploy_public/
-          server-dir: ./
-          state-name: entry_files_state.json
-          dangerous-clean-slate: false
-
+      # deploy er por live DB te notun migration chalano hoy
+      # (server e setup.php ache — APP_KEY chara keu chalate parbe na)
+      - name: Run live migrations
+        run: |
+          sleep 15
+          curl -fsS --max-time 90 "https://khorak.shop/setup.php?key=${{ secrets.SETUP_KEY }}" \
+            && echo "== LIVE MIGRATIONS OK ==" \
+            || echo "== migrate call failed — file deploy holo tobe migration pore chalate hobe =="

@@ -71,3 +71,25 @@ Online payment live korar steps:
 5. **Verify:** ekta real ৳1 ba ৳10 er order kore bKash/Nagad diye pay koren → order e "পরিশোধ হয়েছে ✓" + TrxID dekhabe
 
 > Online payment bandhate chaile shudhu master toggle OFF korlei hobe — customer tokhon shudhu COD dekhbe.
+
+## 8. Auto-Deploy (GitHub Actions — git push korlei live)
+
+`.github/workflows/deploy.yml` — main branch e push korlei:
+1. Changed file gulo FTP diye `public_html/` e upload hoy
+2. Live migration automatic chole (server er `setup.php` diye)
+
+**Ekbar setup korte hobe:**
+
+1. cPanel → **FTP Accounts** → ekta FTP user banao (`deploy@khorak.shop`) — directory `public_html`
+2. GitHub repo → **Settings → Secrets and variables → Actions** → ei 4 ta secret add koro:
+   | Secret | Value |
+   |---|---|
+   | `FTP_SERVER` | `khorak.shop` |
+   | `FTP_USERNAME` | FTP user er full name (jemon `deploy@khorak.shop`) |
+   | `FTP_PASSWORD` | FTP password |
+   | `SETUP_KEY` | `.env` er `APP_KEY` er shesh 16 ta character |
+3. Done — ei por `git push origin main` korlei 1-2 minute e live update
+
+> **Note:** `setup.php` ar ekhon server e rekhe o hobe — deployment er pore migration
+> er jonno lagbe. Keu chalate parbe na (APP_KEY chara 403 dibe). `.env` kokhono
+> upload hoy na — workflow te excluded.
