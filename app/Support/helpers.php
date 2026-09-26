@@ -327,3 +327,49 @@ if (!function_exists('buildQuickView')) {
         })->all();
     }
 }
+
+if (!function_exists('ab_section_design')) {
+    /**
+     * Selected design variant number for a landing section (1-N).
+     * Reads the `section_designs` JSON setting; supports a temporary
+     * `?dp=` base64-JSON override (admin live preview, read-only).
+     * Always returns a valid number — invalid config falls back to 1.
+     */
+    function ab_section_design(string $section): int
+    {
+        static $map = null;
+
+        if ($map === null) {
+            $map = [];
+            $saved = json_decode((string) \App\Models\Setting::get('section_designs', ''), true);
+            if (is_array($saved)) {
+                $map = $saved;
+            }
+
+            // admin preview override (never persisted)
+            $preview = request()?->query('dp');
+            if ($preview) {
+                $decoded = json_decode((string) base64_decode($preview, true), true);
+                if (is_array($decoded)) {
+                    $map = $decoded;
+                }
+            }
+        }
+
+        $design = $map[$section] ?? 1;
+        $design = is_array($design) ? ($design['design'] ?? 1) : $design;
+
+        return (is_numeric($design) && (int) $design >= 1 && (int) $design <= 20) ? (int) $design : 1;
+    }
+}
+
+if (!function_exists('ab_section_view')) {
+    /** View name for a section variant; falls back to design-1 if the file is missing. */
+    function ab_section_view(string $section): string
+    {
+        $design = ab_section_design($section);
+        $view = 'sections.' . $section . '.design-' . $design;
+
+        return view()->exists($view) ? $view : 'sections.' . $section . '.design-1';
+    }
+}

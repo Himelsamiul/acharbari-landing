@@ -188,6 +188,9 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
             $data['image'] = 'storage/' . $path;
+        } elseif (!isset($data['image']) || trim((string) $data['image']) === '') {
+            // strict MySQL: products.image has no default — placeholder keeps no-image products savable
+            $data['image'] = 'assets/img/prod_mango.jpg';
         }
         return $data;
     }

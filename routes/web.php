@@ -96,10 +96,18 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/settings/theme', [Admin\SettingController::class, 'saveTheme'])->name('admin.settings.theme.save');
     Route::post('/settings/theme/custom', [Admin\SettingController::class, 'saveCustomTheme'])->name('admin.settings.theme.custom');
     Route::post('/settings/theme/reset', [Admin\SettingController::class, 'resetTheme'])->name('admin.settings.theme.reset');
+    Route::post('/settings/theme/my-theme', [Admin\SettingController::class, 'saveMyTheme'])->name('admin.settings.theme.my.save');
+    Route::post('/settings/theme/my-theme/delete', [Admin\SettingController::class, 'deleteMyTheme'])->name('admin.settings.theme.my.delete');
+    Route::post('/settings/theme/history-restore', [Admin\SettingController::class, 'restoreHistory'])->name('admin.settings.theme.history.restore');
+    Route::post('/settings/theme/fonts', [Admin\SettingController::class, 'saveFonts'])->name('admin.settings.theme.fonts');
+    Route::post('/settings/theme/style', [Admin\SettingController::class, 'saveStyle'])->name('admin.settings.theme.style');
+    Route::post('/settings/theme/festive', [Admin\SettingController::class, 'saveFestive'])->name('admin.settings.theme.festive');
     Route::get('/settings/delivery', [Admin\SettingController::class, 'delivery'])->name('admin.settings.delivery');
     Route::post('/settings/delivery', [Admin\SettingController::class, 'saveDelivery'])->name('admin.settings.delivery.save');
     Route::get('/settings/content', [Admin\SettingController::class, 'content'])->name('admin.settings.content');
     Route::post('/settings/content', [Admin\SettingController::class, 'saveContent'])->name('admin.settings.content.save');
+    Route::get('/settings/sections', [Admin\SettingController::class, 'sections'])->name('admin.settings.sections');
+    Route::post('/settings/sections', [Admin\SettingController::class, 'saveSections'])->name('admin.settings.sections.save');
     Route::get('/settings/tracking', [Admin\SettingController::class, 'tracking'])->name('admin.settings.tracking');
     Route::post('/settings/tracking/{key}', [Admin\SettingController::class, 'saveTracking'])->name('admin.settings.tracking.save');
     Route::get('/settings/payment', [Admin\SettingController::class, 'payment'])->name('admin.settings.payment');

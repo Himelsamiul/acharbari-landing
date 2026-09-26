@@ -515,7 +515,8 @@
                 @php
                     $inSiteGroup = request()->routeIs('admin.settings.content')
                         || request()->routeIs('admin.settings.brand')
-                        || request()->routeIs('admin.settings.theme');
+                        || request()->routeIs('admin.settings.theme')
+                        || request()->routeIs('admin.settings.sections');
                 @endphp
                 <button type="button" class="side-link side-toggle {{ $inSiteGroup ? 'active' : '' }}"
                     onclick="toggleSideSub('siteSub')">
@@ -524,6 +525,7 @@
                 </button>
                 <div class="side-sub {{ $inSiteGroup ? 'open' : '' }}" id="siteSub">
                     <a class="side-sub-link {{ request()->routeIs('admin.settings.content') ? 'active' : '' }}" href="{{ route('admin.settings.content') }}">ল্যান্ডিং কনটেন্ট</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.settings.sections') ? 'active' : '' }}" href="{{ route('admin.settings.sections') }}">সেকশন ডিজাইন</a>
                     <a class="side-sub-link {{ request()->routeIs('admin.settings.brand') ? 'active' : '' }}" href="{{ route('admin.settings.brand') }}">লোগো ও ব্র্যান্ড</a>
                     <a class="side-sub-link {{ request()->routeIs('admin.settings.theme') ? 'active' : '' }}" href="{{ route('admin.settings.theme') }}">থিম কালার</a>
                 </div>

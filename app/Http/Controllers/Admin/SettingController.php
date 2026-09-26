@@ -82,6 +82,16 @@ class SettingController extends Controller
         return view('admin.theme', [
             'themeId' => Setting::get('theme_id', 'herbal'),
             'themeJson' => Setting::get('theme_json', json_encode(\App\Http\Controllers\Admin\ThemeLibrary::get('herbal'))),
+            'myThemes' => \App\Http\Controllers\Admin\ThemeLibrary::myThemes(),
+            'history' => \App\Http\Controllers\Admin\ThemeLibrary::history(),
+            'fonts' => \App\Http\Controllers\Admin\ThemeLibrary::fonts(),
+            'fontHeading' => Setting::get('font_heading', ''),
+            'fontBody' => Setting::get('font_body', 'jakarta'),
+            'styleRadius' => Setting::get('style_radius', 'default'),
+            'styleShadow' => Setting::get('style_shadow', 'default'),
+            'festive' => \App\Http\Controllers\Admin\ThemeLibrary::festiveSchedule(),
+            'activeFestive' => \App\Http\Controllers\Admin\ThemeLibrary::activeFestive(),
+            'logoUrl' => Setting::get('logo_path', '') ? asset(Setting::get('logo_path')) : '',
         ]);
     }
 
@@ -91,6 +101,8 @@ class SettingController extends Controller
             'theme_id' => 'required|string|max:30',
             'theme_json' => 'required|json',
         ]);
+
+        \App\Http\Controllers\Admin\ThemeLibrary::pushHistory();
 
         Setting::setMany([
             'theme_id' => $data['theme_id'],
@@ -110,6 +122,8 @@ class SettingController extends Controller
 
         $theme = \App\Http\Controllers\Admin\ThemeLibrary::custom($data['primary'], $data['dark'], $data['accent']);
 
+        \App\Http\Controllers\Admin\ThemeLibrary::pushHistory();
+
         Setting::setMany([
             'theme_id' => 'custom',
             'theme_json' => json_encode($theme),
@@ -120,12 +134,134 @@ class SettingController extends Controller
 
     public function resetTheme()
     {
+        \App\Http\Controllers\Admin\ThemeLibrary::pushHistory();
+
         Setting::setMany([
             'theme_id' => 'herbal',
             'theme_json' => json_encode(\App\Http\Controllers\Admin\ThemeLibrary::get('herbal')),
         ]);
 
         return back()->with('success', 'ডিফল্ট (হার্বাল গ্রিন) থিমে ফিরে গেছে।');
+    }
+
+    /* ---------- My Themes: save custom colors as reusable presets ---------- */
+
+    public function saveMyTheme(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:30',
+            'primary' => 'required|string|max:9',
+            'dark' => 'required|string|max:9',
+            'accent' => 'required|string|max:9',
+        ]);
+
+        $mine = \App\Http\Controllers\Admin\ThemeLibrary::myThemes();
+        if (count($mine) >= \App\Http\Controllers\Admin\ThemeLibrary::MAX_MY_THEMES) {
+            return response()->json(['message' => 'সর্বোচ্চ ১২টা থিম সেভ করা যায় — আগে একটা মুছে ফেলুন।'], 422);
+        }
+
+        $mine[] = [
+            'id' => 'my_' . substr((string) md5(uniqid('', true)), 0, 8),
+            'name' => $data['name'],
+            'theme' => \App\Http\Controllers\Admin\ThemeLibrary::custom($data['primary'], $data['dark'], $data['accent']),
+        ];
+
+        Setting::set('custom_themes', json_encode($mine));
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function deleteMyTheme(Request $request)
+    {
+        $data = $request->validate(['id' => 'required|string|max:30']);
+
+        $mine = array_values(array_filter(
+            \App\Http\Controllers\Admin\ThemeLibrary::myThemes(),
+            fn ($t) => ($t['id'] ?? '') !== $data['id']
+        ));
+
+        Setting::set('custom_themes', json_encode($mine));
+
+        return response()->json(['ok' => true]);
+    }
+
+    /* ---------- History (undo): restore a previous theme ---------- */
+
+    public function restoreHistory(Request $request)
+    {
+        $data = $request->validate(['index' => 'required|integer|min:0|max:50']);
+
+        $history = \App\Http\Controllers\Admin\ThemeLibrary::history();
+        $entry = $history[$data['index']] ?? null;
+        if (!$entry) {
+            return response()->json(['message' => 'থিমটি আর হিস্ট্রিতে নেই।'], 422);
+        }
+
+        \App\Http\Controllers\Admin\ThemeLibrary::pushHistory();
+        \App\Http\Controllers\Admin\ThemeLibrary::forgetHistory($data['index']);
+
+        Setting::setMany([
+            'theme_id' => $entry['theme_id'],
+            'theme_json' => $entry['theme_json'],
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /* ---------- Fonts ---------- */
+
+    public function saveFonts(Request $request)
+    {
+        $data = $request->validate([
+            'font_heading' => 'nullable|string|max:20',
+            'font_body' => 'required|string|max:20',
+        ]);
+
+        foreach (['font_heading' => $data['font_heading'] ?? '', 'font_body' => $data['font_body']] as $key => $fontId) {
+            if ($fontId !== '' && !isset(\App\Http\Controllers\Admin\ThemeLibrary::fonts()[$fontId])) {
+                return response()->json(['message' => 'অজানা ফন্ট।'], 422);
+            }
+        }
+
+        Setting::setMany([
+            'font_heading' => $data['font_heading'] ?? '',
+            'font_body' => $data['font_body'],
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /* ---------- Style tokens (corner + shadow) ---------- */
+
+    public function saveStyle(Request $request)
+    {
+        $data = $request->validate([
+            'style_radius' => 'required|in:default,sharp,rounded',
+            'style_shadow' => 'required|in:default,soft,strong',
+        ]);
+
+        Setting::setMany($data);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /* ---------- Festive auto-schedule ---------- */
+
+    public function saveFestive(Request $request)
+    {
+        $data = $request->validate([
+            'rows' => 'required|array|max:10',
+            'rows.*.label' => 'required|string|max:50',
+            'rows.*.theme_id' => 'required|string|max:30',
+            'rows.*.theme_json' => 'required|json',
+            'rows.*.start' => 'required|date',
+            'rows.*.end' => 'required|date|after_or_equal:rows.*.start',
+            'rows.*.enabled' => 'required|boolean',
+        ]);
+
+        Setting::set('festive_schedule', json_encode(array_values($data['rows'])));
+
+        return response()->json(['ok' => true]);
     }
 
     /** District-wise delivery: which districts get delivery and at what charge. */
@@ -216,6 +352,46 @@ class SettingController extends Controller
         'logo_pill', 'nav_home', 'nav_products', 'nav_why', 'nav_reviews', 'nav_faq', 'nav_order',
         'footer_tag', 'footer_col_links', 'footer_col_contact', 'footer_fb', 'footer_rights', 'footer_made',
     ];
+
+    /** Section Design Studio: per-section variant picker + live preview. */
+    public function sections()
+    {
+        $saved = json_decode((string) Setting::get('section_designs', ''), true);
+        if (!is_array($saved)) {
+            $saved = [];
+        }
+
+        return view('admin.sections', [
+            'catalog' => \App\Http\Controllers\Admin\SectionDesignLibrary::catalog(),
+            'saved' => $saved,
+        ]);
+    }
+
+    public function saveSections(Request $request)
+    {
+        $data = $request->validate([
+            'designs' => 'required|json',
+        ]);
+
+        $incoming = json_decode($data['designs'], true);
+        if (!is_array($incoming)) {
+            return back()->with('error', 'অবৈধ কনফিগারেশন — সেভ হয়নি।');
+        }
+
+        // whitelist: only known sections × discovered design numbers survive
+        $clean = [];
+        foreach (\App\Http\Controllers\Admin\SectionDesignLibrary::sections() as $section => $labels) {
+            $allowed = \App\Http\Controllers\Admin\SectionDesignLibrary::discovered($section);
+            $design = $incoming[$section] ?? 1;
+            if (is_numeric($design) && in_array((int) $design, $allowed, true) && (int) $design !== 1) {
+                $clean[$section] = (int) $design;
+            }
+        }
+
+        Setting::set('section_designs', count($clean) ? json_encode($clean, JSON_UNESCAPED_UNICODE) : '');
+
+        return back()->with('success', 'সেকশন ডিজাইন সেভ হয়েছে — ল্যান্ডিং পেজে দেখুন।');
+    }
 
     public function content()
     {

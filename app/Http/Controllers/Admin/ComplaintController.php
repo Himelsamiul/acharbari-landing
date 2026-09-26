@@ -11,8 +11,13 @@ class ComplaintController extends Controller
     public function index()
     {
         $complaints = Complaint::latest()->paginate(20);
+        $stats = [
+            'total' => Complaint::count(),
+            'open' => Complaint::where('is_resolved', false)->count(),
+            'resolved' => Complaint::where('is_resolved', true)->count(),
+        ];
 
-        return view('admin.complaints.index', compact('complaints'));
+        return view('admin.complaints.index', compact('complaints', 'stats'));
     }
 
     public function toggle(Complaint $complaint)

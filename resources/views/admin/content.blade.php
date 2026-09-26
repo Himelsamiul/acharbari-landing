@@ -35,7 +35,6 @@
             ['bn' => 'সারা বাংলাদেশে হোম ডেলিভারি', 'en' => 'Home delivery across Bangladesh'],
             ['bn' => 'পণ্য বুঝে টাকা দিন (ক্যাশ অন ডেলিভারি)', 'en' => 'Pay after checking the parcel (Cash on Delivery)'],
             ['bn' => 'ভাঙা জারে ফ্রি রিপ্লেসমেন্ট গ্যারান্টি', 'en' => 'Broken jar? Free replacement guarantee'],
-            ['ln' => '', 'en' => ''], // placeholder row kept intentionally empty
             ['bn' => '১০০% প্রাকৃতিক — প্রিজারভেটিভ ও কেমিক্যাল মুক্ত', 'en' => '100% natural — no preservatives or chemicals'],
             ['bn' => 'ছোট ব্যাচে ভালোবাসা দিয়ে হাতে তৈরি', 'en' => 'Handcrafted in small batches with love'],
             ['bn' => '২৪/৭ ডেডিকেটেড কাস্টমার সাপোর্ট', 'en' => '24/7 dedicated customer support'],
@@ -47,30 +46,64 @@
             ['q_bn' => 'জার ভেঙে বা লিক হয়ে এলে কী করব?', 'q_en' => 'What if the jar arrives broken or leaked?', 'a_bn' => 'পার্সেল পাওয়ার ২৪ ঘণ্টার মধ্যে ছবি দিয়ে আমাদের হেল্পলাইনে জানালেই আমরা সম্পূর্ণ ফ্রি রিপ্লেসমেন্ট করে দেব।', 'a_en' => 'Just inform our helpline with a photo within 24 hours of receiving the parcel — we will replace it completely free of charge.'],
             ['q_bn' => 'অর্ডার কীভাবে ট্র্যাক করব?', 'q_en' => 'How do I track my order?', 'a_bn' => 'অর্ডার দেওয়ার পর ওয়েবসাইটের "অর্ডার ট্র্যাক" বাটন থেকে আপনার মোবাইল নম্বর অথবা ইনভয়েস আইডি দিয়ে লাইভ স্ট্যাটাস দেখতে পারবেন।', 'a_en' => 'You can see live status from the "Order Track" button on the website using your mobile number or invoice ID.'],
         ]);
-        $reviewRows = $jsonOf('reviews_items', [
-            ['img' => 'assets/img/rev1.jpg', 'name' => 'নুসরাত জাহান', 'loc_bn' => 'ভেরিফাইড পারচেজ • ঢাকা', 'loc_en' => 'Verified Purchase • Dhaka', 'text_bn' => '"আমের কুচি আচারটা একদম ঠাকুমার বানানো আচারের মতোই লেগেছে! তেল বেশি না, ঝাল-নোনতা পারফেক্ট ব্যালেন্স। ঢাকায় একদিনের মধ্যেই ডেলিভারি পেয়েছি!"', 'text_en' => '"The mango kuchi achar tastes exactly like my grandmother used to make! Not too oily, perfectly spiced. Delivery arrived within a day in Dhaka!"', 'stars' => 5, 'likes_bn' => 'Like (২৪)', 'likes_en' => 'Like (24)'],
-            ['img' => 'assets/img/rev2.jpg', 'name' => 'ফারহানা ইয়াসমিন', 'loc_bn' => 'ভেরিফাইড পারচেজ • চট্টগ্রাম', 'loc_en' => 'Verified Purchase • Chattogram', 'text_bn' => '"মিক্সড প্যাকের প্যাকেজিং দেখে মুগ্ধ! তিনটা আলাদা সিল করা জার, এক ফোঁটাও লিক হয়নি। জলপাই আচারটা বছরের পর বছর ধরে খাওয়া সেরা আচার!"', 'text_en' => '"The mixed pack packaging was amazing — three sealed jars, not a drop leaked. The olive pickle is the best I have had in years!"', 'stars' => 5, 'likes_bn' => 'Like (১৮)', 'likes_en' => 'Like (18)'],
-            ['img' => 'assets/img/rev3.jpg', 'name' => 'তানজিনা আক্তার', 'loc_bn' => 'ভেরিফাইড পারচেজ • রাজশাহী', 'loc_en' => 'Verified Purchase • Rajshahi', 'text_bn' => '"অবশেষে খাঁটি কাঁচা মধু পেলাম! শীতে প্রাকৃতিকভাবে সেট হয়ে গেছে — খাঁটি হওয়ার সবচেয়ে বড় প্রমাণ। পুরো পরিবারের সবাই খুব পছন্দ করেছে।"', 'text_en' => '"Finally found pure raw Sundarban honey! It crystallised naturally in winter — proof that it is real. The whole family loves it."', 'stars' => 5, 'likes_bn' => 'Like (৩১)', 'likes_en' => 'Like (31)'],
-            ['img' => 'assets/img/rev4.jpg', 'name' => 'মেহেজাবীন চৌধুরী', 'loc_bn' => 'ভেরিফাইড পারচেজ • সিলেট', 'loc_en' => 'Verified Purchase • Sylhet', 'text_bn' => '"ঘি খুলতেই পুরো রান্নাঘর ঘ্রাণে ভরে গেল! গরম ভাতে এক চামচ ঘি মানেই আসল স্বাদ। গরম ভাতে এক চামচ ঘি মানেই আসল স্বাদ।"', 'text_en' => '"The ghee aroma fills the whole kitchen! One spoon on hot rice and you are in heaven. Ordered 3 more jars for my sister."', 'stars' => 5, 'likes_bn' => 'Like (১৫)', 'likes_en' => 'Like (15)'],
-            ['img' => 'assets/img/rev4.jpg', 'name' => 'সাবরিনা ইসলাম', 'loc_bn' => 'ভেরিফাইড পারচেজ • খুলনা', 'loc_en' => 'Verified Purchase • Khulna', 'text_bn' => '"প্রথমবার অনলাইনে আচার অর্ডার করলাম এবং অভিজ্ঞতা দারুণ! ডেলিভারি ম্যানের সামনে চেক করে টাকা দিলাম। রিকমেন্ডেড শপ।"', 'text_en' => '"First time ordering pickles online and the experience was great! Checked the parcel in front of the delivery man and then paid. Recommended shop."', 'stars' => 5, 'likes_bn' => 'Like (২৯)', 'likes_en' => 'Like (29)'],
-        ]);
-        $ratingRows = $jsonOf('rating_items', [
-            ['star' => 5, 'pct' => 89, 'count_bn' => '৪৭২', 'count_en' => '472'],
-            ['star' => 4, 'pct' => 8, 'count_bn' => '৪১', 'count_en' => '41'],
-            ['star' => 3, 'pct' => 2, 'count_bn' => '১২', 'count_en' => '12'],
-            ['star' => 2, 'pct' => 0.8, 'count_bn' => '৪', 'count_en' => '4'],
-            ['star' => 1, 'pct' => 0.6, 'count_bn' => '৩', 'count_en' => '3'],
-        ]);
         $rf = fn (string $val) => e((string) $val);
     @endphp
 
+    @if (isset($errors) && $errors->any())
+        <div class="alert-success" style="background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.3);color:#dc2626">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <div>
+                <b>এগুলো ঠিক করে আবার সেভ করুন:</b>
+                <ul style="margin:6px 0 0;padding-left:18px">
+                    @foreach ($errors->all() as $err)
+                        <li style="font-size:12.5px">{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
     <div class="note-banner">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
-        <span>যেকোনো ঘর <b>খালি রাখলে</b> ডিফল্ট লেখা দেখাবে। <b>প্রতিটি ট্যাবে নিচে একটাই সেভ বাটন</b> — পুরো ট্যাব একসাথে সেভ হয়।</span>
+        <span>যেকোনো ঘর <b>খালি রাখলে</b> ডিফল্ট লেখা দেখাবে (✕ দিয়ে খালি করা যায়)। <b>প্রতিটি ট্যাবে নিচে একটাই সেভ বাটন</b> — পুরো ট্যাব একসাথে সেভ হয়। সেভ করা লেখায় ক্লিক করলে প্রিভিউতে সেই জায়গা হাইলাইট হবে।</span>
         <span style="display:inline-flex;gap:8px;margin-left:10px;flex-wrap:wrap">
             <a href="{{ url('/') }}" target="_blank" rel="noopener" class="a-btn" style="padding:5px 12px;font-size:12px"><i class="fa-solid fa-eye"></i> লাইভ প্রিভিউ</a>
-        </a>
         </span>
+    </div>
+
+    {{-- ===== LIVE LANDING PREVIEW ===== --}}
+    <div class="card">
+        <div class="cp-head">
+            <h3>লাইভ প্রিভিউ</h3>
+            <div class="cp-tools">
+                <button type="button" class="a-btn ghost cp-dev active" data-w="desktop" onclick="setCpWidth(this)"><i class="fa-solid fa-desktop"></i> ডেস্কটপ</button>
+                <button type="button" class="a-btn ghost cp-dev" data-w="mobile" onclick="setCpWidth(this)"><i class="fa-solid fa-mobile-screen"></i> মোবাইল</button>
+                <button type="button" class="a-btn ghost" onclick="reloadCp()" title="রিফ্রেশ"><i class="fa-solid fa-rotate-right"></i></button>
+            </div>
+        </div>
+        <p class="desc">ঘরে ক্লিক/ফোকাস করলে প্রিভিউতে সেই লেখাটা হলুদ বর্ডার দিয়ে হাইলাইট হবে — বাংলা ঘরে লিখলে প্রিভিউতেও লাইভ বদলাবে।</p>
+        <div class="cp-jumps">
+            <button type="button" onclick="cpJump('top')">টপ</button>
+            <button type="button" onclick="cpJump('ds-products')">প্রোডাক্ট</button>
+            <button type="button" onclick="cpJump('ds-why')">কেন আমরা</button>
+            <button type="button" onclick="cpJump('ds-reviews')">রিভিউ</button>
+            <button type="button" onclick="cpJump('ds-faq')">FAQ</button>
+            <button type="button" onclick="cpJump('order-form')">অর্ডার ফর্ম</button>
+            <button type="button" onclick="cpJump('lp-footer')">ফুটার</button>
+        </div>
+        <div class="cp-frame" id="cpFrameWrap">
+            <iframe id="contentPreview" src="{{ url('/') }}" title="ল্যান্ডিং প্রিভিউ" loading="lazy"></iframe>
+        </div>
+    </div>
+
+    {{-- ===== SEARCH ===== --}}
+    <div class="card">
+        <div class="search-row">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="a-input" id="contentSearch" placeholder="খুঁজুন — যেমন: ডেলিভারি, হেডিং, ফুটার…" autocomplete="off">
+            <button type="button" class="a-btn ghost" id="searchClear" hidden onclick="clearSearch()"><i class="fa-solid fa-xmark"></i> সার্চ বন্ধ</button>
+        </div>
+        <p class="desc" id="searchHint" hidden>সার্চে মেলা ঘরগুলো সব ট্যাব থেকে দেখানো হচ্ছে — প্রতিটির নিজের সেভ বাটন আছে। সার্চ বন্ধ করলে আগের ট্যাবে ফিরে যাবে।</p>
     </div>
 
     <div class="filter-tabs" id="contentTabs">
@@ -161,24 +194,28 @@
                         <small>খালি রাখলে বর্তমান ছবি থাকবে • সর্বোচ্চ 2MB • JPG/PNG/WebP</small>
                     </div>
                 </div>
-                <div class="fgrid">
+                <div class="hero-tiles">
                     @foreach ($heroImgDefaults as $key => $defaultPath)
-                        <div class="a-field">
-                            <label>স্লাইড {{ bn_num($loop->iteration) }}</label>
+                        <div class="hero-tile-wrap">
+                            <label class="hero-tile">
+                                <input type="file" name="{{ $key }}" accept="image/*" hidden onchange="heroImgPicked(this)">
+                                @if ($current($key))
+                                    <img src="{{ asset($current($key)) }}" alt="slide">
+                                @else
+                                    <img src="{{ asset($defaultPath) }}" alt="slide default" style="opacity:.55">
+                                @endif
+                                <span class="hero-tile-hit"><i class="fa-solid fa-camera"></i> ছবি বাছুন</span>
+                            </label>
+                            <span class="hero-tile-name">স্লাইড {{ bn_num($loop->iteration) }}</span>
                             @if ($current($key))
-                                <img src="{{ asset($current($key)) }}" alt="slide" class="content-img-preview">
-                            @else
-                                <img src="{{ asset($defaultPath) }}" alt="slide default" class="content-img-preview" style="opacity:.55">
-                            @endif
-                            <input class="a-input" type="file" name="{{ $key }}" accept="image/*">
-                            @if ($current($key))
-                                <label style="margin-top:6px;font-weight:600;display:flex;gap:6px;align-items:center">
-                                    <input type="checkbox" name="{{ $key }}_remove" value="1"> ডিফল্ট ছবিতে ফিরুন
+                                <label class="hero-tile-remove">
+                                    <input type="checkbox" name="{{ $key }}_remove" value="1"> ডিফল্টে ফিরুন
                                 </label>
                             @endif
                         </div>
                     @endforeach
                 </div>
+                <p class="desc" style="margin-top:10px;margin-bottom:0">খালি রাখলে বর্তমান ছবি থাকবে • সর্বোচ্চ 2MB • JPG/PNG/WebP</p>
             </div>
 
             <div class="ct-savebar">
@@ -227,14 +264,11 @@
                     {!! $tf('prod_h2b', 'হেডিং — রঙিন অংশ', false, 'যেমন: পছন্দের আচার') !!}
                     {!! $tf('prod_sub', 'নিচের লেখা', true, 'এক লাইনের বর্ণনা') !!}
                 </div>
-                <h4 class="ct-sub">ফিল্টার বাটনের লেবেল</h4>
+                <h4 class="ct-sub">ফিল্টার বাটন</h4>
                 <div class="fgrid">
                     {!! $tf('filter_all', '“সব” বাটন') !!}
-                    {!! $tf('filter_pickle', '“আচার” বাটন') !!}
-                    {!! $tf('filter_pure', '“মধু ও ঘি” বাটন') !!}
-                    {!! $tf('filter_chaatni', '“চাটনি” বাটন') !!}
                 </div>
-                <p class="desc">ফিল্টারের সংখ্যা প্রোডাক্ট থেকে অটো আসে — এখানে শুধু লেখা বদলান।</p>
+                <p class="desc">ক্যাটাগরি ফিল্টার বাটন অটো তৈরি হয় — নতুন ক্যাটাগরি যোগ বা নাম বদল <a href="{{ route('admin.taxonomy') }}"><b>ক্যাটাগরি ও ব্র্যান্ড</b></a> পেজ থেকে করুন, ল্যান্ডিংয়ের ফিল্টারে সাথে সাথে দেখা যাবে। ফিল্টারের সংখ্যাও প্রোডাক্ট থেকে অটো আসে।</p>
             </div>
 
             <div class="ct-sec">
@@ -403,24 +437,11 @@
                 <div class="ct-sec-head">
                     <span class="ct-ic" style="--cc:#d97706"><i class="fa-solid fa-truck-fast"></i></span>
                     <div>
-                        <b>ডেলিভারি চার্জ (টাকা)</b>
-                        <small>চেকআউটে অটো যোগ হয়</small>
+                        <b>ডেলিভারি চার্জ</b>
+                        <small>জেলা-ভিত্তিক চার্জ আলাদা পেজে সেট হয়</small>
                     </div>
                 </div>
-                <div class="fgrid">
-                    <div class="a-field"><label>ঢাকার ভিতরে (৳)</label>
-                        <input class="a-input" type="number" min="0" name="delivery_inside" value="{{ $rf($s['delivery_inside'] ?? '') }}" placeholder="80"></div>
-                    <div class="a-field"><label>ঢাকার বাইরে (৳)</label>
-                        <input class="a-input" type="number" min="0" name="delivery_outside" value="{{ $rf($s['delivery_outside'] ?? '') }}" placeholder="150"></div>
-                    <div class="a-field"><label>“ঢাকার ভিতরে” অপশনের লেখা (বাংলা)</label>
-                        <input class="a-input" name="area_inside_bn" value="{{ $rf($s['area_inside_bn'] ?? '') }}" placeholder="ঢাকার ভিতরে"></div>
-                    <div class="a-field"><label>Inside Dhaka (English)</label>
-                        <input class="a-input" name="area_inside_en" value="{{ $rf($s['area_inside_en'] ?? '') }}" placeholder="Inside Dhaka"></div>
-                    <div class="a-field"><label>“ঢাকার বাইরে” অপশনের লেখা (বাংলা)</label>
-                        <input class="a-input" name="area_outside_bn" value="{{ $rf($s['area_outside_bn'] ?? '') }}" placeholder="ঢাকার বাহিরে"></div>
-                    <div class="a-field"><label>Outside Dhaka (English)</label>
-                        <input class="a-input" name="area_outside_en" value="{{ $rf($s['area_outside_en'] ?? '') }}" placeholder="Outside Dhaka"></div>
-                </div>
+                <p class="desc">৬৪ জেলার আলাদা ডেলিভারি চার্জ এখন <a href="{{ route('admin.settings.delivery') }}"><b>ডেলিভারি এরিয়া</b></a> পেজ থেকে সেট করা হয় — চেকআউটের এরিয়া লিস্টে অটো দেখা যায়।</p>
             </div>
 
             <div class="ct-sec">
@@ -469,6 +490,7 @@
                     {!! $tf('rating_score', 'রেটিং স্কোর', false, 'যেমন: ৪.৯') !!}
                     {!! $tf('rating_total', 'মোট রিভিউ লেখা', false, 'যেমন: ৫৩২টি ভেরিফাইড রিভিউ') !!}
                 </div>
+                <p class="desc">⭐ রিভিউ কার্ডের নাম, ছবি ও লেখা বদলাতে <a href="{{ route('admin.reviews') }}"><b>রিভিউ</b></a> পেজে যান — সেখান থেকে রিভিউ কার্ড ও রেটিং ব্রেকডাউন সেট করা হয়।</p>
             </div>
 
             <div class="ct-savebar">
@@ -571,22 +593,310 @@
             padding: 12px 18px; box-shadow: 0 18px 40px -18px rgba(6, 78, 59, .45); z-index: 5;
         }
         .ct-savehint { font-size: 12px; color: #8b7355; }
+
+        /* live preview card */
+        .cp-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .cp-head h3 { margin: 0; }
+        .cp-tools { display: flex; gap: 8px; }
+        .cp-dev { padding: 8px 14px; font-size: 12.5px; }
+        .cp-dev.active { background: linear-gradient(135deg, #059669, #10b981); color: #fff; border-color: transparent; }
+        .cp-jumps { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+        .cp-jumps button {
+            border: 1px solid rgba(5,150,105,.25); background: #fff; color: #065f46; cursor: pointer;
+            padding: 5px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 600; font-family: inherit;
+            transition: background .15s, border .15s;
+        }
+        .cp-jumps button:hover { background: rgba(5,150,105,.08); border-color: #059669; }
+        .cp-frame {
+            margin-top: 10px; border: 1.5px solid rgba(5,150,105,.22); border-radius: 16px;
+            overflow: hidden; background: #f6faf8; transition: max-width .3s ease;
+        }
+        .cp-frame iframe { display: block; width: 100%; height: 520px; border: 0; background: #fff; }
+        .cp-frame.mobile { max-width: 402px; margin-left: auto; margin-right: auto; }
+
+        /* search */
+        .search-row { display: flex; align-items: center; gap: 10px; }
+        .search-row > i { color: #059669; }
+        .search-row .a-input { max-width: 420px; }
+
+        /* hero image tiles */
+        .hero-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 12px; }
+        .hero-tile {
+            position: relative; display: block; border-radius: 14px; overflow: hidden; cursor: pointer;
+            border: 2px solid rgba(5,150,105,.2); background: #fff; aspect-ratio: 4 / 3;
+        }
+        .hero-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .hero-tile:hover { border-color: #059669; }
+        .hero-tile-hit {
+            position: absolute; inset: auto 0 0 0; padding: 7px 0; text-align: center;
+            background: rgba(2, 44, 34, .72); color: #fff; font-size: 11.5px; font-weight: 700;
+            opacity: 0; transition: opacity .15s;
+        }
+        .hero-tile:hover .hero-tile-hit { opacity: 1; }
+        .hero-tile-name { display: block; font-size: 12px; font-weight: 700; color: #1f4234; margin-top: 6px; }
+        .hero-tile-remove { display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: #8b7355; margin-top: 3px; cursor: pointer; }
+        .hero-tile-wrap.chosen .hero-tile { border-color: #d97706; }
+
+        /* per-field clear (✕ = back to default) */
+        .a-clear {
+            border: 0; background: #fee2e2; color: #b91c1c; border-radius: 6px; cursor: pointer;
+            font-size: 10px; padding: 2px 7px; margin-left: 6px; font-family: inherit; font-weight: 700;
+        }
+        .a-clear:hover { background: #fecaca; }
+
+        /* dirty (unsaved) indicator */
+        .tab-panel.dirty .ct-savebar { border-color: #d97706; }
+        .tab-panel.dirty .ct-savebar::after {
+            content: 'অসংরক্ষিত পরিবর্তন আছে'; font-size: 11px; font-weight: 700; color: #b45309;
+            background: #fef3c7; border-radius: 999px; padding: 3px 10px; margin-left: auto;
+        }
+        .ct-sec.hl-target { border-color: #d97706; box-shadow: 0 0 0 3px rgba(217, 119, 6, .15); }
     </style>
 @endsection
 
 @push('scripts')
     <script>
-        // tab switching
+        /* ================= tab switching + persistence + dirty guard ================= */
+
+        var TAB_KEY = 'ab_content_tab';
+        var dirty = false;
+
+        function showTab(id) {
+            document.querySelectorAll('#contentTabs .filter-tab').forEach(function (t) { t.classList.toggle('active', t.dataset.tab === id); });
+            document.querySelectorAll('.tab-panel').forEach(function (p) { p.hidden = (p.id !== 'tab-' + id); });
+        }
+
+        function currentTabId() {
+            var active = document.querySelector('#contentTabs .filter-tab.active');
+            return active ? active.dataset.tab : 'hero';
+        }
+
+        function markDirty() {
+            if (dirty) return;
+            dirty = true;
+            var panel = document.getElementById('tab-' + currentTabId());
+            if (panel) panel.classList.add('dirty');
+        }
+
         document.querySelectorAll('#contentTabs .filter-tab').forEach(function (tab) {
             tab.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelectorAll('#contentTabs .filter-tab').forEach(function (t) { t.classList.remove('active'); });
-                tab.classList.add('active');
-                document.querySelectorAll('.tab-panel').forEach(function (p) { p.hidden = (p.id !== 'tab-' + tab.dataset.tab); });
+                if (tab.classList.contains('active')) return;
+                if (dirty && !confirm('এই ট্যাবে অসংরক্ষিত পরিবর্তন আছে — ট্যাব বদলালে হারিয়ে যাবে। তবুও বদলাবেন?')) return;
+                showTab(tab.dataset.tab);
+                localStorage.setItem(TAB_KEY, tab.dataset.tab);
             });
         });
 
-        // repeaters: এক form-এ একাধিক .rep ব্লক থাকলেও সবগুলো কাজ করে
+        /* restore last tab after reload/save */
+        (function () {
+            var saved = localStorage.getItem(TAB_KEY);
+            if (saved) {
+                var tab = document.querySelector('#contentTabs .filter-tab[data-tab="' + saved + '"]');
+                if (tab) showTab(saved);
+            }
+        })();
+
+        /* unsaved-changes guard: any input in any panel marks dirty */
+        document.querySelectorAll('.tab-panel form').forEach(function (form) {
+            form.addEventListener('input', markDirty);
+            form.addEventListener('change', markDirty);
+            form.addEventListener('submit', function () {
+                dirty = false;
+                localStorage.setItem(TAB_KEY, currentTabId());
+            });
+        });
+        window.addEventListener('beforeunload', function (e) {
+            if (dirty) { e.preventDefault(); e.returnValue = ''; }
+        });
+
+        /* ================= per-field ✕ (clear -> default) ================= */
+
+        document.querySelectorAll('.tab-panel .a-field').forEach(function (field) {
+            var control = field.querySelector('input.a-input:not([type=file]), textarea.a-input');
+            if (!control) return;
+            var label = field.querySelector('label');
+            if (!label) return;
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'a-clear';
+            btn.title = 'খালি করে ডিফল্ট লেখায় ফিরুন';
+            btn.textContent = '✕';
+            btn.addEventListener('click', function () {
+                control.value = '';
+                control.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+            label.appendChild(btn);
+        });
+
+        /* ================= search across all tabs ================= */
+
+        var searchInput = document.getElementById('contentSearch');
+        var searchClear = document.getElementById('searchClear');
+        var searchHint = document.getElementById('searchHint');
+
+        function applySearch(q) {
+            q = q.trim().toLowerCase();
+            document.querySelectorAll('.tab-panel').forEach(function (panel) {
+                var searching = q !== '';
+                panel.hidden = searching ? false : (panel.id !== 'tab-' + currentTabId());
+                panel.querySelectorAll('.ct-sec').forEach(function (sec) {
+                    var secMatch = sec.textContent.toLowerCase().indexOf(q) !== -1;
+                    sec.hidden = searching ? !secMatch : false;
+                    sec.querySelectorAll(':scope > .fgrid > .a-field').forEach(function (f) {
+                        var text = f.textContent.toLowerCase();
+                        var val = f.querySelector('input, textarea');
+                        if (val && val.value) text += ' ' + val.value.toLowerCase();
+                        f.hidden = searching ? (text.indexOf(q) === -1) : false;
+                    });
+                });
+            });
+            document.querySelectorAll('.ct-savebar').forEach(function (bar) { bar.hidden = q !== ''; });
+            searchClear.hidden = q === '';
+            searchHint.hidden = q === '';
+        }
+
+        searchInput.addEventListener('input', function () { applySearch(this.value); });
+        searchInput.addEventListener('keydown', function (e) { if (e.key === 'Escape') clearSearch(); });
+
+        function clearSearch() {
+            searchInput.value = '';
+            applySearch('');
+        }
+
+        /* ================= hero image tiles ================= */
+
+        function heroImgPicked(input) {
+            var f = input.files && input.files[0];
+            if (!f) return;
+            if (f.size > 2 * 1024 * 1024) {
+                showToast('ছবিটা খুব বড় — সর্বোচ্চ 2MB দিন (এখন ' + (f.size / 1048576).toFixed(1) + 'MB)');
+                input.value = '';
+                return;
+            }
+            var wrap = input.closest('.hero-tile-wrap');
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var img = wrap.querySelector('.hero-tile img');
+                img.src = e.target.result;
+                img.style.opacity = 1;
+            };
+            reader.readAsDataURL(f);
+            wrap.classList.add('chosen');
+        }
+
+        /* ================= live preview: highlight + inline edit ================= */
+
+        var cp = document.getElementById('contentPreview');
+
+        function cpDoc() {
+            try { return cp.contentDocument; } catch (e) { return null; }
+        }
+
+        function setCpWidth(btn) {
+            document.querySelectorAll('.cp-dev').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            document.getElementById('cpFrameWrap').classList.toggle('mobile', btn.dataset.w === 'mobile');
+        }
+
+        function reloadCp() { cp.src = cp.src; }
+
+        function cpJump(id) {
+            var doc = cpDoc();
+            if (!doc) return;
+            if (id === 'top') { doc.documentElement.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+            var el = doc.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        /* find the text node inside the preview that shows `text` */
+        function findPreviewNode(text) {
+            var doc = cpDoc();
+            if (!doc || !doc.body || text.length < 2) return null;
+            var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, {
+                acceptNode: function (n) {
+                    var p = n.parentNode.nodeName;
+                    if (p === 'SCRIPT' || p === 'STYLE') return NodeFilter.FILTER_REJECT;
+                    return n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+                }
+            });
+            var node, best = null, bestLen = 0;
+            while ((node = walker.nextNode())) {
+                var nv = node.nodeValue.replace(/\s+/g, ' ').trim();
+                if (nv === text) return node;               /* exact match wins */
+                if (nv.indexOf(text) !== -1 && text.length > bestLen) { best = node; bestLen = text.length; }
+            }
+            return best;
+        }
+
+        var hl = { node: null, orig: '', enEl: null, enOrig: '' };
+
+        function clearHighlight() {
+            if (hl.node) {
+                hl.node.nodeValue = hl.orig;
+                if (hl.node.parentElement) {
+                    hl.node.parentElement.style.outline = '';
+                    hl.node.parentElement.style.borderRadius = '';
+                }
+            }
+            if (hl.enEl) {
+                hl.enEl.setAttribute('data-en', hl.enOrig);
+                hl.enEl.style.outline = '';
+            }
+            hl = { node: null, orig: '', enEl: null, enOrig: '' };
+        }
+
+        document.addEventListener('focusin', function (e) {
+            var el = e.target;
+            if (!el.name || (el.name.slice(-3) !== '_bn' && el.name.slice(-3) !== '_en')) return;
+            var isBn = el.name.slice(-3) === '_bn';
+            var text = (el.value || '').trim();
+            if (!text) return;   /* খালি ঘর = ডিফল্ট লেখা — ম্যাচ করার উপায় নেই */
+
+            if (isBn) {
+                var node = findPreviewNode(text);
+                if (!node) return;
+                clearHighlight();
+                hl.node = node;
+                hl.orig = node.nodeValue;
+                var parentEl = node.parentElement;
+                parentEl.style.outline = '2px solid #f59e0b';
+                parentEl.style.borderRadius = '4px';
+                parentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                /* English text lives in [data-en] attributes (hidden in bn mode) */
+                var doc = cpDoc();
+                if (!doc) return;
+                var enEl = null;
+                doc.querySelectorAll('[data-en]').forEach(function (cand) {
+                    if (enEl) return;
+                    var v2 = (cand.getAttribute('data-en') || '').replace(/\s+/g, ' ').trim();
+                    if (v2 === text) enEl = cand;
+                });
+                if (!enEl) return;
+                clearHighlight();
+                hl.enEl = enEl;
+                hl.enOrig = enEl.getAttribute('data-en');
+                enEl.style.outline = '2px solid #f59e0b';
+                enEl.style.borderRadius = '4px';
+                enEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        document.addEventListener('focusout', clearHighlight);
+
+        /* live-edit the preview while typing (bn text is visible; en updates data-en) */
+        document.addEventListener('input', function (e) {
+            var el = e.target;
+            if (!hl.node && !hl.enEl) return;
+            if (!el.name || (el.name.slice(-3) !== '_bn' && el.name.slice(-3) !== '_en')) return;
+            var v = el.value;
+            if (hl.node) hl.node.nodeValue = v === '' ? hl.orig : v;
+            if (hl.enEl) hl.enEl.setAttribute('data-en', v === '' ? hl.enOrig : v);
+        });
+
+        /* ================= repeaters ================= */
+
         document.querySelectorAll('.rep-form').forEach(function (form) {
             var hiddenMap = {};
             form.querySelectorAll('.rep').forEach(function (wrap) {
@@ -596,7 +906,7 @@
 
                 function bindDel(row) {
                     row.querySelectorAll('.rep-del').forEach(function (btn) {
-                        btn.addEventListener('click', function () { row.remove(); });
+                        btn.addEventListener('click', function () { row.remove(); markDirty(); });
                     });
                 }
                 wrap.querySelectorAll('.rep-row').forEach(bindDel);
@@ -608,6 +918,7 @@
                         clone.querySelectorAll('[data-k]').forEach(function (el) { el.value = ''; });
                         bindDel(clone);
                         wrap.appendChild(clone);
+                        markDirty();
                     });
                 }
             });
