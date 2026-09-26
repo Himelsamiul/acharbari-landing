@@ -39,6 +39,11 @@
         <div class="invtitle">
             <p class="t">INVOICE</p>
             <p class="code">{{ $order->order_code }}</p>
+            @php $orderBarcode = ab_code39_png($order->order_code, 40, 2); @endphp
+            @if ($orderBarcode !== '')
+                <img src="{{ $orderBarcode }}" style="width:190px;height:36px;margin-top:4px">
+                <div style="font-size:9px;color:#6b7280;letter-spacing:2px;margin-top:1px">*{{ strtoupper($order->order_code) }}*</div>
+            @endif
             <p class="date">Date: {{ $order->created_at->format('d M Y, h:i A') }}</p>
         </div>
         @if (!empty($logo) && file_exists(public_path($logo)))
@@ -72,8 +77,18 @@
         </thead>
         <tbody>
             @foreach ($order->items as $item)
+                @php
+                    $itemBarcodeText = trim((string) ($productBarcodes[$item->product_id] ?? ''));
+                    $itemBarcode = $itemBarcodeText !== '' ? ab_code39_png($itemBarcodeText, 26, 1) : '';
+                @endphp
                 <tr>
-                    <td>{{ $productNames[$item->product_id] ?? $item->product_name }}</td>
+                    <td>
+                        {{ $productNames[$item->product_id] ?? $item->product_name }}
+                        @if ($itemBarcode !== '')
+                            <img src="{{ $itemBarcode }}" style="width:120px;height:22px;display:block;margin-top:3px">
+                            <span style="font-size:8px;color:#6b7280;font-family:monospace;letter-spacing:1px">{{ $itemBarcodeText }}</span>
+                        @endif
+                    </td>
                     <td class="num">Tk {{ number_format($item->price, 2) }}</td>
                     <td class="num">{{ $item->quantity }}</td>
                     <td class="num">Tk {{ number_format($item->line_total, 2) }}</td>

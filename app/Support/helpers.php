@@ -137,6 +137,73 @@ if (!function_exists('ab_social')) {
     }
 }
 
+if (!function_exists('ab_code39_png')) {
+    /**
+     * Scanable Code 39 barcode rendered as a PNG data URI (dompdf embeds it in PDFs).
+     * Supports A-Z, 0-9, dash, dot, space, $, /, +, % — order codes & product barcodes fit.
+     */
+    function ab_code39_png(string $text, int $height = 40, int $unit = 2): string
+    {
+        $text = strtoupper(preg_replace('/[^A-Z0-9\-\. \$\/\+%]/', '', $text));
+
+        if ($text === '' || ! function_exists('imagecreatetruecolor')) {
+            return '';
+        }
+
+        $codes = [
+            '0' => '000110100', '1' => '100100001', '2' => '001100001', '3' => '101100000',
+            '4' => '000110001', '5' => '100110000', '6' => '001110000', '7' => '000100101',
+            '8' => '100100100', '9' => '001100100', 'A' => '100001001', 'B' => '001001001',
+            'C' => '101001000', 'D' => '000011001', 'E' => '100011000', 'F' => '001011000',
+            'G' => '000001101', 'H' => '100001100', 'I' => '001001100', 'J' => '000011100',
+            'K' => '100000011', 'L' => '001000011', 'M' => '101000010', 'N' => '000010011',
+            'O' => '100010010', 'P' => '001010010', 'Q' => '000000111', 'R' => '100000110',
+            'S' => '001000110', 'T' => '000010110', 'U' => '110000001', 'V' => '011000001',
+            'W' => '111000000', 'X' => '010010001', 'Y' => '110010000', 'Z' => '011010000',
+            '-' => '010000101', '.' => '110000100', ' ' => '011000100', '$' => '010101000',
+            '/' => '010100010', '+' => '010001010', '%' => '010000010', '*' => '010010100',
+        ];
+
+        $elements = [];
+        foreach (str_split('*' . $text . '*') as $index => $char) {
+            if (! isset($codes[$char])) {
+                continue;
+            }
+            if ($index > 0) {
+                $elements[] = ['space', 1]; // narrow inter-character gap
+            }
+            foreach (str_split($codes[$char]) as $position => $bit) {
+                $elements[] = [$position % 2 === 0 ? 'bar' : 'space', $bit === '1' ? 3 : 1];
+            }
+        }
+
+        $totalWidth = 0;
+        foreach ($elements as [$type, $narrow]) {
+            $totalWidth += $narrow * $unit;
+        }
+
+        $image = imagecreatetruecolor($totalWidth, $height);
+        $white = imagecolorallocate($image, 255, 255, 255);
+        $black = imagecolorallocate($image, 0, 0, 0);
+        imagefill($image, 0, 0, $white);
+
+        $x = 0;
+        foreach ($elements as [$type, $narrow]) {
+            $width = $narrow * $unit;
+            if ($type === 'bar') {
+                imagefilledrectangle($image, $x, 0, $x + $width - 1, $height - 1, $black);
+            }
+            $x += $width;
+        }
+
+        ob_start();
+        imagepng($image, null, 6);
+        imagedestroy($image);
+
+        return 'data:image/png;base64,' . base64_encode((string) ob_get_clean());
+    }
+}
+
 if (!function_exists('bn_num')) {
     function bn_num($num): string
     {

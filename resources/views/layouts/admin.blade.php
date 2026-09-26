@@ -450,6 +450,7 @@
         }
         .mobile-nav .side-link.active { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
     </style>
+    @yield('styles')
 </head>
 
 <body>

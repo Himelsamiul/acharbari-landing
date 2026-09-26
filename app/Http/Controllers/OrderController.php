@@ -224,12 +224,18 @@ class OrderController extends Controller
             ->mapWithKeys(fn ($p) => [$p->id => $p->name_en ?: $p->name])
             ->all();
 
+        // product barcodes (scanable on the printed invoice)
+        $productBarcodes = Product::whereIn('id', $order->items->pluck('product_id'))
+            ->pluck('barcode', 'id')
+            ->all();
+
         return \Barryvdh\DomPDF\Facade\Pdf::loadView('invoice', [
             'order' => $order,
             'brandName' => $brandName !== '' ? $brandName : 'AcharBari',
             'logo' => $logo,
             'contactPhone' => $contactPhone,
             'productNames' => $productNames,
+            'productBarcodes' => $productBarcodes,
         ])
             ->setPaper('a4')
             ->download('invoice-' . $order->order_code . '.pdf');

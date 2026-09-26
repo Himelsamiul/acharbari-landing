@@ -242,12 +242,19 @@ class SettingController extends Controller
 
         $pairs = [];
         foreach (self::CONTENT_TEXT_KEYS as $key) {
+            // shudhu submit-howa key update hoy — onno tab er custom lekha haray na
+            if (! array_key_exists($key . '_bn', $data) && ! array_key_exists($key . '_en', $data)) {
+                continue;
+            }
             $pairs[$key . '_bn'] = trim((string) ($data[$key . '_bn'] ?? ''));
             $pairs[$key . '_en'] = trim((string) ($data[$key . '_en'] ?? ''));
         }
 
         // repeater groups — empty/invalid JSON clears the override so blade defaults return
         foreach (['marquee' => 'marquee_items', 'faq' => 'faq_items', 'reviews' => 'reviews_items', 'rating' => 'rating_items'] as $field => $setting) {
+            if (! array_key_exists($field . '_json', $data)) {
+                continue; // onno tab er repeater untouched thakbe
+            }
             $rows = json_decode((string) ($data[$field . '_json'] ?? ''), true);
             $pairs[$setting] = (is_array($rows) && count($rows))
                 ? json_encode($rows, JSON_UNESCAPED_UNICODE)
