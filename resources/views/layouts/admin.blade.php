@@ -510,10 +510,21 @@
                 <a class="side-link {{ request()->route('module') === 'payments' ? 'active' : '' }}" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে <span class="draft-tag">ড্রাফট</span></a>
                 <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
 
-                <div class="side-group-label">সাইট সাজানো</div>
-                <a class="side-link {{ request()->routeIs('admin.settings.content') ? 'active' : '' }}" href="{{ route('admin.settings.content') }}"><i class="fa-solid fa-pen-to-square"></i> ল্যান্ডিং কনটেন্ট</a>
-                <a class="side-link {{ request()->routeIs('admin.settings.brand') ? 'active' : '' }}" href="{{ route('admin.settings.brand') }}"><i class="fa-solid fa-jar"></i> লোগো ও ব্র্যান্ড</a>
-                <a class="side-link {{ request()->routeIs('admin.settings.theme') ? 'active' : '' }}" href="{{ route('admin.settings.theme') }}"><i class="fa-solid fa-palette"></i> থিম কালার</a>
+                @php
+                    $inSiteGroup = request()->routeIs('admin.settings.content')
+                        || request()->routeIs('admin.settings.brand')
+                        || request()->routeIs('admin.settings.theme');
+                @endphp
+                <button type="button" class="side-link side-toggle {{ $inSiteGroup ? 'active' : '' }}"
+                    onclick="toggleSideSub('siteSub')">
+                    <i class="fa-solid fa-pen-to-square"></i> ল্যান্ডিং কনটেন্ট
+                    <i class="fa-solid fa-chevron-down side-chevron {{ $inSiteGroup ? 'open' : '' }}"></i>
+                </button>
+                <div class="side-sub {{ $inSiteGroup ? 'open' : '' }}" id="siteSub">
+                    <a class="side-sub-link {{ request()->routeIs('admin.settings.content') ? 'active' : '' }}" href="{{ route('admin.settings.content') }}">ল্যান্ডিং কনটেন্ট</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.settings.brand') ? 'active' : '' }}" href="{{ route('admin.settings.brand') }}">লোগো ও ব্র্যান্ড</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.settings.theme') ? 'active' : '' }}" href="{{ route('admin.settings.theme') }}">থিম কালার</a>
+                </div>
 
                 @php
                     $inSeoGroup = request()->routeIs('admin.seo')
