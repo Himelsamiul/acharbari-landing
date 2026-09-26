@@ -140,9 +140,13 @@
     <div class="login-bg-ov"></div>
     <div class="login-card">
         <div class="login-logo">
-            <i class="fa-solid fa-jar"></i>
+            @if (trim((string) \App\Models\Setting::get('logo_path', '')) !== '')
+                <img src="{{ asset(\App\Models\Setting::get('logo_path')) }}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+            @else
+                <i class="fa-solid fa-jar"></i>
+            @endif
         </div>
-        <h1><span>{{ config('app.name') }}</span> <span class="hl">Admin</span></h1>
+        <h1><span>{{ ab_brand('bn') }}</span> <span class="hl">Admin</span></h1>
         <p class="sub">অ্যাডমিন প্যানেল — লগইন করে অর্ডার ম্যানেজ করুন</p>
 
         @if ($errors->any())
