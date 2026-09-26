@@ -81,6 +81,20 @@ if (!function_exists('ab_contact')) {
     }
 }
 
+if (!function_exists('ab_reviews_default')) {
+    /** The five starter reviews used by the landing page and the admin editor. */
+    function ab_reviews_default(): array
+    {
+        return [
+            ['name' => 'নুসরাত জাহান', 'img' => 'assets/img/rev1.jpg', 'stars' => 5, 'source' => 'normal', 'loc_bn' => 'ভেরিফাইড পারচেজ • ঢাকা', 'loc_en' => 'Verified Purchase • Dhaka', 'text_bn' => '"আমের কুচি আচারটা একদম ঠাকুমার বানানো আচারের মতোই লেগেছে! তেল বেশি না, ঝাল-নোনতা পারফেক্ট ব্যালেন্স। ঢাকায় একদিনের মধ্যেই ডেলিভারি পেয়েছি!"', 'text_en' => '"The mango kuchi achar tastes exactly like my grandmother used to make! Not too oily, perfectly spiced. Delivery arrived within a day in Dhaka!"', 'likes_bn' => 'Like (২৪)', 'likes_en' => 'Like (24)'],
+            ['name' => 'ফারহানা ইয়াসমিন', 'img' => 'assets/img/rev2.jpg', 'stars' => 5, 'source' => 'normal', 'loc_bn' => 'ভেরিফাইড পারচেজ • চট্টগ্রাম', 'loc_en' => 'Verified Purchase • Chattogram', 'text_bn' => '"মিক্সড প্যাকের প্যাকেজিং দেখে মুগ্ধ! তিনটা আলাদা সিল করা জার, এক ফোঁটাও লিক হয়নি। জলপাই আচারটা বছরের পর বছর ধরে খাওয়া সেরা আচার!"', 'text_en' => '"The mixed pack packaging was amazing — three sealed jars, not a drop leaked. The olive pickle is the best I have had in years!"', 'likes_bn' => 'Like (১৮)', 'likes_en' => 'Like (18)'],
+            ['name' => 'তানজিনা আক্তার', 'img' => 'assets/img/rev3.jpg', 'stars' => 5, 'source' => 'normal', 'loc_bn' => 'ভেরিফাইড পারচেজ • রাজশাহী', 'loc_en' => 'Verified Purchase • Rajshahi', 'text_bn' => '"অবশেষে খাঁটি কাঁচা মধু পেলাম! শীতে প্রাকৃতিকভাবে সেট হয়ে গেছে — খাঁটি হওয়ার সবচেয়ে বড় প্রমাণ। পুরো পরিবারের সবাই খুব পছন্দ করেছে।"', 'text_en' => '"Finally found pure raw Sundarban honey! It crystallised naturally in winter — proof that it is real. The whole family loves it."', 'likes_bn' => 'Like (৩১)', 'likes_en' => 'Like (31)'],
+            ['name' => 'মেহেজাবীন চৌধুরী', 'img' => 'assets/img/rev4.jpg', 'stars' => 5, 'source' => 'normal', 'loc_bn' => 'ভেরিফাইড পারচেজ • সিলেট', 'loc_en' => 'Verified Purchase • Sylhet', 'text_bn' => '"ঘি খুলতেই পুরো রান্নাঘর ঘ্রাণে ভরে গেল! গরম ভাতে এক চামচ ঘি মানেই আসল স্বাদ। আপনার বোনের জন্য আরও ৩টা অর্ডার দিয়েছি।"', 'text_en' => '"The ghee aroma fills the whole kitchen! One spoon on hot rice and you are in heaven. Ordered 3 more jars for my sister."', 'likes_bn' => 'Like (১৫)', 'likes_en' => 'Like (15)'],
+            ['name' => 'সাবরিনা ইসলাম', 'img' => 'assets/img/rev5.jpg', 'stars' => 5, 'source' => 'normal', 'loc_bn' => 'ভেরিফাইড পারচেজ • খুলনা', 'loc_en' => 'Verified Purchase • Khulna', 'text_bn' => '"প্রথমবার অনলাইনে আচার অর্ডার করলাম এবং অভিজ্ঞতা দারুণ! ডেলিভারি ম্যানের সামনে চেক করে টাকা দিলাম। রিকমেন্ডেড শপ।"', 'text_en' => '"First time ordering pickles online and the experience was great! Checked the parcel in front of the delivery man and then paid. Recommended shop."', 'likes_bn' => 'Like (২৯)', 'likes_en' => 'Like (29)'],
+        ];
+    }
+}
+
 if (!function_exists('ab_brand')) {
     /** Brand name assembled from admin brand settings ("Achar"+"Bari"). */
     function ab_brand(string $lang = 'bn'): string

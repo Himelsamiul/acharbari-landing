@@ -8,14 +8,10 @@ use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
-    public const DEFAULT_REVIEWS = [
-        ['name' => 'নুসরাত জাহান', 'img' => 'assets/img/rev1.jpg', 'stars' => 5, 'source' => 'normal', 'loc_bn' => 'ভেরিফাইড পারচেজ • ঢাকা', 'loc_en' => 'Verified Purchase • Dhaka', 'text_bn' => 'খুব ভালো লেগেছে!', 'text_en' => 'Loved it!', 'likes_bn' => 'Like (২৪)', 'likes_en' => 'Like (24)'],
-    ];
-
     public function index()
     {
         return view('admin.reviews.index', [
-            'reviewRows' => ab_json('reviews_items', self::DEFAULT_REVIEWS),
+            'reviewRows' => ab_json('reviews_items', ab_reviews_default()),
         ]);
     }
 
