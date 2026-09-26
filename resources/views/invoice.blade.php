@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Invoice {{ $order->order_code }}</title>
-    @font-face {
-        font-family: 'Hind Siliguri';
-        font-weight: normal;
-        src: url('{{ public_path('fonts/HindSiliguri-Regular.ttf') }}');
-    }
-    @font-face {
-        font-family: 'Hind Siliguri';
-        font-weight: bold;
-        src: url('{{ public_path('fonts/HindSiliguri-Bold.ttf') }}');
-    }
     <style>
+        @font-face {
+            font-family: 'Hind Siliguri';
+            font-weight: normal;
+            src: url('{{ str_replace('\\', '/', public_path('fonts/HindSiliguri-Regular.ttf')) }}');
+        }
+        @font-face {
+            font-family: 'Hind Siliguri';
+            font-weight: bold;
+            src: url('{{ str_replace('\\', '/', public_path('fonts/HindSiliguri-Bold.ttf')) }}');
+        }
         @page { margin: 36px 40px; }
         * { box-sizing: border-box; }
         body { font-family: 'Hind Siliguri', sans-serif; color: #1f2937; font-size: 13px; margin: 0; }
@@ -105,7 +105,7 @@
     </div>
 
     <div class="note">
-        এই ইনভয়েসটি স্বয়ংক্রিয়ভাবে তৈরি। যেকোনো প্রশ্নে {{ ab_contact('phone') }} নম্বরে যোগাযোগ করুন। ক্রয়ের জন্য ধন্যবাদ! 🙏
+        এই ইনভয়েসটি স্বয়ংক্রিয়ভাবে তৈরি। যেকোনো প্রশ্নে {{ ab_contact('phone') }} নম্বরে যোগাযোগ করুন। ক্রয়ের জন্য ধন্যবাদ!
     </div>
 </body>
 </html>

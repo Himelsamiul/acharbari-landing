@@ -2,7 +2,7 @@
 
 @section('title', 'অর্ডার ' . $order->order_code)
 @section('page_title', 'অর্ডার #' . $order->order_code)
-@section('page_sub', '{{ $order->customer_name }} • {{ $order->created_at->format("d M Y, h:i A") }}')
+@section('page_sub', $order->customer_name . ' • ' . $order->created_at->format('d M Y, h:i A'))
 
 @section('content')
     @php $labels = \App\Models\Order::statusLabels(); @endphp
