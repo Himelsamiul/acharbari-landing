@@ -507,7 +507,6 @@
                 </div>
                 <a class="side-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}" href="{{ route('admin.reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ</a>
 
-                <div class="side-group-label">মার্কেটিং ও ট্র্যাকিং</div>
                 <a class="side-link {{ request()->route('module') === 'payments' ? 'active' : '' }}" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে <span class="draft-tag">ড্রাফট</span></a>
                 <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
 
@@ -516,11 +515,23 @@
                 <a class="side-link {{ request()->routeIs('admin.settings.brand') ? 'active' : '' }}" href="{{ route('admin.settings.brand') }}"><i class="fa-solid fa-jar"></i> লোগো ও ব্র্যান্ড</a>
                 <a class="side-link {{ request()->routeIs('admin.settings.theme') ? 'active' : '' }}" href="{{ route('admin.settings.theme') }}"><i class="fa-solid fa-palette"></i> থিম কালার</a>
 
-                <div class="side-group-label">SEO</div>
-                <a class="side-link {{ request()->routeIs('admin.seo') ? 'active' : '' }}" href="{{ route('admin.seo') }}"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO Settings</a>
-                <a class="side-link {{ request()->routeIs('admin.robots') ? 'active' : '' }}" href="{{ route('admin.robots') }}"><i class="fa-solid fa-robot"></i> robots.txt</a>
-                <a class="side-link {{ request()->routeIs('admin.redirects.*') ? 'active' : '' }}" href="{{ route('admin.redirects.index') }}"><i class="fa-solid fa-rotate"></i> 301 Redirects</a>
-                <a class="side-link {{ request()->routeIs('admin.sitemap') ? 'active' : '' }}" href="{{ route('admin.sitemap') }}"><i class="fa-solid fa-sitemap"></i> Sitemap</a>
+                @php
+                    $inSeoGroup = request()->routeIs('admin.seo')
+                        || request()->routeIs('admin.robots')
+                        || request()->routeIs('admin.redirects.*')
+                        || request()->routeIs('admin.sitemap');
+                @endphp
+                <button type="button" class="side-link side-toggle {{ $inSeoGroup ? 'active' : '' }}"
+                    onclick="toggleSideSub('seoSub')">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i> SEO Settings
+                    <i class="fa-solid fa-chevron-down side-chevron {{ $inSeoGroup ? 'open' : '' }}"></i>
+                </button>
+                <div class="side-sub {{ $inSeoGroup ? 'open' : '' }}" id="seoSub">
+                    <a class="side-sub-link {{ request()->routeIs('admin.seo') ? 'active' : '' }}" href="{{ route('admin.seo') }}">SEO Settings</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.robots') ? 'active' : '' }}" href="{{ route('admin.robots') }}">robots.txt</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.redirects.*') ? 'active' : '' }}" href="{{ route('admin.redirects.index') }}">301 Redirects</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.sitemap') ? 'active' : '' }}" href="{{ route('admin.sitemap') }}">Sitemap</a>
+                </div>
 
                 <div class="side-group-label">অ্যাকাউন্ট</div>
             </nav>
@@ -599,14 +610,16 @@
     </script>
     @stack('scripts')
     <script>
-        function toggleProductSub() {
-            var sub = document.getElementById('productSub');
+        function toggleSideSub(id) {
+            var sub = document.getElementById(id);
             sub.classList.toggle('open');
             var btn = sub.previousElementSibling;
             var chev = btn ? btn.querySelector('.side-chevron') : null;
             if (chev) chev.classList.toggle('open');
             btn.setAttribute('aria-expanded', sub.classList.contains('open') ? 'true' : 'false');
         }
+
+        function toggleProductSub() { toggleSideSub('productSub'); }
     </script>
 </body>
 
