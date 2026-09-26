@@ -164,9 +164,11 @@
                 @endif
             @endif
             <div style="display:flex;gap:10px;margin-top:18px">
+                @if (ab_contact('whatsapp') !== '')
                 <a class="btn-home" style="flex:1" target="_blank" rel="noopener"
                     href="https://wa.me/{{ ab_contact('whatsapp') }}?text={{ rawurlencode('আসসালামু আলাইকুম! আমার অর্ডার #' . $order->order_code . ' কনফার্ম করতে চাই।') }}">
                     WhatsApp-এ কনফার্ম করুন</a>
+                @endif
                 <a class="btn-home" style="flex:1;background:linear-gradient(135deg,#0f766e,#059669);box-shadow:0 14px 30px -12px rgba(15,118,110,.7)"
                     href="{{ route('track') }}?code={{ $order->order_code }}&phone={{ $order->phone }}">অর্ডার ট্র্যাক করুন</a>
             </div>

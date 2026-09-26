@@ -73,19 +73,13 @@ if (!function_exists('ab_json')) {
 }
 
 if (!function_exists('ab_contact')) {
-    /** Contact info from admin settings with sensible defaults. */
+    /**
+     * Contact info from admin settings. Khali thakle '' return kore —
+     * landing page tokhon oi contact element hide kore dey.
+     */
     function ab_contact(string $key): string
     {
-        $defaults = [
-            'phone' => '01707373692',
-            'whatsapp' => '8801707373692',
-            'messenger' => 'AcharBari',
-            'facebook' => 'https://facebook.com/',
-        ];
-
-        $value = trim((string) \App\Models\Setting::get('contact_' . $key, ''));
-
-        return $value !== '' ? $value : ($defaults[$key] ?? '');
+        return trim((string) \App\Models\Setting::get('contact_' . $key, ''));
     }
 }
 
