@@ -16,7 +16,19 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::orderBy('sort_order')->get();
-        return view('admin.products.index', compact('products'));
+        $ids = $products->pluck('id');
+
+        // dependency tracking: kon product e order/purchase ase — delete er age dekhano lage
+        $orderCounts = \App\Models\OrderItem::whereIn('product_id', $ids)
+            ->selectRaw('product_id, COUNT(DISTINCT order_id) as c')
+            ->groupBy('product_id')
+            ->pluck('c', 'product_id');
+        $purchaseCounts = \App\Models\Purchase::whereIn('product_id', $ids)
+            ->selectRaw('product_id, COUNT(*) as c')
+            ->groupBy('product_id')
+            ->pluck('c', 'product_id');
+
+        return view('admin.products.index', compact('products', 'orderCounts', 'purchaseCounts'));
     }
 
     public function create()
@@ -83,6 +95,24 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        // order/purchase e thakle delete block — 500 na, clear bangla message
+        $orderCount = \App\Models\OrderItem::where('product_id', $product->id)->distinct('order_id')->count('order_id');
+        $purchaseCount = \App\Models\Purchase::where('product_id', $product->id)->count();
+
+        if ($orderCount > 0 || $purchaseCount > 0) {
+            $parts = [];
+            if ($orderCount > 0) {
+                $parts[] = $orderCount . 'টি অর্ডারে';
+            }
+            if ($purchaseCount > 0) {
+                $parts[] = $purchaseCount . 'টি পারচেজে';
+            }
+
+            return back()->withErrors([
+                'product' => '"' . $product->name . '" মুছে ফেলা যাবে না — প্রোডাক্টটি ' . implode(' ও ', $parts) . ' ব্যবহৃত হয়েছে। এর বদলে প্রোডাক্টটি বন্ধ করে দিন।',
+            ]);
+        }
+
         $product->delete();
         return redirect()->route('admin.products.index')->with('success', 'প্রোডাক্ট মুছে ফেলা হয়েছে।');
     }
