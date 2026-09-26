@@ -52,3 +52,22 @@ php artisan view:cache
 - [ ] Contact number admin theke change kore dekho → footer/chat update hoy
 - [ ] Facebook e link share korle thumbnail (og:image) ashe
 - [ ] `https://domain/sitemap.xml` open hoy
+
+## 7. Payment Gateway (bKash / Nagad API)
+
+Online payment live korar steps:
+
+1. **Credentials nin:**
+   - bKash → [developer.bka.sh](https://developer.bka.sh) e merchant account register kore **App Key, App Secret, Username, Password** nin
+   - Nagad → merchant onboarding sesh hole **Merchant ID, Nagad Public Key, apnar Private Key** pair paben
+2. **Admin panel e boshan:** `/admin/settings/payment`
+   - "অনলাইন পেমেন্ট" master toggle ON
+   - Gateway toggle ON + mode `Live` + credentials boshan + Save
+3. **Callback URL register korun** (gateway er portal e):
+   - bKash: `https://apnadomain.com/payment/callback/bkash/ORDER_CODE` (page e dekhano ache, copy koro)
+   - Nagad: `https://apnadomain.com/payment/callback/nagad/ORDER_CODE`
+   - `apnadomain.com` apnar real domain hobe + HTTPS lagbe
+4. **Sandbox e test kore nile** mode `Sandbox` rekhe dummy order diye dekhen — payment page e jay kina
+5. **Verify:** ekta real ৳1 ba ৳10 er order kore bKash/Nagad diye pay koren → order e "পরিশোধ হয়েছে ✓" + TrxID dekhabe
+
+> Online payment bandhate chaile shudhu master toggle OFF korlei hobe — customer tokhon shudhu COD dekhbe.
