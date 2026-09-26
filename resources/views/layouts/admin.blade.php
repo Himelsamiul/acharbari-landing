@@ -85,6 +85,14 @@
             padding: 16px 14px 6px;
         }
         .side-group-label:first-child { padding-top: 4px; }
+        .side-toggle { width: 100%; border: 0; background: transparent; cursor: pointer; text-align: left; }
+        .side-chevron { margin-left: auto; font-size: 11px; transition: transform .18s ease; opacity: .7; }
+        .side-chevron.open { transform: rotate(180deg); }
+        .side-sub { display: none; flex-direction: column; gap: 2px; margin: 2px 0 4px; padding-left: 14px; border-left: 2px solid rgba(255,255,255,.14); margin-left: 17px; }
+        .side-sub.open { display: flex; }
+        .side-sub-link { font-size: 13px; padding: 7px 12px; border-radius: 8px; color: rgba(255,255,255,.82); text-decoration: none; }
+        .side-sub-link:hover { background: rgba(255,255,255,.08); color: #fff; }
+        .side-sub-link.active { background: rgba(255,255,255,.14); color: #fff; font-weight: 700; }
         .draft-tag {
             margin-left: auto;
             font-size: 8.5px;
@@ -471,21 +479,37 @@
                     @php $pendingOrders = \App\Models\Order::where('status', 'pending')->count(); @endphp
                     @if ($pendingOrders > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $pendingOrders }} নতুন</span>@endif
                 </a>
-                <a class="side-link {{ request()->routeIs('admin.customers*') ? 'active' : '' }}" href="{{ route('admin.customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>
                 <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন
                     @php $openComplaints = \App\Models\Complaint::where('is_resolved', false)->count(); @endphp
                     @if ($openComplaints > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $openComplaints }} নতুন</span>@endif
                 </a>
-                <a class="side-link {{ request()->routeIs('admin.suppliers*') ? 'active' : '' }}" href="{{ route('admin.suppliers') }}"><i class="fa-solid fa-truck-field"></i> সাপ্লায়ার</a>
-                <a class="side-link {{ request()->routeIs('admin.products.index') || request()->routeIs('admin.products.create') || request()->routeIs('admin.products.edit') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
-                <a class="side-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}"><i class="fa-solid fa-layer-group"></i> ক্যাটাগরি ও ব্র্যান্ড</a>
-                <a class="side-link {{ request()->routeIs('admin.coupons') ? 'active' : '' }}" href="{{ route('admin.coupons') }}"><i class="fa-solid fa-ticket"></i> কুপন</a>
+
+                @php
+                    $inProductGroup = request()->routeIs('admin.products.*')
+                        || request()->routeIs('admin.suppliers*')
+                        || request()->routeIs('admin.customers*')
+                        || request()->routeIs('admin.taxonomy')
+                        || request()->routeIs('admin.coupons*')
+                        || request()->routeIs('admin.settings.delivery');
+                @endphp
+                <button type="button" class="side-link side-toggle {{ $inProductGroup ? 'active' : '' }}"
+                    onclick="toggleProductSub()">
+                    <i class="fa-solid fa-jar"></i> প্রোডাক্ট
+                    <i class="fa-solid fa-chevron-down side-chevron {{ $inProductGroup ? 'open' : '' }}"></i>
+                </button>
+                <div class="side-sub {{ $inProductGroup ? 'open' : '' }}" id="productSub">
+                    <a class="side-sub-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">সব প্রোডাক্ট</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.suppliers*') ? 'active' : '' }}" href="{{ route('admin.suppliers') }}">সাপ্লায়ার</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.customers*') ? 'active' : '' }}" href="{{ route('admin.customers') }}">গ্রাহক</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}">ক্যাটাগরি ও ব্র্যান্ড</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.coupons*') ? 'active' : '' }}" href="{{ route('admin.coupons') }}">কুপন</a>
+                    <a class="side-sub-link {{ request()->routeIs('admin.settings.delivery') ? 'active' : '' }}" href="{{ route('admin.settings.delivery') }}">ডেলিভারি এরিয়া</a>
+                </div>
                 <a class="side-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}" href="{{ route('admin.reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ</a>
 
                 <div class="side-group-label">মার্কেটিং ও ট্র্যাকিং</div>
                 <a class="side-link {{ request()->route('module') === 'payments' ? 'active' : '' }}" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে <span class="draft-tag">ড্রাফট</span></a>
                 <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
-                <a class="side-link {{ request()->routeIs('admin.settings.delivery') ? 'active' : '' }}" href="{{ route('admin.settings.delivery') }}"><i class="fa-solid fa-truck-fast"></i> ডেলিভারি এরিয়া</a>
 
                 <div class="side-group-label">সাইট সাজানো</div>
                 <a class="side-link {{ request()->routeIs('admin.settings.content') ? 'active' : '' }}" href="{{ route('admin.settings.content') }}"><i class="fa-solid fa-pen-to-square"></i> ল্যান্ডিং কনটেন্ট</a>
@@ -574,6 +598,16 @@
         })();
     </script>
     @stack('scripts')
+    <script>
+        function toggleProductSub() {
+            var sub = document.getElementById('productSub');
+            sub.classList.toggle('open');
+            var btn = sub.previousElementSibling;
+            var chev = btn ? btn.querySelector('.side-chevron') : null;
+            if (chev) chev.classList.toggle('open');
+            btn.setAttribute('aria-expanded', sub.classList.contains('open') ? 'true' : 'false');
+        }
+    </script>
 </body>
 
 </html>
