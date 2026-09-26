@@ -80,6 +80,9 @@
                 <a href="{{ url('/#ds-why') }}" class="ds-nav-pill {{ ($nav ?? '') === 'why' ? 'active' : '' }}" data-en="{{ $navWhy['en'] }}">{{ $navWhy['bn'] }}</a>
                 <a href="{{ url('/#ds-reviews') }}" class="ds-nav-pill" data-en="{{ $navReviews['en'] }}">{{ $navReviews['bn'] }}</a>
                 <a href="{{ url('/#ds-faq') }}" class="ds-nav-pill" data-en="{{ $navFaq['en'] }}">{{ $navFaq['bn'] }}</a>
+                <a href="{{ route('track') }}" class="ds-nav-pill" onclick="openTrackModal();return false;">
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/><path d="M11 8a3 3 0 0 1 3 3"/></svg> <span data-en="Track">ট্র্যাক</span>
+                </a>
             </nav>
 
             <!-- Right Action Buttons -->
@@ -118,6 +121,9 @@
                 </a>
                 <a href="{{ url("/") }}#ds-faq" class="ds-mob-link" onclick="toggleMobileNav()">
                     <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> <span data-en="{{ $navFaq['en'] }}">{{ $navFaq['bn'] }}</span>
+                </a>
+                <a href="{{ route('track') }}" class="ds-mob-link" onclick="toggleMobileNav(); openTrackModal(); return false;">
+                    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/><path d="M11 8a3 3 0 0 1 3 3"/></svg> <span data-en="Track Order">অর্ডার ট্র্যাক করুন</span>
                 </a>
                 <div class="ds-mob-lang">
                     <div class="ds-lang-switch" role="group" aria-label="Language / ভাষা">
