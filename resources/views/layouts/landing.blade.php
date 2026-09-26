@@ -63,8 +63,8 @@
                     @endif
                 </span>
                 <span class="ds-logo-tx">
-                    <span data-lang="bn">{{ $settings['brand_bn1'] }}<em>{{ $settings['brand_bn2'] }}</em></span>
-                    <span data-lang="en">{{ $settings['brand_en1'] }}<em>{{ $settings['brand_en2'] }}</em></span>
+                    <span data-lang="bn">{{ $settings['brand_bn1'] ?? 'আচার' }}<em>{{ $settings['brand_bn2'] ?? 'বাড়ি' }}</em></span>
+                    <span data-lang="en">{{ $settings['brand_en1'] ?? 'Achar' }}<em>{{ $settings['brand_en2'] ?? 'Bari' }}</em></span>
                 </span>
                 <span class="ds-logo-pill">{{ $logoPill['bn'] }}</span>
             </a>
