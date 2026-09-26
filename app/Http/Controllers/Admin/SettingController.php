@@ -275,6 +275,51 @@ class SettingController extends Controller
         return back()->with('success', 'ল্যান্ডিং কনটেন্ট সেভ হয়েছে — ল্যান্ডিং পেজে দেখুন।');
     }
 
+    /** Payment: online payment (bKash / Nagad) on/off + send-money numbers. */
+    public function payment()
+    {
+        return view('admin.payment', [
+            'settings' => Setting::allCached(),
+        ]);
+    }
+
+    public function savePayment(Request $request)
+    {
+        $data = $request->validate([
+            'online_payment_enabled' => 'nullable|boolean',
+            'bkash_enabled' => 'nullable|boolean',
+            'bkash_mode' => 'nullable|in:sandbox,live',
+            'bkash_app_key' => 'nullable|string|max:120',
+            'bkash_app_secret' => 'nullable|string|max:120',
+            'bkash_username' => 'nullable|string|max:120',
+            'bkash_password' => 'nullable|string|max:120',
+            'nagad_enabled' => 'nullable|boolean',
+            'nagad_mode' => 'nullable|in:sandbox,live',
+            'nagad_merchant_id' => 'nullable|string|max:120',
+            'nagad_public_key' => 'nullable|string|max:5000',
+            'nagad_private_key' => 'nullable|string|max:5000',
+        ]);
+
+        Setting::setMany([
+            'online_payment_enabled' => $request->boolean('online_payment_enabled') ? '1' : '',
+            // bKash (Tokenized Checkout)
+            'bkash_enabled' => $request->boolean('bkash_enabled') ? '1' : '',
+            'bkash_mode' => $data['bkash_mode'] ?? 'sandbox',
+            'bkash_app_key' => trim($data['bkash_app_key'] ?? ''),
+            'bkash_app_secret' => trim($data['bkash_app_secret'] ?? ''),
+            'bkash_username' => trim($data['bkash_username'] ?? ''),
+            'bkash_password' => trim($data['bkash_password'] ?? ''),
+            // Nagad (PGW)
+            'nagad_enabled' => $request->boolean('nagad_enabled') ? '1' : '',
+            'nagad_mode' => $data['nagad_mode'] ?? 'sandbox',
+            'nagad_merchant_id' => trim($data['nagad_merchant_id'] ?? ''),
+            'nagad_public_key' => trim($data['nagad_public_key'] ?? ''),
+            'nagad_private_key' => trim($data['nagad_private_key'] ?? ''),
+        ]);
+
+        return back()->with('success', 'পেমেন্ট সেটিংস সেভ হয়েছে — চেকআউটে দেখুন।');
+    }
+
     /** Tracking pixels: FB / GA4 / GTM / TikTok. */
     public function tracking()
     {

@@ -186,10 +186,10 @@
                     </a>
                 </div>
                 <div class="lp-f-pay">
-                    <span class="img-chip"><img src="{{ asset('assets/img/pay/bkash.svg') }}" alt="bKash"></span>
-                    <span class="img-chip"><img src="{{ asset('assets/img/pay/nagad.svg') }}" alt="Nagad"></span>
-                    <span>Rocket</span>
-                    <span>Upay</span>
+                    @if (ab_online_payment())
+                        <span class="img-chip"><img src="{{ asset('assets/img/pay/bkash.svg') }}" alt="bKash"></span>
+                        <span class="img-chip"><img src="{{ asset('assets/img/pay/nagad.svg') }}" alt="Nagad"></span>
+                    @endif
                     <span data-en="Cash on Delivery">ক্যাশ অন ডেলিভারি</span>
                 </div>
             </div>

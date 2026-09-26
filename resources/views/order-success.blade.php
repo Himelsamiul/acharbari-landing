@@ -154,6 +154,15 @@
             <div class="sum-row"><span>ডেলিভারি চার্জ</span><span>৳{{ number_format($order->shipping_cost) }}</span></div>
             <div class="sum-row total"><span>সর্বমোট ({{ strtoupper($order->payment_method) }})</span>
                 <span>৳{{ number_format($order->total) }}</span></div>
+            @if ($order->payment_method !== 'cod')
+                @if ($order->payment_status === 'paid')
+                    <div class="sum-row" style="color:#059669;font-weight:700"><span>পেমেন্ট স্ট্যাটাস</span><span>পরিশোধ হয়েছে ✓ @if($order->payment_txn_id)<small style="display:block;color:#8b7355">TrxID: {{ $order->payment_txn_id }}</small>@endif</span></div>
+                @elseif ($order->payment_status === 'pending')
+                    <div class="sum-row" style="color:#b45309;font-weight:700"><span>পেমেন্ট স্ট্যাটাস</span><span>পেন্ডিং — পেমেন্ট সম্পন্ন হয়নি</span></div>
+                @else
+                    <div class="sum-row" style="color:#dc2626;font-weight:700"><span>পেমেন্ট স্ট্যাটাস</span><span>ব্যর্থ — আমাদের প্রতিনিধি কল করে পেমেন্ট নিশ্চিত করবেন</span></div>
+                @endif
+            @endif
             <div style="display:flex;gap:10px;margin-top:18px">
                 <a class="btn-home" style="flex:1" target="_blank" rel="noopener"
                     href="https://wa.me/{{ ab_contact('whatsapp') }}?text={{ rawurlencode('আসসালামু আলাইকুম! আমার অর্ডার #' . $order->order_code . ' কনফার্ম করতে চাই।') }}">

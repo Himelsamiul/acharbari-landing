@@ -507,7 +507,7 @@
                 </div>
                 <a class="side-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}" href="{{ route('admin.reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ</a>
 
-                <a class="side-link {{ request()->route('module') === 'payments' ? 'active' : '' }}" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে <span class="draft-tag">ড্রাফট</span></a>
+                <a class="side-link {{ request()->routeIs('admin.settings.payment') ? 'active' : '' }}" href="{{ route('admin.settings.payment') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে</a>
                 <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
 
                 @php
@@ -545,6 +545,8 @@
                 </div>
 
                 <div class="side-group-label">অ্যাকাউন্ট</div>
+
+                <a class="side-link {{ request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন ম্যানেজমেন্ট</a>
             </nav>
 
             <div class="side-foot">
@@ -578,7 +580,8 @@
                 <a class="side-link {{ request()->routeIs('admin.products') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
                 <a class="side-link" href="{{ route('admin.customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>
                 <a class="side-link" href="{{ route('admin.module', 'seo') }}"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO</a>
-                <a class="side-link" href="{{ route('admin.module', 'payments') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট</a>
+                <a class="side-link {{ request()->routeIs('admin.settings.payment') ? 'active' : '' }}" href="{{ route('admin.settings.payment') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট</a>
+                <a class="side-link {{ request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন</a>
             </nav>
 
             @if (session('success'))

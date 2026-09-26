@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderNotification;
 use App\Models\Product;
+use App\Services\Payment\BkashGateway;
+use App\Services\Payment\NagadGateway;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -15,13 +17,22 @@ class OrderController extends Controller
 {
     public function store(Request $request)
     {
+        // online methods follow the admin gateways — COD is always allowed (universal)
+        $payMethods = ['cod'];
+        if (BkashGateway::enabled()) {
+            $payMethods[] = 'bkash';
+        }
+        if (NagadGateway::enabled()) {
+            $payMethods[] = 'nagad';
+        }
+
         $data = $request->validate([
             'customer_name' => 'required|string|max:120',
             'phone' => 'required|string|min:10|max:15',
             'address' => 'required|string|max:500',
             'area' => 'required|in:inside,outside',
             'district' => 'nullable|string|max:100',
-            'payment_method' => 'required|in:cod,bkash,nagad,rocket,upay',
+            'payment_method' => 'required|in:' . implode(',', $payMethods),
             'coupon_code' => 'nullable|string|max:30',
             'items' => 'required|json',
         ]);
@@ -112,6 +123,7 @@ class OrderController extends Controller
                 'area' => $area,
                 'district' => $districtName !== '' ? $districtName : null,
                 'payment_method' => $data['payment_method'],
+                'payment_status' => in_array($data['payment_method'], ['bkash', 'nagad']) ? 'pending' : null,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'coupon_code' => $couponCode,
@@ -156,7 +168,38 @@ class OrderController extends Controller
             report($e); // SMTP configured না থাকলেও order flow থামবে না
         }
 
+        // API payment: hand the customer to the bKash / Nagad checkout page.
+        // The gateway redirects back to PaymentController, which verifies and flags paid/failed.
+        if (in_array($order->payment_method, ['bkash', 'nagad'])) {
+            $payUrl = $this->initiateGatewayPayment($order);
+
+            if ($payUrl) {
+                return redirect()->away($payUrl);
+            }
+
+            // gateway not ready / call failed — order stays, agent follows up on the call
+            $order->update(['payment_status' => 'failed']);
+        }
+
         return redirect()->route('order.success', $order->order_code);
+    }
+
+    /** Ask the chosen gateway for a checkout URL. */
+    private function initiateGatewayPayment(Order $order): ?string
+    {
+        try {
+            if ($order->payment_method === 'bkash' && BkashGateway::ready()) {
+                return BkashGateway::createPayment($order, route('payment.callback.bkash', $order->order_code))['bkashURL'] ?? null;
+            }
+
+            if ($order->payment_method === 'nagad' && NagadGateway::ready()) {
+                return NagadGateway::initialize($order, route('payment.callback.nagad', $order->order_code));
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return null;
     }
 
     public function success($code)

@@ -28,6 +28,10 @@ Route::post('/order', [OrderController::class, 'store'])->name('order.store');
 Route::get('/order/success/{code}', [OrderController::class, 'success'])->name('order.success');
 Route::get('/order/invoice/{code}', [OrderController::class, 'invoice'])->name('order.invoice');
 
+// Payment gateway return callbacks (bKash / Nagad redirect back here)
+Route::get('/payment/callback/bkash/{code}', [\App\Http\Controllers\PaymentController::class, 'bkashCallback'])->name('payment.callback.bkash');
+Route::get('/payment/callback/nagad/{code}', [\App\Http\Controllers\PaymentController::class, 'nagadCallback'])->name('payment.callback.nagad');
+
 // Admin auth
 Route::get('/admin/login', [Admin\AuthController::class, 'showLogin'])->name('admin.login');
 Route::post('/admin/login', [Admin\AuthController::class, 'login'])->name('admin.login.attempt');
@@ -97,6 +101,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/settings/content', [Admin\SettingController::class, 'saveContent'])->name('admin.settings.content.save');
     Route::get('/settings/tracking', [Admin\SettingController::class, 'tracking'])->name('admin.settings.tracking');
     Route::post('/settings/tracking/{key}', [Admin\SettingController::class, 'saveTracking'])->name('admin.settings.tracking.save');
+    Route::get('/settings/payment', [Admin\SettingController::class, 'payment'])->name('admin.settings.payment');
+    Route::post('/settings/payment', [Admin\SettingController::class, 'savePayment'])->name('admin.settings.payment.save');
     Route::get('/seo', [Admin\SeoController::class, 'index'])->name('admin.seo');
     Route::post('/seo', [Admin\SeoController::class, 'save'])->name('admin.seo.save');
     Route::get('/robots', [Admin\SeoController::class, 'robotsPage'])->name('admin.robots');
@@ -109,4 +115,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/sitemap/urls', [Admin\SitemapController::class, 'store'])->name('admin.sitemap.store');
     Route::post('/sitemap/urls/{url}/toggle', [Admin\SitemapController::class, 'toggle'])->name('admin.sitemap.toggle');
     Route::delete('/sitemap/urls/{url}', [Admin\SitemapController::class, 'destroy'])->name('admin.sitemap.destroy');
+
+    // admin management — list, create and remove admin logins
+    Route::get('/admin-management', [Admin\AdminManagerController::class, 'index'])->name('admin.admins.index');
+    Route::post('/admin-management', [Admin\AdminManagerController::class, 'store'])->name('admin.admins.store');
+    Route::delete('/admin-management/{user}', [Admin\AdminManagerController::class, 'destroy'])
+        ->name('admin.admins.destroy');
 });

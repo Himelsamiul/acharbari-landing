@@ -17,13 +17,6 @@ class ModuleController extends Controller
             'desc' => 'ডিসকাউন্ট কুপন তৈরি, সক্রিয়/নিষ্ক্রিয় ও ব্যবহারের হিসাব।',
             'features' => ['কুপন তৈরি ও এডিট', 'সক্রিয়/বন্ধ টগল', 'ব্যবহারের কাউন্ট', 'মেয়াদ ম্যানেজমেন্ট'],
         ],
-        'payments' => [
-            'name' => 'পেমেন্ট গেটওয়ে',
-            'icon' => 'fa-solid fa-credit-card',
-            'color' => '#e2136e',
-            'desc' => 'bKash, Nagad, Rocket, Upay ও SSLCommerz API সংযোগ।',
-            'features' => ['bKash Merchant API', 'Nagad / Rocket / Upay', 'SSLCommerz ইন্টিগ্রেশন', 'Sandbox / Live মোড'],
-        ],
         'fbpixel' => [
             'name' => 'Facebook Pixel',
             'icon' => 'fa-brands fa-facebook',

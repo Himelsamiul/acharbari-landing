@@ -507,9 +507,9 @@
                     $payT = ab_t('pay_method', 'পেমেন্ট মেথড', 'Payment Method');
                     $codT = ab_t('pay_cod', 'ক্যাশ অন ডেলিভারি', 'Cash On Delivery');
                     $codS = ab_t('pay_cod_sub', 'আগে পার্সেল দেখুন, তারপর টাকা দিন', 'Check the parcel first, then pay');
-                    $onlT = ab_t('pay_online', 'অনলাইন পেমেন্ট — বিকাশ / নগদ / রকেট / উপায়', 'Online Payment — bKash / Nagad / Rocket / Upay');
-                    $onlNA = ab_t('pay_online_note_a', 'অর্ডার কনফার্ম হওয়ার পর আমাদের প্রতিনিধি কল দিয়ে ', 'Our agent will call you after confirming the order with send-money instructions to ');
-                    $onlNB = ab_t('pay_online_note_b', ' নম্বরে সেন্ড মানির বিস্তারিত জানিয়ে দেবেন।', '.');
+                    $onlT = ab_t('pay_online', 'অনলাইন পেমেন্ট — বিকাশ / নগদ', 'Online Payment — bKash / Nagad');
+                    $onlNA = ab_t('pay_online_note_a', 'অর্ডার কনফার্ম করলে সরাসরি ', 'After confirming you go straight ');
+                    $onlNB = ab_t('pay_online_note_b', ' পেমেন্ট পেজে নিয়ে যাওয়া হবে — সেখানে পেমেন্ট শেষ করুন।', ' to the payment page to complete the payment.');
                     $confirmBtn = ab_t('confirm_order', 'অর্ডার কনফার্ম করুন', 'Confirm Order');
                     $tr1 = ab_t('trust_1', 'নিরাপদ অর্ডার', 'Secure order');
                     $tr2 = ab_t('trust_2', 'দেখে টাকা দিন', 'Pay after checking');
@@ -705,6 +705,7 @@
                                                     checked="" class="accent-emerald-600">
                                             </label>
                                         </div>
+                                        @if (ab_online_payment())
                                         <button type="button" class="pay-toggle" id="onlinePayToggle"
                                             onclick="toggleOnlinePay()">
                                             <span class="pay-toggle-l">
@@ -716,34 +717,29 @@
                                         <div class="pay-collapse" id="onlinePayWrap">
                                             <div class="pay-collapse-in">
                                                 <div class="grid grid-cols-2 gap-2">
+                                                    @if (\App\Services\Payment\BkashGateway::enabled())
                                                     <label class="pay-opt" style="--pbc:#e2136e">
                                                         <span class="pay-ic"><img src="{{ asset('assets/img/pay/bkash.svg') }}" alt="bKash"></span>
-                                                        <span class="pay-tx"><b>bKash</b><small data-en="Send money">সেন্ড মানি</small></span>
+                                                        <span class="pay-tx"><b>bKash</b><small data-en="Pay online">অনলাইনে পেমেন্ট</small></span>
                                                         <input type="radio" name="payment_method" value="bkash">
                                                     </label>
+                                                    @endif
+                                                    @if (\App\Services\Payment\NagadGateway::enabled())
                                                     <label class="pay-opt" style="--pbc:#f6921e">
                                                         <span class="pay-ic"><img src="{{ asset('assets/img/pay/nagad.svg') }}" alt="Nagad"></span>
-                                                        <span class="pay-tx"><b>Nagad</b><small data-en="Send money">সেন্ড মানি</small></span>
+                                                        <span class="pay-tx"><b>Nagad</b><small data-en="Pay online">অনলাইনে পেমেন্ট</small></span>
                                                         <input type="radio" name="payment_method" value="nagad">
                                                     </label>
-                                                    <label class="pay-opt" style="--pbc:#8c3494">
-                                                        <span class="pay-ic">Rk</span>
-                                                        <span class="pay-tx"><b>Rocket</b><small data-en="Send money">সেন্ড মানি</small></span>
-                                                        <input type="radio" name="payment_method" value="rocket">
-                                                    </label>
-                                                    <label class="pay-opt" style="--pbc:#d1202f">
-                                                        <span class="pay-ic">Up</span>
-                                                        <span class="pay-tx"><b>Upay</b><small data-en="Send money">সেন্ড মানি</small></span>
-                                                        <input type="radio" name="payment_method" value="upay">
-                                                    </label>
+                                                    @endif
                                                 </div>
                                                 <div id="payOnlineNote">
                                                     <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                                                    <span data-en="{{ $onlNA['en'] }}{{ ab_contact('phone') }}{{ $onlNB['en'] }}">
-                                                        {{ $onlNA['bn'] }}{{ ab_contact('phone') }}{{ $onlNB['bn'] }}</span>
+                                                    <span data-en="{{ $onlNA['en'] }}{{ $onlNB['en'] }}">
+                                                        {{ $onlNA['bn'] }}{{ $onlNB['bn'] }}</span>
                                                 </div>
                                             </div>
                                         </div>
+                                        @endif
                                     </div>
                                     <div id="payment-error" class="hidden mt-2 text-sm font-bold text-red-600">
                                         <span data-en="Please select a payment method.">অনুগ্রহ করে একটি পেমেন্ট মেথড সিলেক্ট করুন।</span>

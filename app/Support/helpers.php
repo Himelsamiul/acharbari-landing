@@ -44,6 +44,14 @@ if (!function_exists('ab_img_setting')) {
     }
 }
 
+if (!function_exists('ab_online_payment')) {
+    /** Whether the admin turned online payment (bKash / Nagad) on — COD stays available regardless. */
+    function ab_online_payment(): bool
+    {
+        return \App\Models\Setting::get('online_payment_enabled', '') === '1';
+    }
+}
+
 if (!function_exists('ab_charge')) {
     /** Numeric setting (delivery charges etc.) with default. */
     function ab_charge(string $key, int $default): int
