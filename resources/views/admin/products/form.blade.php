@@ -157,33 +157,7 @@
             </div>
         </div>
 
-        {{-- ===== 5. সাপ্লায়ার ===== --}}
-        <div class="card pf-card">
-            <h3><span class="pf-ic" style="--pc:#b45309"><i class="fa-solid fa-truck"></i></span> সাপ্লায়ার</h3>
-            <p class="desc">প্রোডাক্টটি কোন সাপ্লায়ারের কাছ থেকে নিয়েছেন — সাপ্লায়ার পেজে পারচেজ হিস্ট্রিতে দেখা যাবে</p>
-            <div class="fgrid">
-                <div class="a-field">
-                    <label>সাপ্লায়ার (ড্রপডাউন)</label>
-                    <select class="a-input" name="supplier_id">
-                        <option value="">— নির্বাচন করুন (ঐচ্ছিক) —</option>
-                        @foreach ($suppliers as $sup)
-                            <option value="{{ $sup->id }}" {{ old('supplier_id', $product->supplier_id) == $sup->id ? 'selected' : '' }}>
-                                {{ $sup->name }}{{ $sup->company ? ' — ' . $sup->company : '' }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                @if (! $product->exists)
-                    <div class="a-field">
-                        <label>প্রাথমিক একক ক্রয়মূল্য (৳)</label>
-                        <input class="a-input" type="number" name="purchase_cost" min="0" step="0.01"
-                            placeholder="যেমন: 250 — দিলে সাপ্লায়ারের পারচেজে অটো যোগ হবে">
-                    </div>
-                @endif
-            </div>
-        </div>
-
-        {{-- ===== 6. স্ট্যাটাস + SEO ===== --}}
+        {{-- ===== 5. স্ট্যাটাস + SEO ===== --}}
         <div class="card pf-card">
             <h3><span class="pf-ic" style="--pc:#16a34a"><i class="fa-solid fa-sliders"></i></span> স্ট্যাটাস ও SEO</h3>
             <p class="desc">লাইভ/ফিচার্ড স্ট্যাটাস ও ঐচ্ছিক SEO তথ্য</p>
