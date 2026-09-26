@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="bg" gradientTransform="rotate(120 .5 .5)">
+      <stop offset="0" stop-color="#059669"/><stop offset="1" stop-color="#064e3b"/>
+    </linearGradient>
+    <clipPath id="rc"><circle cx="100" cy="100" r="100"/></clipPath>
+  </defs>
+  <g clip-path="url(#rc)">
+    <rect width="200" height="200" fill="url(#bg)"/>
+    <circle cx="160" cy="40" r="60" fill="#ffffff" opacity=".14"/>
+    <circle cx="100" cy="86" r="30" fill="#ffffff" opacity=".9"/>
+    <path d="M50 170a50 42 0 0 1 100 0z" fill="#ffffff" opacity=".9"/>
+  </g>
+</svg>

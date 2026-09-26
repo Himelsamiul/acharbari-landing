@@ -17,6 +17,48 @@
         </div>
     @endif
 
+    {{-- ===== INDUSTRY PRESETS (10 genres) ===== --}}
+    <div class="card">
+        <h3><i class="fa-solid fa-store"></i> ইন্ডাস্ট্রি প্রিসেট</h3>
+        <p class="desc">এক ক্লিকে পুরো ওয়েবসাইট ওই ব্যবসার লুকে বদলে যাবে — থিমের রঙ, সব ছবি আর ডেমো কনটেন্টসহ। নিজে কাস্টমাইজ করা টেক্সট/ছবি থাকলে সিস্টেম আপনাকে জিজ্ঞেস করবে।</p>
+        <div class="industry-grid" id="industryGrid">
+            @foreach (\App\Http\Controllers\Admin\IndustryPack::all() as $key => $g)
+                <button type="button"
+                    class="industry-tile {{ ($industry ?? '') === $key ? 'active' : '' }}"
+                    data-key="{{ $key }}" onclick="pickIndustry('{{ $key }}')">
+                    <span class="it-ic"><i class="fa-solid {{ $g['icon'] }}"></i></span>
+                    <b>{{ $g['name_bn'] }}</b>
+                    <small>{{ $g['name_en'] }}</small>
+                    <span class="it-swatch">
+                        @foreach ($g['swatch'] as $c)<i style="background:{{ $c }}"></i>@endforeach
+                    </span>
+                    <span class="it-active"><i class="fa-solid fa-check"></i> চালু</span>
+                </button>
+            @endforeach
+        </div>
+
+        {{-- confirm panel --}}
+        <div class="ind-confirm" id="indConfirm" hidden>
+            <p><i class="fa-solid fa-triangle-exclamation"></i> <b id="indConfirmTitle"></b></p>
+            <p class="ind-confirm-note">আপনার বর্তমান কাস্টমাইজ করা কনটেন্ট (লেখা/ছবি) পরিবর্তিত হতে পারে।</p>
+            <div class="ind-confirm-actions">
+                <button type="button" class="a-btn" onclick="applyIndustry('full')" id="indApplyFull">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> প্রিসেট প্রয়োগ (থিম+ছবি+কনটেন্ট)
+                </button>
+                <button type="button" class="a-btn ghost" onclick="applyIndustry('visual')" id="indApplyVisual">
+                    <i class="fa-solid fa-palette"></i> শুধু লুক (থিম+ছবি)
+                </button>
+                <button type="button" class="a-btn ghost" onclick="cancelIndustry()">বাতিল</button>
+            </div>
+        </div>
+
+        @if (($industry ?? '') !== '')
+            <button type="button" class="a-btn ghost" style="margin-top:12px" onclick="clearIndustry()">
+                <i class="fa-solid fa-rotate-left"></i> ডিফল্ট আচারবাড়ি লুকে ফিরুন
+            </button>
+        @endif
+    </div>
+
     {{-- ===== LIVE LANDING PREVIEW ===== --}}
     <div class="card">
         <div class="lp-prev-head">
@@ -337,6 +379,40 @@
         }
         .lp-prev-frame iframe { display: block; width: 100%; height: 560px; border: 0; background: #fff; }
         .lp-prev-frame.mobile { max-width: 402px; margin-left: auto; margin-right: auto; }
+
+        /* ===== industry preset tiles ===== */
+        .industry-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 168px), 1fr)); gap: 12px; margin-top: 10px; }
+        .industry-tile {
+            position: relative; border: 2px solid rgba(5,150,105,.15); border-radius: 14px; padding: 14px 12px;
+            background: #fff; cursor: pointer; text-align: center; font-family: inherit;
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            transition: transform .15s, border-color .2s, box-shadow .2s;
+        }
+        .industry-tile:hover { transform: translateY(-3px); border-color: #059669; box-shadow: 0 14px 28px -16px rgba(6,78,59,.4); }
+        .industry-tile.active { border-color: #059669; background: rgba(5,150,105,.04); }
+        .it-ic {
+            width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+            font-size: 17px; margin-bottom: 6px;
+            background: linear-gradient(135deg, rgba(5,150,105,.14), rgba(163,230,53,.18));
+            color: #047857;
+        }
+        .industry-tile b { font-size: 12.5px; color: #12261d; line-height: 1.3; }
+        .industry-tile small { font-size: 10px; color: #8b7355; }
+        .it-swatch { display: flex; gap: 4px; margin-top: 6px; }
+        .it-swatch i { width: 13px; height: 13px; border-radius: 50%; display: block; border: 1px solid rgba(0,0,0,.08); }
+        .it-active { display: none; margin-top: 6px; font-size: 10.5px; font-weight: 800; color: #059669; }
+        .industry-tile.active .it-active { display: inline-flex; gap: 4px; align-items: center; }
+        .industry-tile.active::after {
+            content: ''; position: absolute; inset: -6px; border-radius: 18px; pointer-events: none;
+            border: 1.5px dashed rgba(5,150,105,.45);
+        }
+        .ind-confirm {
+            margin-top: 14px; background: #fffbeb; border: 1.5px dashed #f59e0b;
+            border-radius: 14px; padding: 14px 16px;
+        }
+        .ind-confirm p { margin: 0 0 6px; font-size: 13px; color: #92400e; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .ind-confirm-note { font-size: 11.5px; color: #a16207; }
+        .ind-confirm-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
     </style>
 @endsection
 
@@ -1006,6 +1082,58 @@
             postForm(FESTIVE_URL, fd)
                 .then(function () { showToast('উৎসব শিডিউল সেভ হয়েছে'); window.location.reload(); })
                 .catch(showErr);
+        }
+
+        /* ===== industry preset apply ===== */
+        var IND_SELECTED = null;
+
+        function pickIndustry(key) {
+            IND_SELECTED = key;
+            document.getElementById('indConfirmTitle').textContent =
+                '"' + key + '" ইন্ডাস্ট্রি প্রিসেট প্রয়োগ করতে চান?';
+            document.getElementById('indConfirm').hidden = false;
+            document.getElementById('indConfirm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        function cancelIndustry() {
+            IND_SELECTED = null;
+            document.getElementById('indConfirm').hidden = true;
+        }
+        function applyIndustry(mode) {
+            if (!IND_SELECTED) return;
+            var buttons = [document.getElementById('indApplyFull'), document.getElementById('indApplyVisual')];
+            buttons.forEach(function (b) { b.disabled = true; });
+            var fd = new FormData();
+            fd.append('_token', '{{ csrf_token() }}');
+            fd.append('industry', IND_SELECTED);
+            fd.append('mode', mode);
+            fetch('{{ route('admin.settings.industry.apply') }}', {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' },
+                body: fd
+            })
+                .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, json: j }; }); })
+                .then(function (res) {
+                    showToast(res.json.message || (res.ok ? 'প্রয়োগ হয়েছে' : 'ব্যর্থ'));
+                    if (res.ok) setTimeout(function () { window.location.reload(); }, 800);
+                    else buttons.forEach(function (b) { b.disabled = false; });
+                })
+                .catch(function () {
+                    buttons.forEach(function (b) { b.disabled = false; });
+                    showToast('নেটওয়ার্ক সমস্যা — আবার চেষ্টা করুন');
+                });
+        }
+        function clearIndustry() {
+            if (!confirm('ডিফল্ট আচারবাড়ি লুকে ফিরে যেতে হবে? (থিম হার্বাল গ্রিন হবে)')) return;
+            var fd = new FormData();
+            fd.append('_token', '{{ csrf_token() }}');
+            fetch('{{ route('admin.settings.industry.clear') }}', {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' },
+                body: fd
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (j) { showToast(j.message); setTimeout(function () { window.location.reload(); }, 700); })
+                .catch(function () { showToast('ব্যর্থ'); });
         }
     </script>
 @endpush

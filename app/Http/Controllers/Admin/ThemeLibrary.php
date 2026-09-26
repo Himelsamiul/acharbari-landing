@@ -177,6 +177,72 @@ class ThemeLibrary
                 'lime' => '#d4a437', 'limeNeon' => '#fcd34d', 'limeDeep' => '#57534e',
                 'teal' => '#78716c', 'tealLight' => '#d6d3d1',
             ],
+
+            /* ---------- Industry Preset themes ---------- */
+
+            'restaurant' => [
+                'bn' => 'রেস্টুরেন্ট অ্যাম্বার', 'en' => 'Restaurant Amber',
+                'primary' => '#c2410c', 'hover' => '#9a3412', 'dark' => '#7c2d12', 'xdark' => '#431407',
+                'accent' => '#ea580c', 'accentLight' => '#fdba74',
+                'lime' => '#f59e0b', 'limeNeon' => '#fbbf24', 'limeDeep' => '#9a3412',
+                'teal' => '#b91c1c', 'tealLight' => '#fecaca',
+            ],
+            'fashion' => [
+                'bn' => 'ফ্যাশন ক্যারাকোল', 'en' => 'Fashion Charcoal',
+                'primary' => '#1f2937', 'hover' => '#111827', 'dark' => '#0b1220', 'xdark' => '#060a12',
+                'accent' => '#9d174d', 'accentLight' => '#f9a8d4',
+                'lime' => '#d4a437', 'limeNeon' => '#e7c873', 'limeDeep' => '#713f12',
+                'teal' => '#4b5563', 'tealLight' => '#e5e7eb',
+            ],
+            'beauty' => [
+                'bn' => 'বিউটি রোজ প্লাম', 'en' => 'Beauty Rose Plum',
+                'primary' => '#db2777', 'hover' => '#be185d', 'dark' => '#831843', 'xdark' => '#500724',
+                'accent' => '#c026d3', 'accentLight' => '#f5d0fe',
+                'lime' => '#f472b6', 'limeNeon' => '#fbcfe8', 'limeDeep' => '#9d174d',
+                'teal' => '#a21caf', 'tealLight' => '#e9d5ff',
+            ],
+            'electronics' => [
+                'bn' => 'ইলেকট্রনিক্স নেভি সায়ান', 'en' => 'Electronics Navy Cyan',
+                'primary' => '#1d4ed8', 'hover' => '#1e40af', 'dark' => '#1e3a8a', 'xdark' => '#172554',
+                'accent' => '#06b6d4', 'accentLight' => '#67e8f9',
+                'lime' => '#22d3ee', 'limeNeon' => '#7dd3fc', 'limeDeep' => '#1e40af',
+                'teal' => '#0891b2', 'tealLight' => '#a5f3fc',
+            ],
+            'jewelry' => [
+                'bn' => 'জুয়েলারি গোল্ড চারকোল', 'en' => 'Jewelry Gold Charcoal',
+                'primary' => '#a16207', 'hover' => '#854d0e', 'dark' => '#292524', 'xdark' => '#0c0a09',
+                'accent' => '#d4a437', 'accentLight' => '#fcd34d',
+                'lime' => '#e7c873', 'limeNeon' => '#fde68a', 'limeDeep' => '#78350f',
+                'teal' => '#78716c', 'tealLight' => '#e7e5e4',
+            ],
+            'furniture' => [
+                'bn' => 'ফার্নিচার উড ওলিভ', 'en' => 'Furniture Wood Olive',
+                'primary' => '#8b5e34', 'hover' => '#6f4a28', 'dark' => '#4a3421', 'xdark' => '#2b1e13',
+                'accent' => '#b08968', 'accentLight' => '#e6ccb8',
+                'lime' => '#808c5c', 'limeNeon' => '#a3b18a', 'limeDeep' => '#5c4d3c',
+                'teal' => '#857b6f', 'tealLight' => '#e3dccf',
+            ],
+            'healthcare' => [
+                'bn' => 'হেলথকেয়ার মেডিক্যাল ব্লু', 'en' => 'Healthcare Medical Blue',
+                'primary' => '#0284c7', 'hover' => '#0369a1', 'dark' => '#075985', 'xdark' => '#0c4a6e',
+                'accent' => '#0ea5e9', 'accentLight' => '#7dd3fc',
+                'lime' => '#14b8a6', 'limeNeon' => '#5eead4', 'limeDeep' => '#0c4a6e',
+                'teal' => '#06b6d4', 'tealLight' => '#cffafe',
+            ],
+            'education' => [
+                'bn' => 'এডুকেশন রয়্যাল ইন্ডিগো', 'en' => 'Education Royal Indigo',
+                'primary' => '#4f46e5', 'hover' => '#4338ca', 'dark' => '#3730a3', 'xdark' => '#1e1b4b',
+                'accent' => '#7c3aed', 'accentLight' => '#c4b5fd',
+                'lime' => '#38bdf8', 'limeNeon' => '#7dd3fc', 'limeDeep' => '#312e81',
+                'teal' => '#8b5cf6', 'tealLight' => '#ddd6fe',
+            ],
+            'travel' => [
+                'bn' => 'ট্রাভেল ওশান সানসেট', 'en' => 'Travel Ocean Sunset',
+                'primary' => '#0e7490', 'hover' => '#155e75', 'dark' => '#164e63', 'xdark' => '#083344',
+                'accent' => '#f97316', 'accentLight' => '#fdba74',
+                'lime' => '#14b8a6', 'limeNeon' => '#5eead4', 'limeDeep' => '#155e75',
+                'teal' => '#0ea5e9', 'tealLight' => '#bae6fd',
+            ],
         ];
     }
 

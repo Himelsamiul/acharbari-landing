@@ -110,6 +110,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/settings/content', [Admin\SettingController::class, 'content'])->name('admin.settings.content');
     Route::post('/settings/content', [Admin\SettingController::class, 'saveContent'])->name('admin.settings.content.save');
     Route::get('/settings/sections', [Admin\SettingController::class, 'sections'])->name('admin.settings.sections');
+    Route::post('/settings/industry', [Admin\SettingController::class, 'applyIndustry'])->name('admin.settings.industry.apply');
+    Route::post('/settings/industry/clear', [Admin\SettingController::class, 'clearIndustry'])->name('admin.settings.industry.clear');
     Route::post('/settings/sections', [Admin\SettingController::class, 'saveSections'])->name('admin.settings.sections.save');
     Route::get('/settings/tracking', [Admin\SettingController::class, 'tracking'])->name('admin.settings.tracking');
     Route::post('/settings/tracking/{key}', [Admin\SettingController::class, 'saveTracking'])->name('admin.settings.tracking.save');

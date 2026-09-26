@@ -90,6 +90,7 @@ class SettingController extends Controller
             'styleRadius' => Setting::get('style_radius', 'default'),
             'styleShadow' => Setting::get('style_shadow', 'default'),
             'festive' => \App\Http\Controllers\Admin\ThemeLibrary::festiveSchedule(),
+            'industry' => Setting::get('industry', ''),
             'activeFestive' => \App\Http\Controllers\Admin\ThemeLibrary::activeFestive(),
             'logoUrl' => Setting::get('logo_path', '') ? asset(Setting::get('logo_path')) : '',
         ]);
@@ -583,5 +584,126 @@ class SettingController extends Controller
         Setting::set('pixels_json', json_encode($all));
 
         return back()->with('success', 'ট্র্যাকিং সেটিংস সেভ হয়েছে (ডেমো)।');
+    }
+    /* ================= Industry Preset System ================= */
+
+    /** Apply a full industry brand pack (theme + images + demo content + demo products). */
+    public function applyIndustry(Request $request)
+    {
+        $data = $request->validate([
+            'industry' => 'required|string',
+            'mode'     => 'required|in:full,visual',
+        ]);
+
+        $key = $data['industry'];
+        if (!\App\Http\Controllers\Admin\IndustryPack::valid($key)) {
+            return response()->json(['ok' => false, 'message' => 'অজানা ইন্ডাস্ট্রি — প্রয়োগ করা হয়নি।'], 422);
+        }
+
+        $pack = \App\Http\Controllers\Admin\IndustryPack::all()[$key];
+
+        // rollback copy of the current identity state
+        Setting::set('industry_prev', json_encode([
+            'industry'   => Setting::get('industry', ''),
+            'theme_id'   => Setting::get('theme_id', ''),
+            'theme_json' => Setting::get('theme_json', ''),
+        ], JSON_UNESCAPED_UNICODE));
+
+        // 1) theme (history stack so the admin can roll back from the theme page)
+        \App\Http\Controllers\Admin\ThemeLibrary::pushHistory();
+        $theme = \App\Http\Controllers\Admin\ThemeLibrary::get($pack['theme']);
+        Setting::setMany([
+            'industry'   => $key,
+            'theme_id'   => $pack['theme'],
+            'theme_json' => json_encode($theme, JSON_UNESCAPED_UNICODE),
+        ]);
+
+        // 2) hero images come from the genre pack (explicit settings — visible/editable later)
+        $heroPairs = [];
+        foreach (\App\Http\Controllers\Admin\IndustryPack::slots() as $slotKey => $file) {
+            $heroPairs[$slotKey] = 'assets/img/genres/' . $key . '/' . $file;
+        }
+
+        // 3) demo content (full mode only — visual mode preserves admin text)
+        $contentPairs = [];
+        if ($data['mode'] === 'full') {
+            $slides = \App\Http\Controllers\Admin\IndustryPack::heroSlides($key);
+            foreach ($slides as $sk => $sv) {
+                if ($sv !== null) $pack['content'][$sk] = $sv;
+            }
+            foreach ($pack['content'] as $k => $v) {
+                $contentPairs[$k . '_bn'] = $v[0];
+                $contentPairs[$k . '_en'] = $v[1];
+            }
+            $contentPairs['marquee_items'] = json_encode(array_map(
+                fn ($m) => ['bn' => $m[0], 'en' => $m[1]],
+                \App\Http\Controllers\Admin\IndustryPack::marquee($key)
+            ), JSON_UNESCAPED_UNICODE);
+            $contentPairs['reviews_items'] = json_encode(\App\Http\Controllers\Admin\IndustryPack::reviews($key), JSON_UNESCAPED_UNICODE);
+        }
+
+        Setting::setMany($contentPairs + $heroPairs);
+
+        // 4) demo products + their categories (managed `demo-` slugs only — real products untouched)
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($key, $pack) {
+                $active = [];
+                foreach (\App\Http\Controllers\Admin\IndustryPack::products($key) as $i => $p) {
+                    $slug = $p['slug'];
+                    $active[] = $slug;
+                    \App\Models\Product::updateOrCreate(['slug' => $slug], [
+                        'name' => $p['name'], 'name_en' => $p['name_en'],
+                        'category' => $p['category'], 'category_en' => $p['category_en'], 'category_key' => $p['category_key'],
+                        'unit' => 'pcs', 'stock' => 50,
+                        'barcode' => strtoupper('GEN-' . substr(md5($p['slug']), 0, 6)),
+                        'price' => $p['price'], 'old_price' => $p['old_price'],
+                        'vat_percent' => 0,
+                        'discount_bn' => '-২৫% ছাড়', 'discount_en' => '-25% Off',
+                        'stock_badge' => 'স্টকে আছে', 'stock_badge_en' => 'In Stock',
+                        'description' => $p['desc'], 'description_en' => $p['desc_en'],
+                        'rating' => 5, 'reviews_count' => 24, 'sort_order' => 10 + $i,
+                        'is_active' => true, 'is_featured' => $i === 0,
+                        'image' => $p['image'], 'image_alt' => $p['name'],
+                    ]);
+                }
+
+                // managed demo slugs of OTHER genres get deactivated (stale state clean-up)
+                foreach (\App\Models\Product::where('slug', 'like', 'demo-%')->get() as $demo) {
+                    if (!in_array($demo->slug, $active, true)) {
+                        $demo->update(['is_active' => false]);
+                    }
+                }
+
+                // genre categories (dynamic filter pills pick them up)
+                $cats = [];
+                foreach (\App\Http\Controllers\Admin\IndustryPack::products($key) as $p) {
+                    $cats[$p['category_key']] = [$p['category'], $p['category_en']];
+                }
+                foreach ($cats as $ck => [$bn, $en]) {
+                    \App\Models\Category::updateOrCreate(['key' => $ck], ['name' => $bn, 'name_en' => $en, 'is_active' => true]);
+                }
+            });
+        } catch (\Throwable $e) {
+            return response()->json(['ok' => false, 'message' => 'ডেমো প্রোডাক্ট সিঙ্ক ব্যর্থ: ' . $e->getMessage()], 500);
+        }
+
+        return response()->json(['ok' => true, 'message' => $pack['name_bn'] . ' প্রিসেট প্রয়োগ হয়েছে — ল্যান্ডিং পেজে দেখুন।']);
+    }
+
+    /** Clear the industry preset — back to the default AcharBari look. */
+    public function clearIndustry()
+    {
+        Setting::setMany(array_merge([
+            'industry'      => '',
+            'theme_id'      => 'herbal',
+            'theme_json'    => json_encode(\App\Http\Controllers\Admin\ThemeLibrary::get('herbal'), JSON_UNESCAPED_UNICODE),
+            'reviews_items' => '',
+            'marquee_items' => '',
+        ], array_fill_keys(array_keys(\App\Http\Controllers\Admin\IndustryPack::slots()), '')));
+
+        // hide genre demo products; the default AcharBari products come back on top
+        \App\Models\Product::where('slug', 'like', 'demo-%')->update(['is_active' => false]);
+
+        return response()->json(['ok' => true, 'message' => 'ডিফল্ট আচারবাড়ি লুকে ফিরে এসেছে।']);
     }
 }

@@ -4,9 +4,35 @@ if (!function_exists('ab_img')) {
     /** Prefer an existing .webp sibling of the image (falls back to the original). */
     function ab_img(string $path): string
     {
+        // Industry preset: prefer a genre-pack asset with the same basename when present
+        $industry = ab_industry();
+        if ($industry !== '' && str_starts_with($path, 'assets/img/')) {
+            $candidate = 'assets/img/genres/' . $industry . '/' . preg_replace('/\.(jpe?g|png|webp)$/i', '.svg', basename($path));
+            if (is_file(public_path($candidate))) return $candidate;
+        }
+
         $webp = preg_replace('/\.(jpe?g|png)$/i', '.webp', $path);
 
         return ($webp !== $path && is_file(public_path($webp))) ? $webp : $path;
+    }
+}
+
+if (!function_exists('ab_industry')) {
+    /** Active industry-preset key ('' = default AcharBari look). Preview override: ?industry=<key>. */
+    function ab_industry(): string
+    {
+        static $cached = null;
+        if ($cached !== null) return $cached;
+
+        $key = trim((string) \App\Models\Setting::get('industry', ''));
+        if (!\App\Http\Controllers\Admin\IndustryPack::valid($key)) $key = '';
+
+        $preview = request()?->query('industry');
+        if ($preview !== null && \App\Http\Controllers\Admin\IndustryPack::valid($preview)) {
+            $key = $preview;
+        }
+
+        return $cached = $key;
     }
 }
 
@@ -39,8 +65,20 @@ if (!function_exists('ab_img_setting')) {
     function ab_img_setting(string $key, string $defaultPath): string
     {
         $v = trim((string) \App\Models\Setting::get($key, ''));
+        if ($v !== '') return asset($v);
 
-        return $v !== '' ? asset($v) : asset(ab_img($defaultPath));
+        // Industry preset: try the genre image pack before the bundled default
+        $industry = ab_industry();
+        if ($industry !== '') {
+            $slot = \App\Http\Controllers\Admin\IndustryPack::slotFor($industry, $key)
+                ?? preg_replace('/\.(jpe?g|png|webp)$/i', '.svg', basename($defaultPath));
+            if ($slot !== null) {
+                $candidate = 'assets/img/genres/' . $industry . '/' . $slot;
+                if (is_file(public_path($candidate))) return asset($candidate);
+            }
+        }
+
+        return asset(ab_img($defaultPath));
     }
 }
 

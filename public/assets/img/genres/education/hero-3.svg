@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef2ff"/><stop offset="1" stop-color="#ddd6fe"/>
+    </linearGradient>
+    <linearGradient id="ac" gradientTransform="rotate(305 .5 .5)">
+      <stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#7dd3fc"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".7" cy=".2" r=".9">
+      <stop offset="0" stop-color="#7dd3fc" stop-opacity=".55"/><stop offset="1" stop-color="#7dd3fc" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="640" cy="90" r="260" fill="url(#glow)"/>
+  <circle cx="110" cy="520" r="180" fill="#4f46e5" opacity=".12"/>
+  <circle cx="690" cy="430" r="90" fill="#7dd3fc" opacity=".2"/>
+  <circle cx="230" cy="120" r="46" fill="#7dd3fc" opacity=".3"/>
+  <g transform="translate(300 150) scale(2)" fill="url(#ac)" opacity=".95">
+    <path d="M20 46a30 22 0 0 1 60 0v4H20zM14 50h72v8H14zM50 24v22"/>
+  </g>
+  <rect x="240" y="470" width="320" height="10" rx="5" fill="#4f46e5" opacity=".35"/>
+  <rect x="300" y="492" width="200" height="8" rx="4" fill="#4f46e5" opacity=".2"/>
+</svg>

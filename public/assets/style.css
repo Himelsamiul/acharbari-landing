@@ -7410,3 +7410,117 @@ details.ds-faq[open] summary i { transform: rotate(180deg); }
 .gw-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); }
 .preset-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 168px), 1fr)); }
 .stat-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 215px), 1fr)); }
+
+/* ============================================================
+   NAVBAR V2 — SLEEK ATTACHED TOP BAR
+   Edge-to-edge glass + theme-gradient hairline + underline nav
+   (appended last: overrides the floating-capsule design above)
+   ============================================================ */
+.ds-header-wrap {
+    top: 0;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.82);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(var(--ds-primary-rgb, 5, 150, 105), 0.1);
+}
+
+.ds-header-bar {
+    max-width: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    padding: 12px clamp(16px, 4vw, 44px);
+    gap: 18px;
+}
+
+/* theme-gradient hairline on the very top edge */
+.ds-header-bar::before {
+    inset: 0 0 auto 0;
+    height: 3px;
+    padding: 0;
+    border-radius: 0;
+    -webkit-mask: none;
+    mask: none;
+    background: linear-gradient(90deg, var(--ds-primary), var(--ds-accent) 35%, var(--ds-lime-neon) 65%, var(--ds-primary));
+    opacity: 0.95;
+}
+
+/* compact + lifted once scrolled */
+.ds-header-bar.scrolled,
+.ds-header-wrap:has(.ds-header-bar.scrolled) {
+    box-shadow: 0 14px 34px -22px rgba(var(--ds-primary-dark-rgb, 6, 78, 59), 0.5);
+}
+
+.ds-header-bar.scrolled {
+    background: transparent;
+    transform: none;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* nav: clean text links, truly centered, underline indicator */
+.ds-nav-pill-track {
+    background: transparent;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    gap: 26px;
+    margin: 0 auto;
+}
+
+.ds-nav-pill {
+    background: transparent;
+    padding: 6px 2px;
+    border-radius: 0;
+    color: #47555e;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+    gap: 7px;
+}
+
+.ds-nav-pill:hover {
+    color: var(--ds-primary);
+    background: transparent;
+    box-shadow: none;
+}
+
+.ds-nav-pill.active {
+    color: var(--ds-primary);
+    background: transparent;
+    box-shadow: none;
+    font-weight: 800;
+}
+
+.ds-nav-pill::after {
+    left: 0;
+    right: 0;
+    bottom: 3px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--ds-primary), var(--ds-accent));
+}
+
+.ds-nav-pill-seller {
+    background: transparent;
+    border: 0;
+    color: var(--ds-primary-hover);
+}
+
+.ds-nav-pill-seller:hover {
+    background: transparent;
+    box-shadow: none;
+    color: var(--ds-primary);
+}
+
+@media (max-width: 900px) {
+    .ds-header-bar {
+        padding-top: 9px;
+        padding-bottom: 9px;
+    }
+}
