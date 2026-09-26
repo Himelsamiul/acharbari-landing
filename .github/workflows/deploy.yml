@@ -22,6 +22,9 @@ jobs:
           lftp -u "$FTP_USER","$FTP_PASS" ftp://khorak.shop << 'SCRIPT'
             set ftp:ssl-allow yes
             set ftp:ssl-protect-data yes
+            # shared hosting er FTP cert hostname match kore na —
+            # user-approved: encryption thake, shudhu identity check off
+            set ssl:verify-certificate no
             set net:max-retries 3
             set net:timeout 30
             mirror -R --verbose \
