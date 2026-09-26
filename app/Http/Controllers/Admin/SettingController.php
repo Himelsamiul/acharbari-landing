@@ -42,6 +42,12 @@ class SettingController extends Controller
             'contact_whatsapp' => 'nullable|string|max:255',
             'contact_messenger' => 'nullable|string|max:60',
             'contact_facebook' => 'nullable|url|max:255',
+        ], [
+            'brand_bn1.required' => 'ব্র্যান্ডের বাংলা নামের প্রথম অংশ দিন।',
+            'brand_en1.required' => 'ব্র্যান্ডের English নামের Part 1 দিন।',
+            'contact_phone.max' => 'ফোন নম্বরটি খুব লম্বা — সর্বোচ্চ ২০ অক্ষর।',
+            'contact_facebook.url' => 'Facebook লিংকটি পুরো লিখুন — শুরুতে https:// থাকতে হবে (যেমন: https://facebook.com/yourpage)।',
+            'contact_facebook.max' => 'Facebook লিংকটি খুব লম্বা।',
         ]);
 
         $pairs = [

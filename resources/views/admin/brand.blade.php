@@ -5,9 +5,15 @@
 @section('page_sub', 'লোগো আপলোড ও ব্র্যান্ডের নাম পরিবর্তন')
 
 @section('content')
+    @if ($errors->any())
+        <div class="alert-success" style="background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.3);color:#dc2626">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ $errors->first() }}
+        </div>
+    @endif
+
     <div class="note-banner">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
-        <span>লোগো, ব্র্যান্ডের নাম বা যোগাযোগের তথ্য বদলালে <b>সাথে সাথে</b> ল্যান্ডিং পেজে দেখা যাবে।</span>
+        <span>লোগো, ব্র্যান্ডের নাম বা যোগাযোগের তথ্য বদলালে <b>সাথে সাথে</b> ল্যান্ডিং পেজে দেখা যাবে। যোগাযোগের ঘর <b>খালি রাখলে</b> সাইটের ডিফল্ট নম্বর ব্যবহার হবে।</span>
     </div>
 
     <div class="brand-grid-top">
@@ -75,65 +81,64 @@
         </div>
     </div>
 
-    {{-- ===== BRAND NAME ===== --}}
-    <div class="card brand-card">
-        <h3><span class="brand-ic" style="--bc:#d97706"><i class="fa-solid fa-spell-check"></i></span> ব্র্যান্ডের নাম</h3>
-        <p class="desc">লোগোর পাশের টেক্সট — প্রথম অংশ সাধারণ, দ্বিতীয় অংশ অ্যাকসেন্ট রঙে দেখায়</p>
-        <div class="brand-preview-strip">
-            <span class="bp-part">{{ $settings['brand_bn1'] ?? 'আচার' }}</span><span class="bp-part accent">{{ $settings['brand_bn2'] ?? 'বাড়ি' }}</span>
-            <small>← এভাবে দেখাবে (লাইভ প্রিভিউ)</small>
-        </div>
-        <form method="POST" action="{{ route('admin.settings.brand.save') }}">
-            @csrf
+    {{-- ===== ব্র্যান্ড নাম + যোগাযোগ: একটাই ফর্ম ===== --}}
+    <form method="POST" action="{{ route('admin.settings.brand.save') }}">
+        @csrf
+        <div class="card brand-card">
+            <h3><span class="brand-ic" style="--bc:#d97706"><i class="fa-solid fa-spell-check"></i></span> ব্র্যান্ডের নাম</h3>
+            <p class="desc">লোগোর পাশের টেক্সট — প্রথম অংশ সাধারণ, দ্বিতীয় অংশ অ্যাকসেন্ট রঙে দেখায়</p>
+            <div class="brand-preview-strip">
+                <span class="bp-part">{{ $settings['brand_bn1'] ?? 'আচার' }}</span><span class="bp-part accent">{{ $settings['brand_bn2'] ?? 'বাড়ি' }}</span>
+                <small>← এভাবে দেখাবে (লাইভ প্রিভিউ)</small>
+            </div>
             <div class="brand-grid">
                 <div class="a-field">
-                    <label>বাংলা নাম — প্রথম অংশ</label>
-                    <input class="a-input" name="brand_bn1" value="{{ $settings['brand_bn1'] ?? 'আচার' }}">
+                    <label>বাংলা নাম — প্রথম অংশ *</label>
+                    <input class="a-input" name="brand_bn1" value="{{ old('brand_bn1', $settings['brand_bn1'] ?? 'আচার') }}" required>
                 </div>
                 <div class="a-field">
                     <label>বাংলা নাম — দ্বিতীয় অংশ (রঙিন)</label>
-                    <input class="a-input" name="brand_bn2" value="{{ $settings['brand_bn2'] ?? 'বাড়ি' }}">
+                    <input class="a-input" name="brand_bn2" value="{{ old('brand_bn2', $settings['brand_bn2'] ?? 'বাড়ি') }}">
                 </div>
                 <div class="a-field">
-                    <label>English — Part 1</label>
-                    <input class="a-input" name="brand_en1" value="{{ $settings['brand_en1'] ?? 'Achar' }}">
+                    <label>English — Part 1 *</label>
+                    <input class="a-input" name="brand_en1" value="{{ old('brand_en1', $settings['brand_en1'] ?? 'Achar') }}" required>
                 </div>
                 <div class="a-field">
                     <label>English — Part 2 (Accent)</label>
-                    <input class="a-input" name="brand_en2" value="{{ $settings['brand_en2'] ?? 'Bari' }}">
+                    <input class="a-input" name="brand_en2" value="{{ old('brand_en2', $settings['brand_en2'] ?? 'Bari') }}">
                 </div>
             </div>
-            <button class="a-btn"><i class="fa-solid fa-floppy-disk"></i> ব্র্যান্ড নাম সেভ করুন</button>
-        </form>
-    </div>
+        </div>
 
-    {{-- ===== CONTACT INFO ===== --}}
-    <div class="card brand-card">
-        <h3><span class="brand-ic" style="--bc:#0ea5e9"><i class="fa-solid fa-address-book"></i></span> যোগাযোগের তথ্য</h3>
-        <p class="desc">ফুটার, চ্যাট উইজেট ও কল-টু-অ্যাকশন বাটনে এই নম্বর/লিংকগুলো ব্যবহৃত হয়</p>
-        <form method="POST" action="{{ route('admin.settings.brand.save') }}">
-            @csrf
+        <div class="card brand-card">
+            <h3><span class="brand-ic" style="--bc:#0ea5e9"><i class="fa-solid fa-address-book"></i></span> যোগাযোগের তথ্য</h3>
+            <p class="desc">ফুটার, চ্যাট উইজেট ও কল-টু-অ্যাকশনে ব্যবহৃত হয় • খালি রাখলে ডিফল্ট নম্বর কাজ করবে</p>
             <div class="brand-grid">
                 <div class="a-field">
                     <label><i class="fa-solid fa-phone contact-ic"></i> হটলাইন ফোন</label>
-                    <input class="a-input" name="contact_phone" value="{{ $settings['contact_phone'] ?? '01707373692' }}" placeholder="01707373692">
+                    <input class="a-input" name="contact_phone" value="{{ old('contact_phone', $settings['contact_phone'] ?? '') }}" placeholder="01XXXXXXXXX">
                 </div>
                 <div class="a-field">
                     <label><i class="fa-brands fa-whatsapp contact-ic wa"></i> WhatsApp — নম্বর বা পুরো লিংক</label>
-                    <input class="a-input" name="contact_whatsapp" value="{{ $settings['contact_whatsapp'] ?? '8801707373692' }}" placeholder="8801707373692 অথবা https://wa.me/8801707373692">
+                    <input class="a-input" name="contact_whatsapp" value="{{ old('contact_whatsapp', $settings['contact_whatsapp'] ?? '') }}" placeholder="01XXXXXXXXX অথবা https://wa.me/01XXXXXXXXX">
                 </div>
                 <div class="a-field">
                     <label><i class="fa-brands fa-facebook-messenger contact-ic ms"></i> Messenger — ইউজারনেম বা লিংক</label>
-                    <input class="a-input" name="contact_messenger" value="{{ $settings['contact_messenger'] ?? 'AcharBari' }}" placeholder="AcharBari অথবা https://m.me/AcharBari">
+                    <input class="a-input" name="contact_messenger" value="{{ old('contact_messenger', $settings['contact_messenger'] ?? '') }}" placeholder="পেজের ইউজারনেম অথবা https://m.me/username">
                 </div>
                 <div class="a-field">
                     <label><i class="fa-brands fa-facebook contact-ic fb"></i> Facebook পেজ URL</label>
-                    <input class="a-input" name="contact_facebook" value="{{ $settings['contact_facebook'] ?? '' }}" placeholder="https://facebook.com/yourpage">
+                    <input class="a-input" name="contact_facebook" value="{{ old('contact_facebook', $settings['contact_facebook'] ?? '') }}" placeholder="https://facebook.com/yourpage">
                 </div>
             </div>
-            <button class="a-btn"><i class="fa-solid fa-floppy-disk"></i> যোগাযোগ সেভ করুন</button>
-        </form>
-    </div>
+            <p class="desc">⚠️ Facebook লিংক দিলে <b>https://</b> সহ পুরো লিংক লিখুন — না হলে সেভ হবে না এবং উপরে এরর দেখাবে।</p>
+        </div>
+
+        <button class="a-btn" style="padding:13px 30px;font-size:14.5px">
+            <i class="fa-solid fa-floppy-disk"></i> ব্র্যান্ড ও যোগাযোগ সেভ করুন
+        </button>
+    </form>
 
     <style>
         .brand-card { margin-bottom: 18px; }
@@ -155,9 +160,9 @@
         .logo-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
         .brand-hint { font-size: 11.5px; color: #8b7355; margin: 4px 0 0; }
         .brand-preview-strip {
-            display: flex; align-items: baseline; gap: 2px; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 2px; margin-bottom: 16px;
             background: rgba(5, 150, 105, .04); border: 1px solid rgba(5, 150, 105, .12);
-            border-radius: 12px; padding: 12px 18px; align-items: center;
+            border-radius: 12px; padding: 12px 18px;
         }
         .bp-part { font-size: 22px; font-weight: 800; color: #12261d; }
         .bp-part.accent { color: #059669; }
