@@ -43,7 +43,9 @@ class OrderController extends Controller
         }
 
         $productIds = array_map(fn ($i) => (int) $i['id'], $items);
-        $products = Product::whereIn('id', $productIds)->where('is_active', true)->get()->keyBy('id');
+        // industry scoping: landing only sells the active industry's products —
+        // hidden (other-industry) ids must not be orderable either
+        $products = Product::whereIn('id', $productIds)->where('is_active', true)->forIndustry()->get()->keyBy('id');
 
         $subtotal = 0;
         $vatTotal = 0;
