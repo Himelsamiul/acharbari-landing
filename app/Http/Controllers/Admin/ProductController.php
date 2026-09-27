@@ -13,9 +13,16 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::orderBy('sort_order')->get();
+        // ডিফল্টে চালু ইন্ডাস্ট্রির প্রোডাক্ট — ফিল্টার দিয়ে অন্য ইন্ডাস্ট্রিও দেখা যায়
+        $currentIndustry = ab_industry_active();
+        $filter = IndustryPack::valid((string) $request->query('industry'))
+            ? $request->query('industry')
+            : null;
+        $viewIndustry = $filter ?? $currentIndustry;
+
+        $products = Product::forIndustry($viewIndustry)->orderBy('sort_order')->get();
         $ids = $products->pluck('id');
 
         // dependency tracking: kon product e order/purchase ase — delete er age dekhano lage
@@ -28,12 +35,14 @@ class ProductController extends Controller
             ->groupBy('product_id')
             ->pluck('c', 'product_id');
 
-        return view('admin.products.index', compact('products', 'orderCounts', 'purchaseCounts'));
+        return view('admin.products.index', compact(
+            'products', 'orderCounts', 'purchaseCounts', 'currentIndustry', 'viewIndustry'
+        ) + ['industries' => IndustryPack::all()]);
     }
 
     public function create()
     {
-        $categories = Category::all();
+        $categories = Category::forIndustry(ab_industry_active())->orderBy('id')->get();
         $brands = Brand::all();
 
         return view('admin.products.form', [
@@ -47,7 +56,9 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $this->validateProduct($request);
-        $data = $this->handleUpload($request, $data);
+        // নতুন প্রোডাক্ট অটো চালু ইন্ডাস্ট্রিতে ট্যাগ হয়
+        $data['industry'] = ab_industry_active();
+        $data = $this->handleUpload($request, $data, $data['industry']);
         // barcode: admin typed nijer moto — khali rakhle auto-generate hobe
         $data['barcode'] = trim((string) ($data['barcode'] ?? '')) !== '' ? $data['barcode'] : $this->nextBarcode();
         $data['supplier_id'] = $request->filled('supplier_id') ? (int) $request->input('supplier_id') : null;
@@ -75,7 +86,7 @@ class ProductController extends Controller
     {
         return view('admin.products.form', [
             'product' => $product,
-            'categories' => Category::all(),
+            'categories' => Category::forIndustry($product->industry ?: ab_industry_active())->orderBy('id')->get(),
             'brands' => Brand::all(),
             'suppliers' => Supplier::orderBy('name')->get(),
         ]);
@@ -84,7 +95,8 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $data = $this->validateProduct($request, $product);
-        $data = $this->handleUpload($request, $data);
+        // ইন্ডাস্ট্রি এডিটে অপরিবর্তিত থাকে — $data-তে industry নেই তাই update এতে ধরে না
+        $data = $this->handleUpload($request, $data, $product->industry ?: ab_industry_active());
         $data['supplier_id'] = $request->filled('supplier_id') ? (int) $request->input('supplier_id') : null;
 
         $product->update($data);
@@ -183,14 +195,16 @@ class ProductController extends Controller
         return $data;
     }
 
-    private function handleUpload(Request $request, array $data): array
+    private function handleUpload(Request $request, array $data, string $industry): array
     {
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
             $data['image'] = 'storage/' . $path;
         } elseif (!isset($data['image']) || trim((string) $data['image']) === '') {
-            // strict MySQL: products.image has no default — placeholder keeps no-image products savable
-            $data['image'] = 'assets/img/prod_mango.jpg';
+            // strict MySQL: products.image has no default — placeholder keeps no-image products savable.
+            // ছবি না থাকলে ওই ইন্ডাস্ট্রির genre-pack আর্ট, না পেলে জেনেরিক অর্গানিক প্লেসহোল্ডার
+            $placeholder = 'assets/img/genres/' . $industry . '/product-1.jpg';
+            $data['image'] = is_file(public_path($placeholder)) ? $placeholder : 'assets/img/prod_mango.jpg';
         }
         return $data;
     }

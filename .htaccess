@@ -1,0 +1,72 @@
+# =====================================================================
+# AcharBari (Laravel) — ROOT .htaccess (cPanel)
+#
+# Kivabe kaj kore:
+#   Puro project JEMON ACHE TEMON E public_html/ e upload korun —
+#   app/, bootstrap/, config/, vendor/, public/ ... kono structure
+#   change korte hobe na. Ei file shob request ke internally
+#   public/ folder e pathiye dey, tarpor Laravel er nijer
+#   public/.htaccess index.php te chalay.
+#
+# cPanel e upload er por:
+#   1. .env  → APP_ENV=production, APP_DEBUG=false, APP_URL=apnar domain
+#   2. storage/ ar bootstrap/cache/ folder writable koro (755/775)
+#   3. SSH/Terminal thakle:  php artisan storage:link
+#      (run korte na parleo product image kaj korbe — niche storage
+#       fallback ache, symlink charai serve hobe)
+# =====================================================================
+
+# Directory listing + MultiViews off
+# (jodi hosting AllowOverride na dile 500 ashe, ei line ta delete koro)
+Options -MultiViews -Indexes
+
+# ---- Root-level sensitive FILE gulo direct URL diye read block ----
+# (.env, composer.json, package.json, vite config ityadi)
+<FilesMatch "^(\.env.*|\.htaccess|\.git.*|\.editorconfig|\.phpunit\.result\.cache|artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|vite\.config\.js)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # ---------------------------------------------------------------
+    # OPTIONAL: HTTPS force korte chaile niche er 2 line er comment
+    # remove koro. (SSL install korar PORE — na korle site khulbe na!)
+    # ---------------------------------------------------------------
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # ---------------------------------------------------------------
+    # 1) /storage/...  →  storage/app/public/...
+    #    public/storage symlink na thakleo image gulo serve hobe.
+    # ---------------------------------------------------------------
+    RewriteCond %{REQUEST_URI} !/storage/app/public/
+    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+
+    # ---------------------------------------------------------------
+    # 2) Root-er sensitive FOLDER gulo (app, vendor, .git, storage/logs
+    #    ityadi) + root-level .php dev script gulo direct access block.
+    #    public/ er bhitore block hoy na — site oikhanei chole.
+    # ---------------------------------------------------------------
+    RewriteCond %{REQUEST_URI} !/storage/app/public/
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor|node_modules|\.git|\.github)(/.*)?$ - [F,L]
+    RewriteRule ^[^/]+\.php$ - [F,L]
+
+    # ---------------------------------------------------------------
+    # 3) Homepage (/)  →  public/index.php
+    # ---------------------------------------------------------------
+    RewriteRule ^$ public/index.php [L]
+
+    # ---------------------------------------------------------------
+    # 4) Baki SOB request → public/
+    #    (jemon: site.com/products/1 → public/.htaccess → index.php)
+    # ---------------------------------------------------------------
+    RewriteCond %{REQUEST_URI} !/public(/|$)
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

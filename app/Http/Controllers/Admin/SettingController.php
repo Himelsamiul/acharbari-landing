@@ -654,6 +654,7 @@ class SettingController extends Controller
                     \App\Models\Product::updateOrCreate(['slug' => $slug], [
                         'name' => $p['name'], 'name_en' => $p['name_en'],
                         'category' => $p['category'], 'category_en' => $p['category_en'], 'category_key' => $p['category_key'],
+                        'industry' => $key,
                         'unit' => 'pcs', 'stock' => 50,
                         'barcode' => strtoupper('GEN-' . substr(md5($p['slug']), 0, 6)),
                         'price' => $p['price'], 'old_price' => $p['old_price'],
@@ -680,7 +681,7 @@ class SettingController extends Controller
                     $cats[$p['category_key']] = [$p['category'], $p['category_en']];
                 }
                 foreach ($cats as $ck => [$bn, $en]) {
-                    \App\Models\Category::updateOrCreate(['key' => $ck], ['name' => $bn, 'name_en' => $en, 'is_active' => true]);
+                    \App\Models\Category::updateOrCreate(['key' => $ck], ['name' => $bn, 'name_en' => $en, 'industry' => $key, 'is_active' => true]);
                 }
 
                 // hide other genres' managed categories (only the active genre's stay visible)

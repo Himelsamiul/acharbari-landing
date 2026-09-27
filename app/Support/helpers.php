@@ -12,8 +12,32 @@ if (!function_exists('ab_img')) {
         }
 
         $webp = preg_replace('/\.(jpe?g|png)$/i', '.webp', $path);
+        if ($webp !== $path && is_file(public_path($webp))) return $webp;
+        if (is_file(public_path($path))) return $path;
 
-        return ($webp !== $path && is_file(public_path($webp))) ? $webp : $path;
+        // File missing (e.g. a product saved without an upload): use the genre's
+        // generic product art before giving up on the original path
+        $local = $path === '' || str_starts_with($path, 'assets/img/');
+        if ($industry !== '' && $local && !str_starts_with($path, 'assets/img/genres/')) {
+            $fallback = 'assets/img/genres/' . $industry . '/product-default.svg';
+            if (is_file(public_path($fallback))) return $fallback;
+        }
+
+        return $path;
+    }
+}
+
+if (!function_exists('ab_industry_active')) {
+    /**
+     * Industry that owns the catalogue data — the active preset key, or
+     * 'organic' for the default AcharBari look. Reads the Setting only, so it is
+     * safe in the admin panel (the ?industry= landing preview never applies).
+     */
+    function ab_industry_active(): string
+    {
+        $key = trim((string) \App\Models\Setting::get('industry', ''));
+
+        return \App\Http\Controllers\Admin\IndustryPack::valid($key) ? $key : 'organic';
     }
 }
 

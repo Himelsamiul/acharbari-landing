@@ -55,6 +55,17 @@
         .side-brand .logo-box img { width: 100%; height: 100%; object-fit: cover; }
         .side-brand b { font-size: 16px; }
         .side-brand span { display: block; font-size: 10.5px; opacity: .65; letter-spacing: 1.5px; }
+        .side-industry {
+            display: flex; align-items: center; gap: 10px;
+            margin: 0 4px 16px; padding: 10px 12px; border-radius: 12px;
+            background: rgba(163,230,53,.10); border: 1px solid rgba(163,230,53,.28);
+            color: #d9f99d; text-decoration: none;
+            transition: background .2s, transform .15s;
+        }
+        .side-industry:hover { background: rgba(163,230,53,.18); transform: translateX(3px); }
+        .side-industry i { font-size: 15px; color: #a3e635; flex-shrink: 0; }
+        .side-industry small { display: block; font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; opacity: .65; font-weight: 800; }
+        .side-industry b { display: block; font-size: 12.5px; color: #fff; line-height: 1.35; }
         .side-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
         .side-link {
             display: flex; align-items: center; gap: 12px;
@@ -473,6 +484,15 @@
                     <span>ADMIN PANEL</span>
                 </div>
             </div>
+
+            @php
+                $sideIndustryKey = ab_industry_active();
+                $sideIndustryName = \App\Http\Controllers\Admin\IndustryPack::all()[$sideIndustryKey]['name_bn'] ?? $sideIndustryKey;
+            @endphp
+            <a class="side-industry" href="{{ route('admin.settings.theme') }}" title="ইন্ডাস্ট্রি প্রিসেট বদলাতে ক্লিক করুন">
+                <i class="fa-solid fa-industry"></i>
+                <span><small>চালু ইন্ডাস্ট্রি</small><b>{{ $sideIndustryName }}</b></span>
+            </a>
 
             <nav class="side-nav">
                 <div class="side-group-label">সাধারণ</div>

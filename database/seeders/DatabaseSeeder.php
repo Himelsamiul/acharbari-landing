@@ -144,5 +144,8 @@ class DatabaseSeeder extends Seeder
             ['slug'],
             ['name', 'name_en', 'category', 'category_en', 'category_key', 'brand', 'unit', 'stock', 'barcode', 'price', 'old_price', 'discount_bn', 'discount_en', 'image', 'rating', 'reviews_count', 'stock_badge', 'stock_badge_en', 'description', 'description_en', 'sort_order']
         );
+
+        // Per-industry demo catalogue (products + categories tagged with `industry`)
+        $this->call(IndustryDemoSeeder::class);
     }
 }

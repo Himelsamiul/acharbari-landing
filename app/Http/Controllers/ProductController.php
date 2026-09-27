@@ -15,7 +15,7 @@ class ProductController extends Controller
         $brand = trim((string) $request->query('brand', ''));
         $sort = (string) $request->query('sort', 'popular');
 
-        $query = Product::active();
+        $query = Product::active()->forIndustry();
 
         if ($category !== '' && $category !== 'all') {
             $query->where('category_key', $category);
@@ -44,6 +44,7 @@ class ProductController extends Controller
         $products = $query->get();
 
         $categories = Product::active()
+            ->forIndustry()
             ->select('category', 'category_en', 'category_key')
             ->groupBy('category', 'category_en', 'category_key')
             ->get();
@@ -64,7 +65,7 @@ class ProductController extends Controller
 
     public function show($slug)
     {
-        $product = Product::where('slug', $slug)->where('is_active', true)->firstOrFail();
+        $product = Product::where('slug', $slug)->where('is_active', true)->forIndustry()->firstOrFail();
         return view('product-details', compact('product'));
     }
 }

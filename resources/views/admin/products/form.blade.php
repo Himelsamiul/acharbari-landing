@@ -12,6 +12,10 @@
             @method('PUT')
         @endif
 
+        @php
+            $formIndustry = $product->industry ?: ab_industry_active();
+            $formIndustryName = \App\Http\Controllers\Admin\IndustryPack::all()[$formIndustry]['name_bn'] ?? $formIndustry;
+        @endphp
         <div class="note-banner">
             <i class="fa-solid fa-lightbulb"></i>
             <span>{{ $product->exists ? 'তথ্য পাল্টে <b>আপডেট করুন</b> চাপুন — সাথে সাথে লাইভ সাইটে দেখা যাবে।' : 'তারা চিহ্নিত (*) ঘরগুলো জরুরি — বাকিগুলো পরেও এডিট করা যাবে।' }}</span>
@@ -62,6 +66,13 @@
                     </select>
                 </div>
             </div>
+            <p class="pf-hint" style="margin-top:12px"><i class="fa-solid fa-industry" style="color:#059669"></i>
+                @if ($product->exists)
+                    এই প্রোডাক্টটি <b>{{ $formIndustryName }}</b> ইন্ডাস্ট্রির — ইন্ডাস্ট্রি বদলানো যাবে না।
+                @else
+                    সেভ করলে প্রোডাক্টটি চালু ইন্ডাস্ট্রি <b>{{ $formIndustryName }}</b>-এ যুক্ত হবে।
+                @endif
+            </p>
         </div>
 
         {{-- ===== 2. দাম ===== --}}

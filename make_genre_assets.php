@@ -85,6 +85,31 @@ function svgProduct(array $g, string $glyph, int $n): string {
 SVG;
 }
 
+// Generic "no photo yet" product art — dashed ring + the genre glyph
+function svgProductDefault(array $g, string $glyph): string {
+    return <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="{$g['bg1']}"/><stop offset="1" stop-color="{$g['bg2']}"/>
+    </linearGradient>
+    <linearGradient id="ac" gradientTransform="rotate(200 .5 .5)">
+      <stop offset="0" stop-color="{$g['c1']}"/><stop offset="1" stop-color="{$g['c2']}"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <circle cx="640" cy="140" r="140" fill="{$g['c2']}" opacity=".22"/>
+  <circle cx="150" cy="660" r="110" fill="{$g['c1']}" opacity=".12"/>
+  <ellipse cx="400" cy="640" rx="240" ry="34" fill="{$g['c3']}" opacity=".14"/>
+  <circle cx="400" cy="380" r="250" fill="none" stroke="{$g['c1']}" stroke-width="10" stroke-dasharray="34 26" opacity=".45"/>
+  <g transform="translate(250 230) scale(3)" fill="url(#ac)">
+    <path d="$glyph"/>
+  </g>
+  <rect x="300" y="680" width="200" height="12" rx="6" fill="{$g['c1']}" opacity=".3"/>
+</svg>
+SVG;
+}
+
 function svgAvatar(array $g, string $glyph, int $n): string {
     $angle = [30, 120, 210, 300, 75][$n % 5];
     return <<<SVG
@@ -117,6 +142,7 @@ foreach ($G as $key => $g) {
     for ($i = 1; $i <= 6; $i++) {
         file_put_contents("$dir/product-$i.svg", svgProduct($g, $gl, $i)); $count++;
     }
+    file_put_contents("$dir/product-default.svg", svgProductDefault($g, $gl)); $count++;
     for ($i = 1; $i <= 5; $i++) {
         file_put_contents("$dir/avatar-$i.svg", svgAvatar($g, $gl, $i)); $count++;
     }

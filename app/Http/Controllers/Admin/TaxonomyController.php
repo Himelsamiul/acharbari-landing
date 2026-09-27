@@ -11,9 +11,13 @@ class TaxonomyController extends Controller
 {
     public function index()
     {
+        $currentIndustry = ab_industry_active();
+
         return view('admin.taxonomy', [
-            'categories' => Category::withCount('products')->get(),
+            // চালু ইন্ডাস্ট্রির ক্যাটাগরিই শুধু দেখাবে — অন্য ইন্ডাস্ট্রিরটা এখানে আসে না
+            'categories' => Category::forIndustry($currentIndustry)->withCount('products')->orderBy('id')->get(),
             'brands' => Brand::withCount('products')->get(),
+            'currentIndustryName' => IndustryPack::all()[$currentIndustry]['name_bn'] ?? $currentIndustry,
         ]);
     }
 
@@ -24,6 +28,9 @@ class TaxonomyController extends Controller
             'name_en' => 'required|string|max:60',
             'key' => 'required|string|max:30|unique:categories,key',
         ]);
+
+        // নতুন ক্যাটাগরি অটো চালু ইন্ডাস্ট্রিতে ট্যাগ হয়
+        $data['industry'] = ab_industry_active();
 
         Category::create($data);
 

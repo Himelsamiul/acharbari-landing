@@ -93,3 +93,21 @@ Online payment live korar steps:
 > **Note:** `setup.php` ar ekhon server e rekhe o hobe — deployment er pore migration
 > er jonno lagbe. Keu chalate parbe na (APP_KEY chara 403 dibe). `.env` kokhono
 > upload hoy na — workflow te excluded.
+
+## 9. Structure change chara manual upload (root `.htaccess`)
+
+Root er `.htaccess` er kaj: puro project **jemon ache temon e** `public_html/` e
+copy korleo site chole — `app/`, `vendor/`, `public/` kono kichu sorate hobe na.
+Ei file sob request internally `public/` e pathay, ar sensitive file/folder
+(`.env`, `vendor/`, `.git/`, root er dev script gulo) direct URL block kore.
+
+**Steps (cPanel File Manager / FTP):**
+
+1. Puro project folder er content (`app`, `public`, `vendor`, `.env`, `.htaccess` soho sob) `public_html/` e upload/copy koro
+2. `.env` update koro: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://apnadomain.com`
+3. Permission: `storage/` ar `bootstrap/cache/` → 755 (writable na hole 775)
+4. cPanel Terminal thakle `php artisan storage:link` chalao — na parle o image kaj korbe (`.htaccess` e storage fallback ache)
+5. SSL install korar por root `.htaccess` e HTTPS force er 2 line uncomment koro
+
+**Verify:** `https://domain.com/` e site load hoy, `https://domain.com/.env`
+dile **403 Forbidden** ashe, product image gulo dekha jay.

@@ -13,8 +13,12 @@
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start" class="tax-grid">
         <div class="card">
-            <h3>ক্যাটাগরি</h3>
-            <p class="desc">প্রোডাক্টের ক্যাটাগরি (আচার, মধু ও ঘি…)</p>
+            <h3>ক্যাটাগরি
+                <span class="pill info" style="margin-left:auto;font-weight:700" title="ইন্ডাস্ট্রি প্রিসেট বদলান ‘থিম কালার’ পেজে">
+                    <i class="fa-solid fa-industry"></i> চালু ইন্ডাস্ট্রি: {{ $currentIndustryName }}
+                </span>
+            </h3>
+            <p class="desc">প্রোডাক্টের ক্যাটাগরি — শুধু চালু ইন্ডাস্ট্রির ক্যাটাগরি দেখানো হচ্ছে</p>
             <input id="catSearch" class="a-input" type="search" placeholder="ক্যাটাগরি খুঁজুন..." autocomplete="off" style="margin-bottom:12px">
             <table class="tbl" id="catTable">
                 <thead><tr><th>নাম</th><th>Key</th><th>প্রোডাক্ট</th><th></th></tr></thead>

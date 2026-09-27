@@ -14,12 +14,28 @@
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
             <div>
                 <h3>প্রোডাক্ট লিস্ট</h3>
-                <p class="desc">মোট {{ $products->count() }}টি প্রোডাক্ট</p>
+                <p class="desc">{{ $industries[$viewIndustry]['name_bn'] ?? $viewIndustry }} — মোট {{ $products->count() }}টি প্রোডাক্ট</p>
             </div>
-            <a class="a-btn" href="{{ route('admin.products.create') }}"><i class="fa-solid fa-plus"></i> নতুন প্রোডাক্ট</a>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <span class="pill info" title="ইন্ডাস্ট্রি প্রিসেট বদলান ‘থিম কালার’ পেজে">
+                    <i class="fa-solid fa-industry"></i> চালু ইন্ডাস্ট্রি: {{ $industries[$currentIndustry]['name_bn'] ?? $currentIndustry }}
+                </span>
+                <a class="a-btn" href="{{ route('admin.products.create') }}"><i class="fa-solid fa-plus"></i> নতুন প্রোডাক্ট</a>
+            </div>
         </div>
-        <input type="text" id="productSearch" class="a-input" autocomplete="off"
-            placeholder="🔍 নাম, ক্যাটাগরি, ব্র্যান্ড বা বারকোড দিয়ে খুঁজুন…" style="max-width:340px;margin-bottom:12px">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+            <form method="GET" action="{{ route('admin.products.index') }}" style="display:flex;gap:8px;align-items:center">
+                <label style="font-size:12.5px;font-weight:700;color:#1f4234;white-space:nowrap">ইন্ডাস্ট্রি ফিল্টার</label>
+                <select class="a-input" name="industry" style="max-width:280px" onchange="this.form.submit()">
+                    <option value="">চালু ইন্ডাস্ট্রি ({{ $industries[$currentIndustry]['name_bn'] ?? $currentIndustry }})</option>
+                    @foreach ($industries as $key => $pack)
+                        <option value="{{ $key }}" {{ $viewIndustry === $key ? 'selected' : '' }}>{{ $pack['name_bn'] }}</option>
+                    @endforeach
+                </select>
+            </form>
+            <input type="text" id="productSearch" class="a-input" autocomplete="off"
+                placeholder="🔍 নাম, ক্যাটাগরি, ব্র্যান্ড বা বারকোড দিয়ে খুঁজুন…" style="max-width:340px">
+        </div>
         <table class="tbl" id="productTable">
             <thead>
                 <tr><th>প্রোডাক্ট</th><th>ক্যাটাগরি/ব্র্যান্ড</th><th>দাম</th><th>VAT</th><th>স্টক</th><th>বারকোড</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr>

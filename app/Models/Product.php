@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     protected $fillable = [
-        'slug', 'name', 'name_en', 'category', 'category_en', 'category_key',
+        'slug', 'name', 'name_en', 'category', 'category_en', 'category_key', 'industry',
         'brand', 'unit', 'stock', 'barcode',
         'price', 'old_price', 'discount_bn', 'discount_en', 'image', 'vat_percent', 'supplier_id',
         'rating', 'reviews_count', 'stock_badge', 'stock_badge_en',
@@ -28,5 +28,11 @@ class Product extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true)->orderBy('sort_order');
+    }
+
+    /** Only the active industry's rows — other genres never leak through. */
+    public function scopeForIndustry($query, ?string $industry = null)
+    {
+        return $query->where('industry', $industry ?: (ab_industry() ?: 'organic'));
     }
 }
