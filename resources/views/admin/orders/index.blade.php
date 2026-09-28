@@ -33,8 +33,18 @@
         <div class="card" style="margin:0;display:flex;align-items:center">
             <div class="a-field" style="margin:0;width:100%">
                 <label style="font-size:11px;color:#8b7355">মাস বাছাই করুন</label>
-                <input type="month" class="a-input" id="orderMonth" value="{{ $month }}"
-                    onchange="var u=new URL(location.href); if(this.value){u.searchParams.set('month',this.value)}else{u.searchParams.delete('month')}; u.searchParams.delete('page'); location.href=u.toString()">
+                <select class="a-input" id="orderMonth" onchange="if(this.value){var u=new URL(location.href);u.searchParams.set('month',this.value);u.searchParams.delete('page');location.href=u.toString()}">
+                    <option value="">সব সময়</option>
+                    @for ($i = 0; $i < 18; $i++)
+                        @php
+                            $mDate = now()->subMonths($i);
+                            $mKey = $mDate->format('Y-m');
+                        @endphp
+                        <option value="{{ $mKey }}" {{ $month === $mKey ? 'selected' : '' }}>
+                            {{ $mDate->locale('bn')->translatedFormat('F Y') }}
+                        </option>
+                    @endfor
+                </select>
             </div>
         </div>
     </div>
