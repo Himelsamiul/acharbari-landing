@@ -46,9 +46,11 @@ jobs:
 
       # deploy er por live DB te notun migration chalano hoy
       # (server e setup.php ache — APP_KEY chara keu chalate parbe na)
+      # NOTE: root .htaccess root-level *.php block kore (403), tai /public/ path
       - name: Run live migrations
         run: |
           sleep 15
-          curl -fsS --max-time 90 "https://khorak.shop/setup.php?key=${{ secrets.SETUP_KEY }}" \
-            && echo "== LIVE MIGRATIONS OK ==" \
-            || echo "== migrate call failed — file deploy holo tobe migration pore chalate hobe =="
+          curl -fsS --max-time 90 --retry 2 --retry-delay 10 \
+            "https://khorak.shop/public/setup.php?key=${{ secrets.SETUP_KEY }}" \
+            || { echo "::error::Live migration FAILED — site will 500 if new columns are missing"; exit 1; }
+          echo "== LIVE MIGRATIONS OK =="
