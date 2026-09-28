@@ -184,7 +184,7 @@
                                                 <span class="lp-strip-name">{{ $p['title'] }}</span>
                                                 <span class="lp-strip-price">{{ $p['price'] }}</span>
                                                 <button type="button" class="lp-strip-add"
-                                                    onclick="addToCartFromRow({{ $pid }})">
+                                                    onclick="selectProductForOrder({{ $pid }})">
                                                     + যোগ
                                                 </button>
                                             </div>
