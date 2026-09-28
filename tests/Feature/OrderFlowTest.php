@@ -21,6 +21,7 @@ class OrderFlowTest extends TestCase
             'category' => 'আচার',
             'category_en' => 'Pickles',
             'category_key' => 'pickle',
+            'industry' => 'organic', // migration shob row backfill kore, test-eo set korte hoy
             'brand' => 'আচারবাড়ি',
             'unit' => 'gm',
             'stock' => 50,
