@@ -103,10 +103,10 @@
             </div>
         </div>
 
-        {{-- ===== 3. ভ্যারিয়েন্ট (সাইজ/দাম) — দামের ঠিক পরেই ===== --}}
+        {{-- ===== 3. ভ্যারিয়েন্ট (সাইজ/রং/দাম) — দামের ঠিক পরেই ===== --}}
         <div class="card pf-card">
-            <h3><span class="pf-ic" style="--pc:#f59e0b"><i class="fa-solid fa-layer-group"></i></span> ভ্যারিয়েন্ট / সাইজ</h3>
-            <p class="desc">একই প্রোডাক্টের একাধিক সাইজ আলাদা দাম/স্টকে রাখুন — যেমন 250ml ৳30, 500ml ৳50। না দিলে উপরের দাম ও স্টকই চলবে।</p>
+            <h3><span class="pf-ic" style="--pc:#f59e0b"><i class="fa-solid fa-layer-group"></i></span> ভ্যারিয়েন্ট / সাইজ / রং</h3>
+            <p class="desc">একই প্রোডাক্টের একাধিক ভ্যারিয়েন্ট আলাদা দাম/স্টকে রাখুন — যেমন Coca-Cola: 500ml ৳50, 700ml ৳200; বা Shirt: Red ৳1500, Green ৳2000। না দিলে উপরের দাম ও স্টকই চলবে।</p>
 
             <div id="variantRows"></div>
 
@@ -285,21 +285,27 @@
 
     <script>
         /* ভ্যারিয়েন্ট রো রিপিটার */
+        /* PHP te "variants[][size]" mane NOTUN row — tai prottek row er
+           nijer explicit index LAGBE: variants[0][size], variants[0][price]...
+           na hole size/price/stock alada alada row e chore jay! */
+        var variantIdx = 0;
+
         function variantRowHtml(v) {
             v = v || {};
+            var i = variantIdx++;
             return '<div class="vrow">' +
-                '<div class="a-field"><label>সাইজ / পরিমাণ *</label>' +
-                '<input class="a-input" name="variants[][size]" value="' + (v.size || '') + '" placeholder="যেমন: 500ml / 1kg / লার্জ" maxlength="50"></div>' +
+                '<div class="a-field"><label>সাইজ / রং / পরিমাণ *</label>' +
+                '<input class="a-input" name="variants[' + i + '][size]" value="' + (v.size || '') + '" placeholder="যেমন: 500ml / Red / লার্জ" maxlength="50"></div>' +
                 '<div class="a-field"><label>দাম (৳) *</label>' +
-                '<input class="a-input" type="number" step="0.01" min="0" name="variants[][price]" value="' + (v.price || '') + '" placeholder="50"></div>' +
+                '<input class="a-input" type="number" step="0.01" min="0" name="variants[' + i + '][price]" value="' + (v.price || '') + '" placeholder="50"></div>' +
                 '<div class="a-field"><label>পুরাতন দাম</label>' +
-                '<input class="a-input" type="number" step="0.01" min="0" name="variants[][old_price]" value="' + (v.old_price || '') + '" placeholder="৬০"></div>' +
+                '<input class="a-input" type="number" step="0.01" min="0" name="variants[' + i + '][old_price]" value="' + (v.old_price || '') + '" placeholder="৬০"></div>' +
                 '<div class="a-field"><label>স্টক</label>' +
-                '<input class="a-input" type="number" min="0" name="variants[][stock]" value="' + (v.stock !== undefined && v.stock !== '' ? v.stock : 0) + '"></div>' +
+                '<input class="a-input" type="number" min="0" name="variants[' + i + '][stock]" value="' + (v.stock !== undefined && v.stock !== '' ? v.stock : 0) + '"></div>' +
                 '<div class="a-field"><label>SKU (ঐচ্ছিক)</label>' +
-                '<input class="a-input" name="variants[][sku]" value="' + (v.sku || '') + '" placeholder="CC-500" maxlength="60"></div>' +
-                '<label class="vactive"><input type="checkbox" name="variants[][is_active]" value="1" ' + (v.is_active === undefined || v.is_active ? 'checked' : '') + '> চালু</label>' +
-                '<input type="hidden" name="variants[][id]" value="' + (v.id || '') + '">' +
+                '<input class="a-input" name="variants[' + i + '][sku]" value="' + (v.sku || '') + '" placeholder="CC-500" maxlength="60"></div>' +
+                '<label class="vactive"><input type="checkbox" name="variants[' + i + '][is_active]" value="1" ' + (v.is_active === undefined || v.is_active ? 'checked' : '') + '> চালু</label>' +
+                '<input type="hidden" name="variants[' + i + '][id]" value="' + (v.id || '') + '">' +
                 '<button type="button" class="vdel" title="রো মুছুন" onclick="this.closest(\'.vrow\').remove()"><i class="fa-solid fa-trash"></i></button>' +
                 '</div>';
         }

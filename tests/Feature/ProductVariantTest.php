@@ -71,9 +71,59 @@ class ProductVariantTest extends TestCase
 
         // edit form (variant rows soho render hoy)
         $p = $this->productWithVariants();
-        $this->get(route('admin.products.edit', $p))
+        $html = $this->get(route('admin.products.edit', $p))
             ->assertOk()
-            ->assertSee('variantRows');
+            ->getContent();
+
+        $this->assertStringContainsString('variantRows', $html);
+        // input er indexed name THAKTE HObE — "variants[][size]" format PHP e bhange jay!
+        $this->assertStringNotContainsString('name="variants[][', $html);
+    }
+
+    public function test_variants_save_from_real_browser_wire_format(): void
+    {
+        // BROWSER evabe pathay: variants[0][size]=Red&variants[0][price]=1500...
+        // (age "variants[][size]" format e PHP prottek field alada row e pathato —
+        //  ar sync kisu-i save korto na. Ei test oi format ta simulate kore.)
+        $this->actingAs($this->admin());
+        Category::create(['name' => 'শার্ট', 'name_en' => 'Shirt', 'key' => 'shirt', 'industry' => 'organic', 'is_active' => true]);
+        $flat = [
+            'name' => 'Shirt',
+            'name_en' => 'Shirt',
+            'category_key' => 'shirt',
+            'unit' => 'pcs',
+            'stock' => 0,
+            'price' => 1500,
+            'vat_percent' => 0,
+            'variants[0][size]' => 'Red',
+            'variants[0][price]' => '1500',
+            'variants[0][stock]' => '500',
+            'variants[0][is_active]' => '1',
+            'variants[1][size]' => 'Green',
+            'variants[1][price]' => '2000',
+            'variants[1][stock]' => '200',
+            'variants[1][is_active]' => '1',
+            'variants[2][size]' => 'Yellow',
+            'variants[2][price]' => '2500',
+            'variants[2][stock]' => '200',
+            'variants[2][is_active]' => '1',
+        ];
+
+        // parse_str = PHP er nijer parser — browser er wire format ekdom evabei
+        // $_POST e dheuke. Flat keys theke nested structure banay.
+        parse_str(http_build_query($flat), $parsed);
+
+        $this->post(route('admin.products.store'), $parsed)
+            ->assertRedirect(route('admin.products.index'));
+
+        $p = Product::where('slug', 'shirt')->first();
+        $this->assertNotNull($p, 'product createi hoy nai');
+        $this->assertSame(3, $p->variants()->count(), 'variant row save hoy nai');
+
+        // admin list er ROW e price range dekhabe — user er complaint er jaygay
+        $this->get(route('admin.products.index'))
+            ->assertOk()
+            ->assertSee('৳1,500–৳2,500');
     }
 
     public function test_admin_can_create_product_with_variants(): void
