@@ -146,6 +146,40 @@ class DatabaseSeeder extends Seeder
             ['name', 'name_en', 'category', 'category_en', 'category_key', 'brand', 'unit', 'stock', 'barcode', 'price', 'old_price', 'discount_bn', 'discount_en', 'image', 'rating', 'reviews_count', 'stock_badge', 'stock_badge_en', 'description', 'description_en', 'sort_order']
         );
 
+        // নতুন ভ্যারিয়েন্ট ফিচারের ডেমো — কিছু প্রোডাক্টে সাইজ-ভিত্তিক ভ্যারিয়েন্ট
+        // (idempotent: product_id + size দিয়ে updateOrCreate, বারবার চালানো নিরাপদ)
+        $variantSeed = [
+            'mango-kuchi-achar' => [
+                ['size' => '২৫০ গ্রাম', 'price' => 180, 'old_price' => 220, 'stock' => 60, 'vat_percent' => 0, 'discount_bn' => '-১৮% ছাড়', 'discount_en' => '-18% Off', 'sort_order' => 1],
+                ['size' => '৫০০ গ্রাম', 'price' => 340, 'old_price' => 400, 'stock' => 40, 'vat_percent' => 0, 'discount_bn' => '-১৫% ছাড়', 'discount_en' => '-15% Off', 'sort_order' => 2],
+                ['size' => '১ কেজি', 'price' => 640, 'old_price' => 760, 'stock' => 20, 'vat_percent' => 0, 'discount_bn' => '-১৬% ছাড়', 'discount_en' => '-16% Off', 'sort_order' => 3],
+            ],
+            'deshi-ghee' => [
+                ['size' => '২৫০ মিলি', 'price' => 950, 'old_price' => null, 'stock' => 30, 'vat_percent' => null, 'discount_bn' => null, 'discount_en' => null, 'sort_order' => 1],
+                ['size' => '৫০০ মিলি', 'price' => 1800, 'old_price' => 2000, 'stock' => 18, 'vat_percent' => null, 'discount_bn' => '-১০% ছাড়', 'discount_en' => '-10% Off', 'sort_order' => 2],
+            ],
+            'sundarban-honey' => [
+                ['size' => '৩০০ গ্রাম', 'price' => 550, 'old_price' => null, 'stock' => 45, 'vat_percent' => null, 'discount_bn' => null, 'discount_en' => null, 'sort_order' => 1],
+                ['size' => '৭০০ গ্রাম', 'price' => 1150, 'old_price' => 1250, 'stock' => 25, 'vat_percent' => null, 'discount_bn' => '-৮% ছাড়', 'discount_en' => '-8% Off', 'sort_order' => 2],
+            ],
+            'mixed-pickle-pack' => [
+                ['size' => '৩টির প্যাক', 'price' => 750, 'old_price' => 900, 'stock' => 35, 'vat_percent' => 5, 'discount_bn' => '-১৭% ছাড়', 'discount_en' => '-17% Off', 'sort_order' => 1],
+                ['size' => '৫টির প্যাক', 'price' => 1200, 'old_price' => 1500, 'stock' => 20, 'vat_percent' => 5, 'discount_bn' => '-২০% ছাড়', 'discount_en' => '-20% Off', 'sort_order' => 2],
+            ],
+        ];
+
+        foreach ($variantSeed as $slug => $rows) {
+            $sp = \App\Models\Product::where('slug', $slug)->first();
+            if (! $sp) continue;
+
+            foreach ($rows as $row) {
+                \App\Models\ProductVariant::updateOrCreate(
+                    ['product_id' => $sp->id, 'size' => $row['size']],
+                    $row + ['is_active' => true]
+                );
+            }
+        }
+
         // Per-industry demo catalogue (products + categories tagged with `industry`)
         $this->call(IndustryDemoSeeder::class);
     }

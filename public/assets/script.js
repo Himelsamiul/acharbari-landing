@@ -1317,6 +1317,9 @@ window.openQuickView = function (productId) {
     document.getElementById('qvModalImg').src = prod.img;
     document.getElementById('qvModalImg').alt = prod.alt || prod.title || 'Product';
 
+    /* brand + VAT line — variant select korle oi variant er VAT dekhabe */
+    updateQvMeta(prod, null);
+
     /* variant (size) thakle selector dekhao — price first available variant er */
     var vbox = document.getElementById('qvVariantBox');
     var vgrid = document.getElementById('qvVariantGrid');
@@ -1346,6 +1349,7 @@ window.openQuickView = function (productId) {
             var first = vs.find(function (v) { return v.stock > 0; }) || vs[0];
             document.getElementById('qvModalPrice').textContent = pick(first.price, first.price_en);
             document.getElementById('qvModalDiscount').textContent = pick(first.discount, first.discount_en);
+            updateQvMeta(prod, first);
         } else {
             vbox.classList.add('hidden');
             document.getElementById('qvModalPrice').textContent = pick(prod.price, prod.price_en);
@@ -1377,6 +1381,27 @@ window.qvPickVariant = function (input) {
     // oi variant er nijer discount badge
     var badge = input.dataset.discountBn || '';
     document.getElementById('qvModalDiscount').textContent = en ? (input.dataset.discountEn || badge) : badge;
+    // meta line (brand + oi variant er VAT) update
+    var prod = (window.quickViewProducts || {})[window.currentQvProductId];
+    var vid = window.currentQvVariantId;
+    var vv = null;
+    if (prod && prod.variants) {
+        for (var i = 0; i < prod.variants.length; i++) if (prod.variants[i].id === vid) vv = prod.variants[i];
+    }
+    updateQvMeta(prod, vv);
+};
+
+/* modal er brand + VAT line */
+window.updateQvMeta = function (prod, v) {
+    var el = document.getElementById('qvModalMeta');
+    if (!el || !prod) return;
+    var parts = [];
+    if (prod.brand) parts.push('<span><i class="fa-solid fa-copyright" style="opacity:.6"></i> ব্র্যান্ড: ' + qvEsc(prod.brand) + '</span>');
+    var vat = (v && v.vat_percent != null) ? v.vat_percent : prod.vat_percent;
+    if (vat != null && parseFloat(vat) > 0) parts.push('<span><i class="fa-solid fa-percent" style="opacity:.6"></i> VAT: ' + parseFloat(vat) + '%</span>');
+    if (!parts.length) { el.style.display = 'none'; return; }
+    el.innerHTML = parts.join(' <span style="opacity:.4">•</span> ');
+    el.style.display = '';
 };
 
 window.closeQuickViewModal = function () {

@@ -248,6 +248,7 @@
                                 <del id="qvModalOldPrice" class="text-sm text-gray-400">৳০</del>
                                 <span id="qvModalDiscount" class="ds-badge-discount !static ml-auto">-০%</span>
                             </div>
+                            <p id="qvModalMeta" class="text-xs font-semibold text-gray-500 mb-2" style="display:none"></p>
                             <p id="qvModalDesc" class="text-sm text-gray-600 mb-4 leading-relaxed" data-en="100% authentic product with the fastest delivery and easy Cash on Delivery.">
                                 ১০০% খাঁটি অথেনটিক প্রোডাক্ট। দ্রুততম ডেলিভারি এবং সহজ ক্যাশ অন ডেলিভারি সুবিধাসহ।
                             </p>

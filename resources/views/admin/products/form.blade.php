@@ -66,12 +66,21 @@
                 </div>
                 <div class="a-field">
                     <label>ব্র্যান্ড</label>
-                    <input class="a-input" name="brand" list="brandList" value="{{ old('brand', $product->brand ?? 'আচারবাড়ি') }}">
-                    <datalist id="brandList">
+                    <select class="a-input" name="brand">
+                        <option value="">— ব্র্যান্ড নেই —</option>
+                        @php
+                            $currentBrand = old('brand', $product->brand ?? '');
+                            $inList = $brands->contains('name', $currentBrand);
+                        @endphp
                         @foreach ($brands as $b)
-                            <option value="{{ $b->name }}">
+                            <option value="{{ $b->name }}" {{ $currentBrand === $b->name ? 'selected' : '' }}>{{ $b->name }}</option>
                         @endforeach
-                    </datalist>
+                        @if ($currentBrand !== '' && ! $inList)
+                            {{-- purano product e free-typed brand thakle o dekhanu thakuk --}}
+                            <option value="{{ $currentBrand }}" selected>{{ $currentBrand }}</option>
+                        @endif
+                    </select>
+                    <small style="color:#8b7355;font-size:11px">নতুন ব্র্যান্ড বানাতে — ক্যাটাগরি ও ব্র্যান্ড পেজে যান</small>
                 </div>
                 <div class="a-field" id="stockField">
                     <label>স্টক পরিমাণ <span id="stockReqStar">*</span></label>

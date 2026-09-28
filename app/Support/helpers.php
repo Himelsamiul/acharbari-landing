@@ -431,6 +431,7 @@ if (!function_exists('buildQuickView')) {
                 'title_en' => $p->name_en,
                 'category' => $p->category,
                 'category_en' => $p->category_en,
+                'brand' => $p->brand ?: '',
                 'price' => '৳' . bn_num($price),
                 'price_en' => '৳' . number_format($price),
                 'oldPrice' => '৳' . bn_num($oldPrice),
