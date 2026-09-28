@@ -310,11 +310,16 @@
 
         /* এডিটে পুরানো ভ্যারিয়েন্ট রো হিসেবে বসাও */
         (function () {
-            var data = @json($product->variants->map(fn ($v) => [
-                'id' => $v->id, 'size' => $v->size, 'price' => $v->price,
-                'old_price' => $v->old_price, 'stock' => $v->stock,
-                'sku' => $v->sku, 'is_active' => $v->is_active,
-            ]));
+            @php
+                // NOTE: @json er argument ek line e rakhte hobe — multiline hole
+                // Blade directive truncate kore PHP parse error dey
+                $variantRows = $product->variants->map(fn ($v) => [
+                    'id' => $v->id, 'size' => $v->size, 'price' => $v->price,
+                    'old_price' => $v->old_price, 'stock' => $v->stock,
+                    'sku' => $v->sku, 'is_active' => $v->is_active,
+                ])->values()->all();
+            @endphp
+            var data = @json($variantRows);
             if (data.length) data.forEach(addVariantRow);
         })();
     </script>

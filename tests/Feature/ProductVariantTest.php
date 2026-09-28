@@ -61,6 +61,21 @@ class ProductVariantTest extends TestCase
         ];
     }
 
+    public function test_admin_product_form_renders_create_and_edit(): void
+    {
+        $this->actingAs($this->admin());
+        Category::create(['name' => 'ড্রিংকস', 'name_en' => 'Drinks', 'key' => 'drink', 'industry' => 'organic', 'is_active' => true]);
+
+        // create form
+        $this->get(route('admin.products.create'))->assertOk();
+
+        // edit form (variant rows soho render hoy)
+        $p = $this->productWithVariants();
+        $this->get(route('admin.products.edit', $p))
+            ->assertOk()
+            ->assertSee('variantRows');
+    }
+
     public function test_admin_can_create_product_with_variants(): void
     {
         $this->actingAs($this->admin());
