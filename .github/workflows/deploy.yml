@@ -1,13 +1,28 @@
 name: Deploy to Live (cPanel)
 
-# main e push = live site e automatic deploy
+# main e push = shudhu KHORAK auto deploy
+# amrongbd.com e pathate chaile: Actions tab → Deploy to Live (cPanel)
+#   → Run workflow → "amrongbd.com" tick (khorak-o lagle o tick) → Run workflow
 on:
   push:
     branches: [main]
-  workflow_dispatch: {} # Actions tab theke manually o chalano jay
+  workflow_dispatch:
+    inputs:
+      khorak:
+        description: 'khorak.shop e deploy'
+        type: boolean
+        default: false
+      amrong:
+        description: 'amrongbd.com e deploy'
+        type: boolean
+        default: false
 
 jobs:
-  deploy:
+  # ---------------------------------------------------------------
+  # KHORAK (AcharBari — khorak.shop): push e auto, button e o chalay
+  # ---------------------------------------------------------------
+  deploy-khorak:
+    if: github.event_name == 'push' || inputs.khorak == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -52,5 +67,53 @@ jobs:
           sleep 15
           curl -fsS --max-time 90 --retry 2 --retry-delay 10 \
             "https://khorak.shop/public/setup.php?key=${{ secrets.SETUP_KEY }}" \
+            || { echo "::error::Live migration FAILED — site will 500 if new columns are missing"; exit 1; }
+          echo "== LIVE MIGRATIONS OK =="
+
+  # ---------------------------------------------------------------
+  # AMRONG (amrongbd.com): shudhu Actions tab er button theke chole —
+  # push e KONO DIN auto deploy hobe na
+  # ---------------------------------------------------------------
+  deploy-amrong:
+    if: github.event_name == 'workflow_dispatch' && inputs.amrong == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stamp deploy version
+        run: git rev-parse --short HEAD > public/version.txt
+
+      - name: FTP upload (full overwrite, never deletes)
+        env:
+          FTP_USER: ${{ secrets.AMRONG_FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.AMRONG_FTP_PASSWORD }}
+        run: |
+          command -v lftp >/dev/null || sudo apt-get install -y -qq lftp
+          lftp -u "$FTP_USER","$FTP_PASS" ftp://amrongbd.com << 'SCRIPT'
+            set ftp:ssl-allow yes
+            set ftp:ssl-protect-data yes
+            set ssl:verify-certificate no
+            set net:max-retries 3
+            set net:timeout 30
+            # main cPanel FTP account (amrong) chroot home = /home/amrong —
+            # /public_html e upload korlei doc root e pore
+            mirror -R --verbose --overwrite \
+              --exclude-glob .git* \
+              --exclude-glob .github \
+              --exclude .env \
+              --exclude .env.example \
+              --exclude-glob node_modules \
+              --exclude-glob tests \
+              --exclude DEPLOYMENT.md \
+              . /public_html
+            bye
+          SCRIPT
+
+      - name: Run live migrations
+        run: |
+          sleep 15
+          curl -fsS --max-time 90 --retry 2 --retry-delay 10 \
+            "https://amrongbd.com/public/setup.php?key=${{ secrets.AMRONG_SETUP_KEY }}" \
             || { echo "::error::Live migration FAILED — site will 500 if new columns are missing"; exit 1; }
           echo "== LIVE MIGRATIONS OK =="
