@@ -2,37 +2,84 @@
 
 @section('title', 'অ্যাডমিন ম্যানেজমেন্ট')
 @section('page_title', 'অ্যাডমিন ম্যানেজমেন্ট')
-@section('page_sub', 'নতুন অ্যাডমিন তৈরি ও ম্যানেজ করুন')
+@section('page_sub', 'নতুন অ্যাডমিন তৈরি, পারমিশন ও পাসওয়ার্ড ম্যানেজ করুন')
 
 @section('content')
     <div class="note-banner">
         <i class="fa-solid fa-shield-halved"></i>
-        <span>নতুন অ্যাডমিন তৈরি করলে ওরা <b>/admin/login</b> থেকে ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করতে পারবে। নিজের অ্যাকাউন্ট বা শেষ অ্যাডমিন মুছে ফেলা যাবে না।</span>
+        <span>প্রতিটি অ্যাডমিন শুধু যে সেকশনের পারমিশন পাবে সেটাই সাইডবারে দেখবে — বাকিগুলো লুকানো থাকবে।
+            ইমেইল সবসময় গোপন থাকে (<b>a***@g***.com</b>), পাসওয়ার্ড কখনো দেখানো হয় না।
+            নিজের পারমিশন নিজে এডিট করা যাবে না; শেষ অ্যাডমিন মুছে ফেলা যাবে না।</span>
     </div>
 
+    {{-- ===== নতুন অ্যাডমিন ===== --}}
     <div class="card">
         <h3>নতুন অ্যাডমিন</h3>
         <p class="desc">ইমেইল ইউনিক হতে হবে — একই ইমেইলে দুটো অ্যাডমিন হয় না</p>
         <form method="POST" action="{{ route('admin.admins.store') }}">
             @csrf
-            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end">
+            <div class="fgrid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
                 <div class="a-field">
-                    <label>নাম</label>
+                    <label>নাম *</label>
                     <input class="a-input" name="name" value="{{ old('name') }}" placeholder="যেমন: রফিকুল ইসলাম" required>
                 </div>
                 <div class="a-field">
-                    <label>ইমেইল</label>
+                    <label>ইমেইল *</label>
                     <input class="a-input" type="email" name="email" value="{{ old('email') }}" placeholder="admin@example.com" required>
                 </div>
                 <div class="a-field">
-                    <label>পাসওয়ার্ড</label>
+                    <label>পাসওয়ার্ড *</label>
                     <input class="a-input" type="password" name="password" placeholder="কমপক্ষে ৬ অক্ষর" required minlength="6">
                 </div>
+            </div>
+
+            @include('admin.partials.perm-checkboxes', ['selected' => old('permissions', [])])
+
+            <div style="display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap">
                 <button class="a-btn"><i class="fa-solid fa-user-plus"></i> তৈরি করুন</button>
+                <button type="button" class="a-btn ghost perm-toggle" data-target="perm-grid">
+                    <i class="fa-solid fa-check-double"></i> সব সিলেক্ট / বাদ
+                </button>
+                @error('permissions')<span style="color:#dc2626;font-size:12px;font-weight:600">{{ $message }}</span>@enderror
             </div>
         </form>
     </div>
 
+    {{-- ===== এডিট কার্ড (?edit=<id>) ===== --}}
+    @if ($editUser)
+        <div class="card" style="border-color:rgba(5,150,105,.45)">
+            <h3>এডিট করুন — {{ $editUser->name }}</h3>
+            <p class="desc">পারমিশন টিক/উঠিয়ে দিন; পাসওয়ার্ড রিসেট করতে চাইলে নতুন পাসওয়ার্ড লিখুন (না লিখলে অপরিবর্তিত)</p>
+            <form method="POST" action="{{ route('admin.admins.update', $editUser) }}">
+                @csrf
+                @method('PUT')
+                <div class="fgrid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+                    <div class="a-field">
+                        <label>নাম</label>
+                        <input class="a-input" value="{{ $editUser->name }}" disabled>
+                    </div>
+                    <div class="a-field">
+                        <label>ইমেইল (গোপন)</label>
+                        <input class="a-input" value="{{ mask_email($editUser->email) }}" disabled>
+                    </div>
+                    <div class="a-field">
+                        <label>নতুন পাসওয়ার্ড (ঐচ্ছিক)</label>
+                        <input class="a-input" type="password" name="password" placeholder="খালি রাখলে অপরিবর্তিত" minlength="6">
+                    </div>
+                </div>
+
+                @include('admin.partials.perm-checkboxes', ['selected' => $editUser->permissions ?? [], 'gridId' => 'perm-grid-edit'])
+
+                <div style="display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap">
+                    <button class="a-btn"><i class="fa-solid fa-floppy-disk"></i> সেভ করুন</button>
+                    <a class="a-btn ghost" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-xmark"></i> বাতিল</a>
+                    @error('permissions')<span style="color:#dc2626;font-size:12px;font-weight:600">{{ $message }}</span>@enderror
+                </div>
+            </form>
+        </div>
+    @endif
+
+    {{-- ===== সব অ্যাডমিন ===== --}}
     <div class="card">
         <h3>সব অ্যাডমিন <span style="color:#8b7355;font-weight:400">({{ $admins->count() }}টি)</span></h3>
         @if (session('errors') && session('errors')->first('admin'))
@@ -43,6 +90,7 @@
                 <tr>
                     <th>নাম</th>
                     <th>ইমেইল</th>
+                    <th>পারমিশন</th>
                     <th>যোগ হয়েছে</th>
                     <th></th>
                 </tr>
@@ -56,23 +104,51 @@
                                 <span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(22,163,74,.12);color:#16a34a;margin-left:6px">আপনি</span>
                             @endif
                         </td>
-                        <td>{{ $admin->email }}</td>
+                        <td style="font-family:monospace">{{ mask_email($admin->email) }}</td>
+                        <td>
+                            <span class="pill info">{{ count($admin->permissions ?? []) }}টি সেকশন</span>
+                        </td>
                         <td style="color:#8b7355">{{ $admin->created_at?->format('d M Y') ?? '—' }}</td>
                         <td style="white-space:nowrap">
                             @if ($admin->id !== $currentId)
-                                <form method="POST" action="{{ route('admin.admins.destroy', $admin) }}" style="display:inline"
-                                    onsubmit="return swConfirmSubmit(event, 'অ্যাডমিন "{{ $admin->name }}" মুছে ফেলবেন?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn" style="padding:6px 12px;font-size:12px;background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.3);color:#dc2626">মুছুন</button>
-                                </form>
+                                <a class="btn" style="padding:6px 12px;font-size:12px" href="{{ route('admin.admins.index', ['edit' => $admin->id]) }}">এডিট</a>
                             @else
                                 <span style="color:#8b7355;font-size:12px">বর্তমান লগইন</span>
                             @endif
+                            <form method="POST" action="{{ route('admin.admins.destroy', $admin) }}" style="display:inline"
+                                onsubmit="return swConfirmSubmit(event, @js($admin->id === $currentId
+                                    ? 'নিজের অ্যাকাউন্ট মুছলে লগআউট হয়ে যাবে — আপনি নিশ্চিত?'
+                                    : 'অ্যাডমিন ' . $admin->name . ' মুছে ফেলবেন?'))">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn" style="padding:6px 12px;font-size:12px;background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.3);color:#dc2626">মুছুন</button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
+
+    <style>
+        .perm-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:8px; margin-top:12px; }
+        .perm-item { display:flex; align-items:center; gap:8px; padding:9px 12px; border:1px solid rgba(5,150,105,.2);
+            border-radius:10px; cursor:pointer; font-size:13px; font-weight:600; color:#33443c; background:#fff; }
+        .perm-item:hover { border-color:rgba(5,150,105,.5); }
+        .perm-item:has(input:checked) { border-color:#059669; background:rgba(5,150,105,.06); color:#065f46; }
+        .perm-item input { accent-color:#059669; width:15px; height:15px; flex-shrink:0; }
+    </style>
+
+    <script>
+        /* সব সিলেক্ট / বাদ toggle */
+        document.querySelectorAll('.perm-toggle').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var grid = document.getElementById(btn.dataset.target);
+                if (!grid) return;
+                var boxes = grid.querySelectorAll('input[type="checkbox"]');
+                var allOn = Array.from(boxes).every(function (b) { return b.checked; });
+                boxes.forEach(function (b) { b.checked = !allOn; });
+            });
+        });
+    </script>
 @endsection

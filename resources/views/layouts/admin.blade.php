@@ -489,24 +489,31 @@
                 $sideIndustryKey = ab_industry_active();
                 $sideIndustryName = \App\Http\Controllers\Admin\IndustryPack::all()[$sideIndustryKey]['name_bn'] ?? $sideIndustryKey;
             @endphp
+            @if (auth()->user()->hasPerm('theme'))
             <a class="side-industry" href="{{ route('admin.settings.theme') }}" title="ইন্ডাস্ট্রি প্রিসেট বদলাতে ক্লিক করুন">
                 <i class="fa-solid fa-industry"></i>
                 <span><small>চালু ইন্ডাস্ট্রি</small><b>{{ $sideIndustryName }}</b></span>
             </a>
+            @endif
 
             <nav class="side-nav">
                 <div class="side-group-label">সাধারণ</div>
                 <a class="side-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-gauge-high"></i> ড্যাশবোর্ড</a>
+                @if (auth()->user()->hasPerm('orders'))
                 <a class="side-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}"><i class="fa-solid fa-boxes-stacked"></i> অর্ডারসমূহ
                     @php $pendingOrders = \App\Models\Order::where('status', 'pending')->count(); @endphp
                     @if ($pendingOrders > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $pendingOrders }} নতুন</span>@endif
                 </a>
+                @endif
+                @if (auth()->user()->hasPerm('complaints'))
                 <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন
                     @php $openComplaints = \App\Models\Complaint::where('is_resolved', false)->count(); @endphp
                     @if ($openComplaints > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $openComplaints }} নতুন</span>@endif
                 </a>
+                @endif
 
                 @php
+                    $u = auth()->user();
                     $inProductGroup = request()->routeIs('admin.products.*')
                         || request()->routeIs('admin.suppliers*')
                         || request()->routeIs('admin.customers*')
@@ -514,23 +521,43 @@
                         || request()->routeIs('admin.coupons*')
                         || request()->routeIs('admin.settings.delivery');
                 @endphp
+                @if ($u->hasAnyPerm(['products', 'suppliers', 'customers', 'taxonomy', 'coupons', 'delivery']))
                 <button type="button" class="side-link side-toggle {{ $inProductGroup ? 'active' : '' }}"
                     onclick="toggleProductSub()">
                     <i class="fa-solid fa-jar"></i> প্রোডাক্ট
                     <i class="fa-solid fa-chevron-down side-chevron {{ $inProductGroup ? 'open' : '' }}"></i>
                 </button>
                 <div class="side-sub {{ $inProductGroup ? 'open' : '' }}" id="productSub">
+                    @if ($u->hasPerm('products'))
                     <a class="side-sub-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">সব প্রোডাক্ট</a>
+                    @endif
+                    @if ($u->hasPerm('suppliers'))
                     <a class="side-sub-link {{ request()->routeIs('admin.suppliers*') ? 'active' : '' }}" href="{{ route('admin.suppliers') }}">সাপ্লায়ার</a>
+                    @endif
+                    @if ($u->hasPerm('customers'))
                     <a class="side-sub-link {{ request()->routeIs('admin.customers*') ? 'active' : '' }}" href="{{ route('admin.customers') }}">গ্রাহক</a>
+                    @endif
+                    @if ($u->hasPerm('taxonomy'))
                     <a class="side-sub-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}">ক্যাটাগরি ও ব্র্যান্ড</a>
+                    @endif
+                    @if ($u->hasPerm('coupons'))
                     <a class="side-sub-link {{ request()->routeIs('admin.coupons*') ? 'active' : '' }}" href="{{ route('admin.coupons') }}">কুপন</a>
+                    @endif
+                    @if ($u->hasPerm('delivery'))
                     <a class="side-sub-link {{ request()->routeIs('admin.settings.delivery') ? 'active' : '' }}" href="{{ route('admin.settings.delivery') }}">ডেলিভারি এরিয়া</a>
+                    @endif
                 </div>
+                @endif
+                @if ($u->hasPerm('reviews'))
                 <a class="side-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}" href="{{ route('admin.reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ</a>
+                @endif
 
+                @if ($u->hasPerm('payment'))
                 <a class="side-link {{ request()->routeIs('admin.settings.payment') ? 'active' : '' }}" href="{{ route('admin.settings.payment') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে</a>
+                @endif
+                @if ($u->hasPerm('tracking'))
                 <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
+                @endif
 
                 @php
                     $inSiteGroup = request()->routeIs('admin.settings.content')
@@ -538,17 +565,27 @@
                         || request()->routeIs('admin.settings.theme')
                         || request()->routeIs('admin.settings.sections');
                 @endphp
+                @if ($u->hasAnyPerm(['content', 'sections', 'brand', 'theme']))
                 <button type="button" class="side-link side-toggle {{ $inSiteGroup ? 'active' : '' }}"
                     onclick="toggleSideSub('siteSub')">
                     <i class="fa-solid fa-pen-to-square"></i> ল্যান্ডিং কনটেন্ট
                     <i class="fa-solid fa-chevron-down side-chevron {{ $inSiteGroup ? 'open' : '' }}"></i>
                 </button>
                 <div class="side-sub {{ $inSiteGroup ? 'open' : '' }}" id="siteSub">
+                    @if ($u->hasPerm('content'))
                     <a class="side-sub-link {{ request()->routeIs('admin.settings.content') ? 'active' : '' }}" href="{{ route('admin.settings.content') }}">ল্যান্ডিং কনটেন্ট</a>
+                    @endif
+                    @if ($u->hasPerm('sections'))
                     <a class="side-sub-link {{ request()->routeIs('admin.settings.sections') ? 'active' : '' }}" href="{{ route('admin.settings.sections') }}">সেকশন ডিজাইন</a>
+                    @endif
+                    @if ($u->hasPerm('brand'))
                     <a class="side-sub-link {{ request()->routeIs('admin.settings.brand') ? 'active' : '' }}" href="{{ route('admin.settings.brand') }}">লোগো ও ব্র্যান্ড</a>
+                    @endif
+                    @if ($u->hasPerm('theme'))
                     <a class="side-sub-link {{ request()->routeIs('admin.settings.theme') ? 'active' : '' }}" href="{{ route('admin.settings.theme') }}">থিম কালার</a>
+                    @endif
                 </div>
+                @endif
 
                 @php
                     $inSeoGroup = request()->routeIs('admin.seo')
@@ -556,21 +593,34 @@
                         || request()->routeIs('admin.redirects.*')
                         || request()->routeIs('admin.sitemap');
                 @endphp
+                @if ($u->hasAnyPerm(['seo', 'robots', 'redirects', 'sitemap']))
                 <button type="button" class="side-link side-toggle {{ $inSeoGroup ? 'active' : '' }}"
                     onclick="toggleSideSub('seoSub')">
                     <i class="fa-solid fa-magnifying-glass-chart"></i> SEO Settings
                     <i class="fa-solid fa-chevron-down side-chevron {{ $inSeoGroup ? 'open' : '' }}"></i>
                 </button>
                 <div class="side-sub {{ $inSeoGroup ? 'open' : '' }}" id="seoSub">
+                    @if ($u->hasPerm('seo'))
                     <a class="side-sub-link {{ request()->routeIs('admin.seo') ? 'active' : '' }}" href="{{ route('admin.seo') }}">SEO Settings</a>
+                    @endif
+                    @if ($u->hasPerm('robots'))
                     <a class="side-sub-link {{ request()->routeIs('admin.robots') ? 'active' : '' }}" href="{{ route('admin.robots') }}">robots.txt</a>
+                    @endif
+                    @if ($u->hasPerm('redirects'))
                     <a class="side-sub-link {{ request()->routeIs('admin.redirects.*') ? 'active' : '' }}" href="{{ route('admin.redirects.index') }}">301 Redirects</a>
+                    @endif
+                    @if ($u->hasPerm('sitemap'))
                     <a class="side-sub-link {{ request()->routeIs('admin.sitemap') ? 'active' : '' }}" href="{{ route('admin.sitemap') }}">Sitemap</a>
+                    @endif
                 </div>
+                @endif
 
                 <div class="side-group-label">অ্যাকাউন্ট</div>
 
+                <a class="side-link {{ request()->routeIs('admin.account*') ? 'active' : '' }}" href="{{ route('admin.account') }}"><i class="fa-solid fa-user"></i> আমার অ্যাকাউন্ট</a>
+                @if ($u->hasPerm('admins'))
                 <a class="side-link {{ request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন ম্যানেজমেন্ট</a>
+                @endif
             </nav>
 
             <div class="side-foot">
@@ -629,14 +679,27 @@
 
             <nav class="mobile-nav">
                 <a class="side-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-gauge-high"></i> ড্যাশবোর্ড</a>
+                @if (auth()->user()->hasPerm('orders'))
                 <a class="side-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}"><i class="fa-solid fa-boxes-stacked"></i> অর্ডার</a>
+                @endif
+                @if (auth()->user()->hasPerm('complaints'))
                 <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন</a>
+                @endif
+                @if (auth()->user()->hasPerm('taxonomy'))
                 <a class="side-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}"><i class="fa-solid fa-layer-group"></i> ক্যাটাগরি</a>
+                @endif
+                @if (auth()->user()->hasPerm('products'))
                 <a class="side-link {{ request()->routeIs('admin.products') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
+                @endif
+                @if (auth()->user()->hasPerm('customers'))
                 <a class="side-link" href="{{ route('admin.customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>
-                <a class="side-link" href="{{ route('admin.module', 'seo') }}"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO</a>
+                @endif
+                @if (auth()->user()->hasPerm('payment'))
                 <a class="side-link {{ request()->routeIs('admin.settings.payment') ? 'active' : '' }}" href="{{ route('admin.settings.payment') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট</a>
+                @endif
+                @if (auth()->user()->hasPerm('admins'))
                 <a class="side-link {{ request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন</a>
+                @endif
             </nav>
 
             @if (session('success'))

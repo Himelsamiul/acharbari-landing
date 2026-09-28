@@ -1,5 +1,24 @@
 <?php
 
+if (!function_exists('mask_email')) {
+    /**
+     * Admin list e real email dekhano jabe na — a***@g***.com style e mask.
+     * Sudhu prothom okkhor ar domain er prothom okkhor thake.
+     */
+    function mask_email(string $email): string
+    {
+        $email = trim($email);
+        if ($email === '' || !str_contains($email, '@')) return '***';
+
+        [$user, $domain] = explode('@', $email, 2);
+        $domainParts = explode('.', $domain);
+        $tld = array_pop($domainParts);
+        $domainHead = $domainParts[0] ?? '';
+
+        return mb_substr($user, 0, 1) . '***@' . mb_substr($domainHead, 0, 1) . '***.' . $tld;
+    }
+}
+
 if (!function_exists('ab_img')) {
     /** Prefer an existing .webp sibling of the image (falls back to the original). */
     function ab_img(string $path): string

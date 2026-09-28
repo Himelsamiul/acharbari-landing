@@ -37,12 +37,13 @@ class DatabaseSeeder extends Seeder
             ['percent' => 10, 'is_active' => true, 'expires_at' => null]
         );
 
-        // Admin user
+        // Admin user (full permission — seed e sudhu prothom bar cholbe)
         \App\Models\User::updateOrCreate(
             ['email' => 'admin@khorak.shop'],
             [
                 'name' => 'Admin',
                 'password' => Hash::make('admin123'),
+                'permissions' => array_keys(\App\Models\User::PERMISSIONS),
             ]
         );
 
