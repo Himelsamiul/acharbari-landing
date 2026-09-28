@@ -192,6 +192,13 @@ class ProductController extends Controller
 
     private function validateProduct(Request $request, ?Product $product = null): array
     {
+        // variant row thakle price/stock variant theke ase — product level er
+        // field gulo optional (form e hide o thake)
+        $hasVariantRows = collect($request->input('variants', []))
+            ->contains(fn ($r) => is_array($r)
+                && trim((string) ($r['size'] ?? '')) !== ''
+                && (float) ($r['price'] ?? 0) > 0);
+
         $data = $request->validate([
             'name' => 'required|string|max:200',
             'name_en' => 'required|string|max:200',
@@ -199,8 +206,8 @@ class ProductController extends Controller
             'category_key' => 'required|string|exists:categories,key',
             'brand' => 'nullable|string|max:80',
             'unit' => 'required|in:pcs,gm,kg,ml,liter',
-            'stock' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0',
+            'stock' => ($hasVariantRows ? 'nullable' : 'required') . '|integer|min:0',
+            'price' => ($hasVariantRows ? 'nullable' : 'required') . '|numeric|min:0',
             'variants' => 'nullable|array',
             'variants.*.id' => 'nullable|integer',
             'variants.*.size' => 'nullable|string|max:50', // khali row sync e ignore hoy
@@ -256,6 +263,10 @@ class ProductController extends Controller
         $data['is_active'] = $request->boolean('is_active');
         $data['is_featured'] = $request->boolean('is_featured');
         $data['brand'] = $data['brand'] ?? 'আচারবাড়ি';
+
+        // variant thakle ei duita hidden thake — DB e 0 bosiye dao (variant thekei asbe)
+        $data['price'] = (float) ($data['price'] ?? 0);
+        $data['stock'] = (int) ($data['stock'] ?? 0);
 
         return $data;
     }

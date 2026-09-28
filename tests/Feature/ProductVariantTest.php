@@ -133,6 +133,38 @@ class ProductVariantTest extends TestCase
             ->assertSee('৳1,500–৳2,500');
     }
 
+    public function test_variants_only_product_needs_no_product_price_or_stock(): void
+    {
+        // variant thakle upore price/stock field hidden thake — charao save hote hobe
+        $this->actingAs($this->admin());
+        Category::create(['name' => 'শার্ট', 'name_en' => 'Shirt', 'key' => 'shirt', 'industry' => 'organic', 'is_active' => true]);
+
+        $this->post(route('admin.products.store'), [
+            'name' => 'Variant Shirt',
+            'name_en' => 'Variant Shirt',
+            'category_key' => 'shirt',
+            'unit' => 'pcs',
+            // kono price / stock NAI — variant theke asbe
+            'variants' => [
+                ['size' => 'Red', 'price' => 1500, 'stock' => 50, 'is_active' => 1],
+                ['size' => 'Green', 'price' => 2000, 'stock' => 100, 'is_active' => 1],
+            ],
+        ])->assertRedirect(route('admin.products.index')); // validation error hole redirect na, back
+
+        $p = Product::where('slug', 'variant-shirt')->first();
+        $this->assertNotNull($p);
+        $this->assertSame(0, (int) $p->stock);
+        $this->assertSame(2, $p->variants()->count());
+
+        // ulto: variant CHARA product e price na dile error
+        $this->post(route('admin.products.store'), [
+            'name' => 'Simple',
+            'name_en' => 'Simple',
+            'category_key' => 'shirt',
+            'unit' => 'pcs',
+        ])->assertSessionHasErrors('price');
+    }
+
     public function test_admin_can_create_product_with_variants(): void
     {
         $this->actingAs($this->admin());

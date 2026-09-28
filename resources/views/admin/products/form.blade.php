@@ -53,8 +53,8 @@
                         @endforeach
                     </datalist>
                 </div>
-                <div class="a-field">
-                    <label>স্টক পরিমাণ *</label>
+                <div class="a-field" id="stockField">
+                    <label>স্টক পরিমাণ <span id="stockReqStar">*</span></label>
                     <input class="a-input" type="number" name="stock" min="0" value="{{ old('stock', $product->stock ?? 50) }}" required>
                 </div>
                 <div class="a-field">
@@ -76,9 +76,9 @@
         </div>
 
         {{-- ===== 2. দাম ===== --}}
-        <div class="card pf-card">
+        <div class="card pf-card" id="priceCard">
             <h3><span class="pf-ic" style="--pc:#d97706"><i class="fa-solid fa-tags"></i></span> দাম, VAT ও ডিসকাউন্ট</h3>
-            <p class="desc">বিক্রয়মূল্য, আগের দাম ও ভ্যাটের হার</p>
+            <p class="desc">বিক্রয়মূল্য, আগের দাম ও ভ্যাটের হার — <b>ভ্যারিয়েন্ট না দিলে</b> এগুলোই চলে</p>
             <div class="fgrid">
                 <div class="a-field">
                     <label>বিক্রয়মূল্য (৳) *</label>
@@ -106,7 +106,12 @@
         {{-- ===== 3. ভ্যারিয়েন্ট (সাইজ/রং/দাম) — দামের ঠিক পরেই ===== --}}
         <div class="card pf-card">
             <h3><span class="pf-ic" style="--pc:#f59e0b"><i class="fa-solid fa-layer-group"></i></span> ভ্যারিয়েন্ট / সাইজ / রং</h3>
-            <p class="desc">একই প্রোডাক্টের একাধিক ভ্যারিয়েন্ট আলাদা দাম/স্টকে রাখুন — যেমন Coca-Cola: 500ml ৳50, 700ml ৳200; বা Shirt: Red ৳1500, Green ৳2000। না দিলে উপরের দাম ও স্টকই চলবে।</p>
+            <p class="desc">একই প্রোডাক্টের একাধিক ভ্যারিয়েন্ট আলাদা দাম/স্টক/VAT/ডিসকাউন্টে রাখুন — যেমন Coca-Cola: 500ml ৳50, 700ml ৳200; বা Shirt: Red ৳1500, Green ৳2000। না দিলে উপরের দাম ও স্টকই চলবে।</p>
+
+            <div id="variantActiveNote" class="note-banner" style="display:none;margin:0 0 12px">
+                <i class="fa-solid fa-circle-check"></i>
+                <span><b>ভ্যারিয়েন্ট চালু আছে</b> — দাম, স্টক, VAT, ডিসকাউন্ট সব নিচের রো-গুলোতেই দিন। উপরের দাম/স্টক ফিল্ড এখন লাগবে না।</span>
+            </div>
 
             <div id="variantRows"></div>
 
@@ -312,12 +317,33 @@
                 '<input class="a-input" name="variants[' + i + '][sku]" value="' + (v.sku || '') + '" placeholder="CC-500" maxlength="60"></div>' +
                 '<label class="vactive"><input type="checkbox" name="variants[' + i + '][is_active]" value="1" ' + (v.is_active === undefined || v.is_active ? 'checked' : '') + '> চালু</label>' +
                 '<input type="hidden" name="variants[' + i + '][id]" value="' + (v.id || '') + '">' +
-                '<button type="button" class="vdel" title="রো মুছুন" onclick="this.closest(\'.vrow\').remove()"><i class="fa-solid fa-trash"></i></button>' +
+                '<button type="button" class="vdel" title="রো মুছুন" onclick="removeVariantRow(this)"><i class="fa-solid fa-trash"></i></button>' +
                 '</div>';
         }
 
         function addVariantRow(v) {
             document.getElementById('variantRows').insertAdjacentHTML('beforeend', variantRowHtml(v));
+            refreshPricingVisibility();
+        }
+
+        function removeVariantRow(btn) {
+            btn.closest('.vrow').remove();
+            refreshPricingVisibility();
+        }
+
+        /* variant row thakle upore price/stock field lage na — hide kore dao */
+        function refreshPricingVisibility() {
+            var hasRows = document.querySelectorAll('#variantRows .vrow').length > 0;
+            var priceCard = document.getElementById('priceCard');
+            var stockField = document.getElementById('stockField');
+            var note = document.getElementById('variantActiveNote');
+            if (priceCard) priceCard.style.display = hasRows ? 'none' : '';
+            if (stockField) {
+                stockField.style.display = hasRows ? 'none' : '';
+                var inp = stockField.querySelector('input[name="stock"]');
+                if (inp) inp.required = !hasRows; /* hidden thakle required nao */
+            }
+            if (note) note.style.display = hasRows ? '' : 'none';
         }
 
         /* এডিটে পুরানো ভ্যারিয়েন্ট রো হিসেবে বসাও */
@@ -334,6 +360,7 @@
             @endphp
             var data = @json($variantRows);
             if (data.length) data.forEach(addVariantRow);
+            refreshPricingVisibility();
         })();
     </script>
 
