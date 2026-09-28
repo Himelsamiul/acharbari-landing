@@ -49,7 +49,7 @@ class OrderController extends Controller
             $counts[$s] = Order::where('status', $s)->count();
         }
 
-        return view('admin.orders.index', compact('orders', 'status', 'counts', 'month', 'summary'));
+        return view('admin.orders.index', compact('orders', 'status', 'counts', 'month', 'summary', 'q'));
     }
 
     public function show(Order $order)

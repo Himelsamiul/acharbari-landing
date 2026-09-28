@@ -31,21 +31,29 @@
             <h3 style="margin:2px 0 0;color:#dc2626">{{ $summary['cancelled'] }}টি</h3>
         </div>
         <div class="card" style="margin:0;display:flex;align-items:center">
-            <div class="a-field" style="margin:0;width:100%">
-                <label style="font-size:11px;color:#8b7355">মাস বাছাই করুন</label>
-                <select class="a-input" id="orderMonth" onchange="if(this.value){var u=new URL(location.href);u.searchParams.set('month',this.value);u.searchParams.delete('page');location.href=u.toString()}">
-                    <option value="">সব সময়</option>
-                    @for ($i = 0; $i < 18; $i++)
-                        @php
-                            $mDate = now()->subMonths($i);
-                            $mKey = $mDate->format('Y-m');
-                        @endphp
-                        <option value="{{ $mKey }}" {{ $month === $mKey ? 'selected' : '' }}>
-                            {{ $mDate->locale('bn')->translatedFormat('F Y') }}
-                        </option>
-                    @endfor
-                </select>
-            </div>
+            {{-- মাস সিলেক্ট + সার্চ বাটন — form submit, JS ছাড়াই ১০০% কাজ করে --}}
+            <form method="GET" action="{{ route('admin.orders.index') }}" style="margin:0;width:100%">
+                @if ($status)<input type="hidden" name="status" value="{{ $status }}">@endif
+                @if ($q !== '')<input type="hidden" name="q" value="{{ $q }}">@endif
+                <div class="a-field" style="margin:0">
+                    <label style="font-size:11px;color:#8b7355">মাস বাছাই করুন</label>
+                    <select name="month" class="a-input" style="margin-bottom:6px">
+                        <option value="">সব সময়</option>
+                        @for ($i = 0; $i < 18; $i++)
+                            @php
+                                $mDate = now()->subMonths($i);
+                                $mKey = $mDate->format('Y-m');
+                            @endphp
+                            <option value="{{ $mKey }}" {{ $month === $mKey ? 'selected' : '' }}>
+                                {{ $mDate->locale('bn')->translatedFormat('F Y') }}
+                            </option>
+                        @endfor
+                    </select>
+                    <button class="a-btn" type="submit" style="width:100%;padding:7px 0">
+                        <i class="fa-solid fa-magnifying-glass"></i> সার্চ
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
