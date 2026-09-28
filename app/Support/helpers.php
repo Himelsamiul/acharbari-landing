@@ -448,6 +448,8 @@ if (!function_exists('buildQuickView')) {
                     'size' => $v->size,
                     'price' => '৳' . bn_num($v->price),
                     'price_en' => '৳' . number_format($v->price),
+                    'oldPrice' => $v->old_price ? '৳' . bn_num($v->old_price) : '',
+                    'oldPrice_en' => $v->old_price ? '৳' . number_format($v->old_price) : '',
                     'stock' => (int) $v->stock,
                 ])->all(),
             ]];

@@ -103,7 +103,20 @@
             </div>
         </div>
 
-        {{-- ===== 3. ছবি ও বারকোড ===== --}}
+        {{-- ===== 3. ভ্যারিয়েন্ট (সাইজ/দাম) — দামের ঠিক পরেই ===== --}}
+        <div class="card pf-card">
+            <h3><span class="pf-ic" style="--pc:#f59e0b"><i class="fa-solid fa-layer-group"></i></span> ভ্যারিয়েন্ট / সাইজ</h3>
+            <p class="desc">একই প্রোডাক্টের একাধিক সাইজ আলাদা দাম/স্টকে রাখুন — যেমন 250ml ৳30, 500ml ৳50। না দিলে উপরের দাম ও স্টকই চলবে।</p>
+
+            <div id="variantRows"></div>
+
+            <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
+                <button type="button" class="a-btn ghost" onclick="addVariantRow()"><i class="fa-solid fa-plus"></i> ভ্যারিয়েন্ট যোগ করুন</button>
+                <span style="color:#8b7355;font-size:12.5px">সাইজ + দাম দেওয়া রো-গুলোই সেভ হবে; খালি রো বাদ যাবে</span>
+            </div>
+        </div>
+
+        {{-- ===== 4. ছবি ও বারকোড ===== --}}
         <div class="card pf-card">
             <h3><span class="pf-ic" style="--pc:#7c3aed"><i class="fa-solid fa-barcode"></i></span> ছবি ও বারকোড</h3>
             <p class="desc">ছবি আপলোড করুন — বারকোড নিজে লিখুন, না লিখলে অটো তৈরি হবে</p>
@@ -132,7 +145,7 @@
             </div>
         </div>
 
-        {{-- ===== 4. বর্ণনা ===== --}}
+        {{-- ===== 5. বর্ণনা ===== --}}
         <div class="card pf-card">
             <h3><span class="pf-ic" style="--pc:#0ea5e9"><i class="fa-solid fa-file-lines"></i></span> বর্ণনা ও ডিটেইলস</h3>
             <p class="desc">প্রোডাক্টের বিবরণ, রেটিং ও ব্যাজ</p>
@@ -168,7 +181,7 @@
             </div>
         </div>
 
-        {{-- ===== 5. স্ট্যাটাস + SEO ===== --}}
+        {{-- ===== 6. স্ট্যাটাস + SEO ===== --}}
         <div class="card pf-card">
             <h3><span class="pf-ic" style="--pc:#16a34a"><i class="fa-solid fa-sliders"></i></span> স্ট্যাটাস ও SEO</h3>
             <p class="desc">লাইভ/ফিচার্ড স্ট্যাটাস ও ঐচ্ছিক SEO তথ্য</p>
@@ -197,19 +210,6 @@
             <div class="a-field">
                 <label>Meta Description (ঐচ্ছিক)</label>
                 <textarea class="a-input" name="meta_description" rows="2" maxlength="320" placeholder="প্রোডাক্টের ছোট বর্ণনা যা গুগল সার্চে দেখাবে">{{ old('meta_description', $product->meta_description) }}</textarea>
-            </div>
-        </div>
-
-        {{-- ===== ভ্যারিয়েন্ট (সাইজ/দাম) ===== --}}
-        <div class="card pf-card">
-            <h3><span class="pf-ic" style="--pc:#f59e0b"><i class="fa-solid fa-layer-group"></i></span> ভ্যারিয়েন্ট / সাইজ</h3>
-            <p class="desc">একই প্রোডাক্টের একাধিক সাইজ আলাদা দাম/স্টকে রাখুন — যেমন 250ml ৳30, 500ml ৳50। না দিলে উপরের দাম ও স্টকই চলবে।</p>
-
-            <div id="variantRows"></div>
-
-            <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
-                <button type="button" class="a-btn ghost" onclick="addVariantRow()"><i class="fa-solid fa-plus"></i> ভ্যারিয়েন্ট যোগ করুন</button>
-                <span style="color:#8b7355;font-size:12.5px">সাইজ + দাম দেওয়া রো-গুলোই সেভ হবে; খালি রো বাদ যাবে</span>
             </div>
         </div>
 

@@ -1294,6 +1294,9 @@ document.addEventListener('DOMContentLoaded', function () {
 // window.quickViewProducts = @json($qv) in the Blade views.
 
 var currentQvProductId = null;
+var currentQvVariantId = null;
+
+function qvEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
 window.openQuickView = function (productId) {
     var prod = window.quickViewProducts[productId];
@@ -1303,20 +1306,70 @@ window.openQuickView = function (productId) {
     function pick(bn, enVal) { return en ? (enVal || bn) : bn; }
 
     currentQvProductId = productId;
+    currentQvVariantId = null;
     document.getElementById('qvModalTitle').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + pick(prod.category, prod.category_en);
     document.getElementById('qvModalName').textContent = pick(prod.title, prod.title_en);
     document.getElementById('qvModalCategory').textContent = pick(prod.category, prod.category_en);
-    document.getElementById('qvModalPrice').textContent = pick(prod.price, prod.price_en);
     document.getElementById('qvModalOldPrice').textContent = pick(prod.oldPrice, prod.oldPrice_en);
+    document.getElementById('qvModalOldPrice').style.display = '';
     document.getElementById('qvModalDiscount').textContent = pick(prod.discount, prod.discount_en);
     document.getElementById('qvModalDesc').textContent = pick(prod.desc, prod.desc_en);
     document.getElementById('qvModalImg').src = prod.img;
     document.getElementById('qvModalImg').alt = prod.alt || prod.title || 'Product';
 
+    /* variant (size) thakle selector dekhao — price first available variant er */
+    var vbox = document.getElementById('qvVariantBox');
+    var vgrid = document.getElementById('qvVariantGrid');
+    var vs = prod.variants || [];
+    if (vbox && vgrid) {
+        if (vs.length) {
+            vbox.classList.remove('hidden');
+            var html = '';
+            vs.forEach(function (v) {
+                var off = v.stock <= 0;
+                var sel = !window.currentQvVariantId && !off; /* prothom available ta selected */
+                if (sel) window.currentQvVariantId = v.id;
+                html += '<label class="qv-size ' + (sel ? 'sel' : '') + (off ? ' off' : '') + '">' +
+                    '<input type="radio" name="qv_variant" value="' + v.id + '"' +
+                    ' data-price-bn="' + qvEsc(v.price) + '" data-price-en="' + qvEsc(v.price_en) + '"' +
+                    ' data-old-bn="' + qvEsc(v.oldPrice || '') + '" data-old-en="' + qvEsc(v.oldPrice_en || '') + '"' +
+                    ' ' + (off ? 'disabled' : (sel ? 'checked' : '')) + '' +
+                    ' onchange="qvPickVariant(this)">' +
+                    '<span class="qv-size-name">' + qvEsc(v.size) + '</span>' +
+                    '<span class="qv-size-price">' + qvEsc(pick(v.price, v.price_en)) + '</span>' +
+                    (off ? '<small>স্টক শেষ</small>' : '') +
+                    '</label>';
+            });
+            vgrid.innerHTML = html;
+            var first = vs.find(function (v) { return v.stock > 0; }) || vs[0];
+            document.getElementById('qvModalPrice').textContent = pick(first.price, first.price_en);
+        } else {
+            vbox.classList.add('hidden');
+            document.getElementById('qvModalPrice').textContent = pick(prod.price, prod.price_en);
+        }
+    }
+
     var modal = document.getElementById('quickViewModal');
     if (modal) {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+    }
+};
+
+window.qvPickVariant = function (input) {
+    var grid = document.getElementById('qvVariantGrid');
+    grid.querySelectorAll('.qv-size').forEach(function (l) { l.classList.remove('sel'); });
+    input.closest('.qv-size').classList.add('sel');
+    window.currentQvVariantId = parseInt(input.value, 10);
+    var en = (window.AB && AB.lang === 'en');
+    document.getElementById('qvModalPrice').textContent = en ? (input.dataset.priceEn || input.dataset.priceBn) : input.dataset.priceBn;
+    var oldEl = document.getElementById('qvModalOldPrice');
+    var oldTxt = en ? (input.dataset.oldEn || input.dataset.oldBn) : input.dataset.oldBn;
+    if (oldTxt) {
+        oldEl.textContent = oldTxt;
+        oldEl.style.display = '';
+    } else {
+        oldEl.style.display = 'none';
     }
 };
 
@@ -1329,12 +1382,21 @@ window.closeQuickViewModal = function () {
 };
 
 window.orderFromQuickView = function () {
+    var pid = currentQvProductId;
+    var vid = window.currentQvVariantId;
     closeQuickViewModal();
-    if (currentQvProductId) {
-        selectProductForOrder(currentQvProductId);
-    } else {
+    if (!pid) {
+        var form0 = document.getElementById('order-form');
+        if (form0) form0.scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
+    // variant select kora thakle seta diye cart e dhuke, scroll to order form
+    if (vid && typeof addToCartVariant === 'function') {
+        addToCartVariant(pid, vid);
         var form = document.getElementById('order-form');
         if (form) form.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        selectProductForOrder(pid);
     }
 };
 
@@ -1342,6 +1404,12 @@ window.selectProductForOrder = function (productId) {
     // pages without the checkout cart (e.g. /products) go to the home checkout
     if (!document.querySelector('.lp-cart-wrapper')) {
         window.location.href = '/#order-form';
+        return;
+    }
+    // variant thakle age size select korte hobe — quick view modal khule dao
+    var p = (window.quickViewProducts || {})[productId];
+    if (p && p.variants && p.variants.length) {
+        window.openQuickView(productId);
         return;
     }
     if (typeof addToCartFromRow === 'function') {
@@ -1813,6 +1881,19 @@ document.addEventListener('keydown', function (e) {
         var p = prodData(productId);
         var key = (p && p.variants && p.variants.length) ? makeKey(productId, p.variants[0].id) : String(productId);
         // already in the cart → bump the quantity instead of doing nothing
+        if (cart[key] && cart[key].qty < 10) {
+            cart[key].qty++;
+            render();
+        } else {
+            window.toggleProductFromCart(key, true);
+        }
+    };
+
+    /* size select kore add — quick view modal theke */
+    window.addToCartVariant = function (pid, vid) {
+        pid = parseInt(pid, 10);
+        vid = vid ? parseInt(vid, 10) : null;
+        var key = makeKey(pid, vid);
         if (cart[key] && cart[key].qty < 10) {
             cart[key].qty++;
             render();

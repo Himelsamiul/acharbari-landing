@@ -253,8 +253,14 @@
                             </p>
                             <div class="space-y-1 text-xs text-gray-700 mb-4">
                                 <div><svg class="text-emerald-600 mr-1.5" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> <span data-en="Home delivery across Bangladesh">সারা বাংলাদেশে হোম ডেলিভারি</span></div>
-                                <div><svg class="text-emerald-600 mr-1.5" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> <span data-en="Check the sealed jar, then pay">সিল করা জার চেক করে মূল্য পরিশোধ</span></div>
+                                <div><svg class="text-emerald-600 mr-1.5" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> <span data-en="Check the sealed jar, then pay">সিল করা জার চেক করে মূল্য/স্টক দেখায়</span></div>
                                 <div><svg class="text-emerald-600 mr-1.5" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> <span data-en="Free replacement on broken jars">ভাঙা জারে ফ্রি রিপ্লেসমেন্ট গ্যারান্টি</span></div>
+                            </div>
+
+                            {{-- ভ্যারিয়েন্ট (সাইজ) সিলেক্টর — variant thakle modal e dekhabe --}}
+                            <div id="qvVariantBox" class="hidden" style="margin-bottom:16px">
+                                <div style="font-size:12.5px;font-weight:800;color:#1f4234;margin-bottom:8px">সাইজ বাছুন:</div>
+                                <div id="qvVariantGrid" style="display:flex;flex-wrap:wrap;gap:8px"></div>
                             </div>
                         </div>
 
@@ -266,6 +272,20 @@
             </div>
         </div>
     </div>
+
+    <style>
+        /* quick-view modal er variant (size) buttons */
+        #qvVariantGrid .qv-size { display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer;
+            border:2px solid rgba(5,150,105,.22); border-radius:12px; padding:8px 14px; background:#fff;
+            min-width:78px; text-align:center; transition:border-color .15s, background .15s; position:relative; }
+        #qvVariantGrid .qv-size:hover { border-color:#059669; }
+        #qvVariantGrid .qv-size.sel { border-color:#059669; background:rgba(5,150,105,.07); }
+        #qvVariantGrid .qv-size.off { opacity:.45; cursor:not-allowed; }
+        #qvVariantGrid .qv-size input { position:absolute; opacity:0; pointer-events:none; }
+        #qvVariantGrid .qv-size-name { font-size:13px; font-weight:800; color:#1f4234; }
+        #qvVariantGrid .qv-size-price { font-size:12.5px; font-weight:700; color:#047857; }
+        #qvVariantGrid .qv-size small { font-size:10px; color:#dc2626; font-weight:700; }
+    </style>
 
     <!-- ================= FLOATING CHAT WIDGET ================= -->
     @if ($phone !== '' || $wa !== '' || $ms !== '')
