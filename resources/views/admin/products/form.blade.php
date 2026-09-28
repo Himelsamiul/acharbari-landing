@@ -16,9 +16,14 @@
             $formIndustry = $product->industry ?: ab_industry_active();
             $formIndustryName = \App\Http\Controllers\Admin\IndustryPack::all()[$formIndustry]['name_bn'] ?? $formIndustry;
         @endphp
-        <div class="note-banner">
+        <div class="note-banner" id="formHintBanner">
             <i class="fa-solid fa-lightbulb"></i>
-            <span>{{ $product->exists ? 'তথ্য পাল্টে <b>আপডেট করুন</b> চাপুন — সাথে সাথে লাইভ সাইটে দেখা যাবে।' : 'তারা চিহ্নিত (*) ঘরগুলো জরুরি — বাকিগুলো পরেও এডিট করা যাবে।' }}</span>
+            <span>{!! $product->exists
+                ? 'তথ্য পাল্টে <b>আপডেট করুন</b> চাপুন — সাথে সাথে লাইভ সাইটে দেখা যাবে।'
+                : 'তারা-চিহ্নিত (<b>*</b>) ঘরগুলো পূরণ করলেই সেভ হবে — বাকিগুলো পরে এডিট করা যাবে। ভ্যারিয়েন্ট দিলে দাম/স্টক নিচের ভ্যারিয়েন্ট রো-তে দিন।' !!}</span>
+            <button type="button" onclick="document.getElementById('formHintBanner').style.display='none'"
+                style="margin-left:auto;border:none;background:rgba(0,0,0,.06);border-radius:8px;width:26px;height:26px;cursor:pointer;font-size:14px;color:#4b5f54;flex-shrink:0"
+                title="বন্ধ করুন">×</button>
         </div>
 
         {{-- ===== 1. বেসিক ===== --}}
