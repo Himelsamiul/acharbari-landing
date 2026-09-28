@@ -58,6 +58,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // customers (derived from orders) — search + rename + delete
     Route::get('/customers', [Admin\CustomerController::class, 'index'])->middleware('perm:customers')->name('admin.customers');
+    Route::get('/customers/export/{type}', [Admin\CustomerController::class, 'export'])
+        ->where('type', 'pdf|csv')->middleware('perm:customers')->name('admin.customers.export');
     Route::post('/customers/rename', [Admin\CustomerController::class, 'rename'])->middleware('perm:customers')->name('admin.customers.rename');
     Route::delete('/customers/{phone}', [Admin\CustomerController::class, 'destroy'])
         ->where('phone', '[0-9]+')->middleware('perm:customers')->name('admin.customers.destroy');

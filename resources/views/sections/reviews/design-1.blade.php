@@ -67,8 +67,9 @@
                         <div
                             class="border border-gray-200 rounded-2xl p-5 bg-white shadow-sm flex flex-col h-full min-h-[190px]">
                             <div class="flex items-center gap-3 mb-2">
-                                <img src="{{ asset($rev['img'] ?: 'assets/img/rev1.jpg') }}" alt="{{ $rev['name'] ?? '' }}"
-                                    class="w-10 h-10 rounded-full object-cover">
+                                {{-- reviewer image bad — sudhu nam ar location dekhabe --}}
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm"
+                                    style="background:rgba(5,150,105,.12);color:#047857">{{ mb_substr(trim($rev['name'] ?? ''), 0, 1) }}</div>
                                 <div>
                                     <h4 class="font-bold text-sm text-[#d97706]">{{ $rev['name'] ?? '' }} <svg class="text-emerald-500 text-xs" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></h4>
                                     <p class="text-[10px] text-gray-500" data-en="{{ $rev['loc_en'] ?? '' }}">{{ $rev['loc_bn'] ?? '' }}</p>

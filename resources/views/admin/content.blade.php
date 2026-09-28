@@ -575,6 +575,27 @@
                 <p class="desc">ফোন/WhatsApp/Facebook বদলাতে <a href="{{ route('admin.settings.brand') }}">লোগো ও ব্র্যান্ড</a> পেজে যান। কপিরাইটের বছর অটো বসে।</p>
             </div>
 
+            <div class="ct-sec">
+                <div class="ct-sec-head">
+                    <span class="ct-ic" style="--cc:#475569"><i class="fa-solid fa-scale-balanced"></i></span>
+                    <div>
+                        <b>প্রাইভেসি পলিসি ও শর্তাবলি</b>
+                        <small>ফুটারের লিগ্যাল পেজের লেখা — খালি রাখলে ডিফল্ট লেখা দেখাবে</small>
+                    </div>
+                </div>
+                <div class="a-field">
+                    <label>প্রাইভেসি পলিসির লেখা (HTML ট্যাগ চলবে — যেমন &lt;p&gt;, &lt;b&gt;)</label>
+                    <textarea class="a-input" rows="8" name="privacy_policy_content"
+                        placeholder="খালি রাখলে ডিফল্ট প্রাইভেসি পলিসি দেখাবে">{{ $settings['privacy_policy_content'] ?? '' }}</textarea>
+                </div>
+                <div class="a-field">
+                    <label>শর্তাবলি ও নিয়মাবলির লেখা (HTML ট্যাগ চলবে)</label>
+                    <textarea class="a-input" rows="8" name="terms_content"
+                        placeholder="খালি রাখলে ডিফল্ট শর্তাবলি দেখাবে">{{ $settings['terms_content'] ?? '' }}</textarea>
+                </div>
+                <p class="desc">পেজ দেখতে: সাইটের ফুটারে <b>প্রাইভেসি পলিসি</b> / <b>শর্তাবলি</b> লিংকে ক্লিক করুন।</p>
+            </div>
+
             <div class="ct-savebar">
                 <button class="a-btn" style="padding:12px 28px"><i class="fa-solid fa-floppy-disk"></i> নেভিগেশন ও ফুটার সেভ করুন</button>
                 <span class="ct-savehint">এই ট্যাবের সব ঘর একসাথে সেভ হয়</span>

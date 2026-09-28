@@ -11,13 +11,35 @@
                 <h3>গ্রাহক লিস্ট</h3>
                 <p class="desc">মোট {{ $uniqueCount }} জন ইউনিক গ্রাহক (মোবাইল নম্বর অনুযায়ী)</p>
             </div>
-            <form method="GET" action="{{ route('admin.customers') }}" style="display:flex;gap:8px">
-                <input type="text" class="a-input" name="q" value="{{ $q }}" placeholder="🔍 নাম বা মোবাইল নম্বর…" style="max-width:260px" autocomplete="off">
+            <form method="GET" action="{{ route('admin.customers') }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <input type="text" class="a-input" name="q" value="{{ $q }}" placeholder="🔍 নাম বা মোবাইল নম্বর…" style="max-width:220px" autocomplete="off">
+                <input type="date" class="a-input" name="from" value="{{ $from }}" title="শুরুর তারিখ" style="max-width:160px">
+                <span style="color:#8b7355;font-size:12px">থেকে</span>
+                <input type="date" class="a-input" name="to" value="{{ $to }}" title="শেষ তারিখ" style="max-width:160px">
                 <button class="a-btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> খুঁজুন</button>
-                @if ($q !== '')
+                @if ($q !== '' || $from !== '' || $to !== '')
                     <a class="a-btn ghost" href="{{ route('admin.customers') }}">সব দেখুন</a>
                 @endif
             </form>
+        </div>
+
+        {{-- রিপোর্ট ডাউনলোড: ফিল্টার (তারিখ/সার্চ) ধরে রেখেই PDF/Excel --}}
+        <div style="display:flex;gap:8px;align-items:center;margin:0 0 14px;flex-wrap:wrap">
+            <span style="font-size:12.5px;font-weight:800;color:#1f4234"><i class="fa-solid fa-file-export"></i> রিপোর্ট ডাউনলোড:</span>
+            <a class="a-btn ghost" style="padding:7px 14px;font-size:12.5px"
+                href="{{ route('admin.customers.export', ['type' => 'pdf', 'q' => $q, 'from' => $from, 'to' => $to]) }}">
+                <i class="fa-solid fa-file-pdf" style="color:#dc2626"></i> PDF
+            </a>
+            <a class="a-btn ghost" style="padding:7px 14px;font-size:12.5px"
+                href="{{ route('admin.customers.export', ['type' => 'csv', 'q' => $q, 'from' => $from, 'to' => $to]) }}">
+                <i class="fa-solid fa-file-excel" style="color:#16a34a"></i> Excel (CSV)
+            </a>
+            <span style="font-size:11.5px;color:#8b7355">উপরের তারিখ/সার্চ ফিল্টার মেনেই রিপোর্ট আসবে</span>
+        </div>
+        <div>
+        @if (session('errors') && session('errors')->first('report'))
+            <p style="color:#dc2626;font-weight:700;font-size:13px;margin:0 0 10px">{{ session('errors')->first('report') }}</p>
+        @endif
         </div>
         <table class="tbl">
             <thead>
@@ -47,10 +69,11 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" style="text-align:center;color:#8b7355;padding:20px">{{ $q !== '' ? 'কিছু পাওয়া যায়নি।' : 'এখনো কোনো গ্রাহক নেই — অর্ডার এলে অটো দেখা যাবে।' }}</td></tr>
+                    <tr><td colspan="6" style="text-align:center;color:#8b7355;padding:20px">{{ $q !== '' || $from !== '' || $to !== '' ? 'এই ফিল্টারে কোনো গ্রাহক পাওয়া যায়নি।' : 'এখনো কোনো গ্রাহক নেই — অর্ডার এলে অটো দেখা যাবে।' }}</td></tr>
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     <form method="POST" action="{{ route('admin.customers.rename') }}" id="renameForm" style="display:none">

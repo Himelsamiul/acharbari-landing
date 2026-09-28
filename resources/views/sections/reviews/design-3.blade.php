@@ -16,7 +16,7 @@
                     <span class="rv-v3__quote">“</span>
                     <p data-en="{{ $rev['text_en'] ?? '' }}">{{ $rev['text_bn'] ?? '' }}</p>
                     <div class="rv-v3__who">
-                        <img src="{{ asset($rev['img'] ?: 'assets/img/rev1.jpg') }}" alt="{{ $rev['name'] ?? '' }}" loading="lazy">
+                        <div class="rv-v3__ava">{{ mb_substr(trim($rev['name'] ?? ''), 0, 1) }}</div>
                         <div>
                             <b>{{ $rev['name'] ?? '' }}</b>
                             <small data-en="{{ $rev['loc_en'] ?? '' }}">{{ $rev['loc_bn'] ?? '' }}</small>
@@ -47,7 +47,7 @@
     }
     .rv-v3__card p { margin: 0 0 14px; font-size: 13.5px; line-height: 1.75; color: rgba(255,255,255,.88); }
     .rv-v3__who { display: flex; align-items: center; gap: 10px; }
-    .rv-v3__who img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--ds-lime-neon); }
+    .rv-v3__ava { width: 38px; height: 38px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:#047857; background:rgba(5,150,105,.12); border: 2px solid var(--ds-lime-neon); }
     .rv-v3__who b { display: block; font-size: 12.5px; color: #fff; }
     .rv-v3__who small { font-size: 10px; color: rgba(255,255,255,.55); }
     .rv-v3__stars { margin-left: auto; color: var(--ds-lime-neon); letter-spacing: 1px; }

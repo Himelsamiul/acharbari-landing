@@ -26,7 +26,7 @@
 
     <div class="card" style="margin-top:16px">
         <h3><i class="fa-solid fa-comments"></i> গ্রাহক রিভিউ কার্ড</h3>
-        <p class="desc">ছবির ঘরে পাথ লিখুন (যেমন: assets/img/rev1.jpg) • Source: Google দিলে ল্যান্ডিং পেজে Google ব্যাজ দেখাবে</p>
+        <p class="desc">Source: Google দিলে ল্যান্ডিং পেজে Google ব্যাজ দেখাবে</p>
         <form method="POST" action="{{ route('admin.reviews.save') }}" class="rep-form">
             @csrf
             <div class="rep" data-json="reviews_json">
@@ -34,7 +34,6 @@
                     <div class="rep-row rep-row-block">
                         <div class="rep-line">
                             <input class="a-input" data-k="name" value="{{ $row['name'] ?? '' }}" placeholder="নাম">
-                            <input class="a-input" data-k="img" value="{{ $row['img'] ?? '' }}" placeholder="ছবির পাথ">
                             <input class="a-input" data-k="stars" value="{{ $row['stars'] ?? 5 }}" placeholder="তারা (1-5)" style="max-width:100px">
                             <select class="a-input" data-k="source" style="max-width:150px">
                                 <option value="normal" {{ ($row['source'] ?? 'normal') === 'normal' ? 'selected' : '' }}>সাধারণ রিভিউ</option>

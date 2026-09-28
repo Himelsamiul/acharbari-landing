@@ -465,6 +465,8 @@ class SettingController extends Controller
             'faq_json' => 'nullable|string|max:60000',
             'reviews_json' => 'nullable|string|max:60000',
             'rating_json' => 'nullable|string|max:10000',
+            'privacy_policy_content' => 'nullable|string|max:20000',
+            'terms_content' => 'nullable|string|max:20000',
             'delivery_inside' => 'nullable|integer|min:0|max:5000',
             'delivery_outside' => 'nullable|integer|min:0|max:5000',
         ];
@@ -499,6 +501,15 @@ class SettingController extends Controller
         foreach (['delivery_inside' => 80, 'delivery_outside' => 150] as $charge => $default) {
             if (array_key_exists($charge, $data) && (int) $data[$charge] > 0) {
                 $pairs[$charge] = (int) $data[$charge];
+            }
+        }
+
+        // legal pages (footer): privacy policy + terms content — khali dile default ferot ashe
+        foreach (['privacy_policy_content', 'terms_content'] as $legal) {
+            if (array_key_exists($legal, $data)) {
+                $pairs[$legal] = trim((string) ($data[$legal] ?? '')) !== ''
+                    ? $data[$legal]
+                    : '';
             }
         }
 

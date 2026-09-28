@@ -44,7 +44,7 @@
             @foreach ($rv2cards as $rev)
                 <article class="rv-v2__card">
                     <div class="rv-v2__top">
-                        <img src="{{ asset($rev['img'] ?: 'assets/img/rev1.jpg') }}" alt="{{ $rev['name'] ?? '' }}" loading="lazy">
+                        <div class="rv-v2__ava">{{ mb_substr(trim($rev['name'] ?? ''), 0, 1) }}</div>
                         <div>
                             <h4>{{ $rev['name'] ?? '' }} <i class="rv-v2__ok">✔</i></h4>
                             <p data-en="{{ $rev['loc_en'] ?? '' }}">{{ $rev['loc_bn'] ?? '' }}</p>
@@ -91,7 +91,7 @@
     }
     .rv-v2__card:hover { transform: translateY(-4px); box-shadow: 0 24px 44px -26px rgba(6,78,59,.5); }
     .rv-v2__top { display: flex; gap: 11px; align-items: center; margin-bottom: 10px; }
-    .rv-v2__top img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
+    .rv-v2__ava { width: 42px; height: 42px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:#047857; background:rgba(5,150,105,.12); flex-shrink:0; }
     .rv-v2__top h4 { margin: 0; font-size: 13.5px; font-weight: 800; color: #b45309; }
     .rv-v2__top p { margin: 1px 0 0; font-size: 10.5px; color: #8b7355; }
     .rv-v2__ok { color: #10b981; font-style: normal; font-size: 11px; }
