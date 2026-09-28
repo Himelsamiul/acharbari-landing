@@ -57,6 +57,42 @@
                         <p class="pd-desc">{{ $product->description }}</p>
                     @endif
 
+                    {{-- সব সাইজের দাম-স্টক তালিকা — এক নজরে দেখার জন্য --}}
+                    @if ($vHas)
+                        <div class="pd-vtable-wrap">
+                            <div class="pd-variants-label">সব সাইজের দাম ও স্টক:</div>
+                            <table class="pd-vtable">
+                                <thead>
+                                    <tr>
+                                        <th>সাইজ / পরিমাণ</th>
+                                        <th>দাম</th>
+                                        <th>স্টক</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($vActive as $v)
+                                        <tr class="{{ $v->stock <= 0 ? 'off' : '' }}">
+                                            <td><b>{{ $v->size }}</b></td>
+                                            <td>
+                                                <b class="pd-vt-price">৳{{ number_format($v->price) }}</b>
+                                                @if ($v->old_price && $v->old_price > $v->price)
+                                                    <span class="pd-old" style="font-size:12px">৳{{ number_format($v->old_price) }}</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($v->stock > 0)
+                                                    <span class="pill ok">{{ bn_num($v->stock) }}টি আছে</span>
+                                                @else
+                                                    <span class="pill red">স্টক শেষ</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+
                     @if ($vHas)
                         {{-- সাইজ সিলেক্ট + কোয়ান্টিটি + মোট দাম --}}
                         <div class="pd-variants">
@@ -149,6 +185,16 @@
             .pd-grid { grid-template-columns: 1fr; gap: 20px; }
             .pd-media img { height: 300px; }
         }
+
+        /* ===== সব সাইজের দাম-স্টক টেবিল ===== */
+        .pd-vtable-wrap { margin: 0 0 20px; }
+        .pd-vtable { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 0 0 1px rgba(5,150,105,.14); font-size: 13.5px; }
+        .pd-vtable th { text-align: left; background: rgba(5,150,105,.08); color: #1f4234; font-weight: 800;
+            padding: 9px 14px; font-size: 12px; }
+        .pd-vtable td { padding: 9px 14px; border-top: 1px solid rgba(5,150,105,.1); color: #33443c; }
+        .pd-vt-price { color: #047857; font-size: 14.5px; }
+        .pd-vtable tr.off { opacity: .55; }
 
         /* ===== ভ্যারিয়েন্ট সিলেক্টর ===== */
         .pd-variants { margin: 4px 0 18px; }

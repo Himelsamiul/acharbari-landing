@@ -205,6 +205,7 @@ class ProductVariantTest extends TestCase
         $this->get(route('product.show', $p->slug))
             ->assertOk()
             ->assertSee('সাইজ বাছুন')
+            ->assertSee('সব সাইজের দাম ও স্টক')
             ->assertSee('250ml')
             ->assertSee('1 Liter')
             ->assertSee('orderVariantFromDetails');
