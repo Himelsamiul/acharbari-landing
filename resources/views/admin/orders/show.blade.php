@@ -7,6 +7,16 @@
 @section('content')
     @php $labels = \App\Models\Order::statusLabels(); @endphp
 
+    {{-- অর্ডারের সময়রেখা: কখন অর্ডার হয়েছে ও শেষ কখন আপডেট হয়েছে --}}
+    <div class="card" style="margin-bottom:14px;padding:12px 18px;display:flex;gap:26px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:13px"><i class="fa-solid fa-calendar-plus" style="color:#059669"></i>
+            <b>অর্ডার হয়েছে:</b> {{ $order->created_at->format('d M Y') }} — {{ $order->created_at->format('h:i A') }}</span>
+        <span style="font-size:13px"><i class="fa-solid fa-clock-rotate-left" style="color:#d97706"></i>
+            <b>শেষ স্ট্যাটাস আপডেট:</b> {{ $order->updated_at->format('d M Y') }} — {{ $order->updated_at->format('h:i A') }}</span>
+        <span style="font-size:13px"><i class="fa-solid fa-flag" style="color:#7c3aed"></i>
+            <b>বর্তমান অবস্থা:</b> {{ $labels[$order->status] ?? $order->status }}</span>
+    </div>
+
     <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
         <a class="a-btn" href="{{ route('order.invoice', $order->order_code) }}" target="_blank" rel="noopener">
             <i class="fa-solid fa-file-pdf"></i> ইনভয়েস (PDF) ডাউনলোড</a>

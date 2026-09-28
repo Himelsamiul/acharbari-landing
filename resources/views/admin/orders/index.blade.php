@@ -72,7 +72,7 @@
         @else
             <table class="tbl">
                 <thead>
-                    <tr><th>ইনভয়েস</th><th>কাস্টমার</th><th>মোবাইল</th><th>এরিয়া</th><th>মোট</th><th>পেমেন্ট</th><th>স্ট্যাটাস</th><th></th></tr>
+                    <tr><th>ইনভয়েস</th><th>কাস্টমার</th><th>মোবাইল</th><th>তারিখ ও সময়</th><th>এরিয়া</th><th>মোট</th><th>পেমেন্ট</th><th>স্ট্যাটাস</th><th></th></tr>
                 </thead>
                 <tbody>
                     @foreach ($orders as $o)
@@ -80,6 +80,7 @@
                             <td><a href="{{ route('admin.orders.show', $o) }}" style="color:#047857;font-weight:800;text-decoration:none"><b>#{{ $o->order_code }}</b></a></td>
                             <td>{{ $o->customer_name }}</td>
                             <td>{{ $o->phone }}</td>
+                            <td style="white-space:nowrap"><b>{{ $o->created_at?->format('d M Y') }}</b><br><small style="color:#8b7355">{{ $o->created_at?->format('h:i A') }}</small></td>
                             <td>{{ $o->area === 'inside' ? 'ঢাকার ভিতরে' : 'ঢাকার বাহিরে' }}</td>
                             <td><b>৳{{ number_format($o->total) }}</b></td>
                             <td><span class="pill mut">{{ strtoupper($o->payment_method) }}</span></td>
