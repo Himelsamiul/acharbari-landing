@@ -31,11 +31,11 @@
                 <span data-en="{{ $v2chip['en'] }}">{{ $v2chip['bn'] }}</span>
             </span>
 
-            <h1 id="heroH1Slider" class="hero-v2__h1">
+            <h2 id="heroH1Slider" class="hero-v2__h1">
                 <span class="hslide active"><span data-en="{{ $v2s1['en'] }}">{{ $v2s1['bn'] }}</span> <em data-en="{{ $v2s1g['en'] }}">{{ $v2s1g['bn'] }}</em></span>
                 <span class="hslide"><span data-en="{{ $v2s2['en'] }}">{{ $v2s2['bn'] }}</span> <em data-en="{{ $v2s2g['en'] }}">{{ $v2s2g['bn'] }}</em></span>
                 <span class="hslide"><span data-en="{{ $v2s3['en'] }}">{{ $v2s3['bn'] }}</span> <em data-en="{{ $v2s3g['en'] }}">{{ $v2s3g['bn'] }}</em></span>
-            </h1>
+            </h2>
 
             <p class="hero-v2__lead" data-en="{{ $v2lead['en'] }}">{{ $v2lead['bn'] }}</p>
 

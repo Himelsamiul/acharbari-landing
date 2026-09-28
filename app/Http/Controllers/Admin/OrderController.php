@@ -13,6 +13,16 @@ class OrderController extends Controller
         $status = $request->query('status');
         $q = trim((string) $request->query('q', ''));
 
+        // month filter: YYYY-MM — khali hole SOB somoy
+        $month = (string) $request->query('month', '');
+        if (! preg_match('/^\d{4}-\d{2}$/', $month)) {
+            $month = '';
+        }
+
+        $applyMonth = fn ($query) => $month !== ''
+            ? $query->whereBetween('created_at', [$month . '-01 00:00:00', \Illuminate\Support\Carbon::parse($month . '-01')->endOfMonth()->endOfDay()])
+            : $query;
+
         $orders = Order::when($status && in_array($status, Order::statuses()),
                 fn ($query) => $query->where('status', $status))
             ->when($q !== '', fn ($query) => $query->where(function ($sub) use ($q) {
@@ -20,16 +30,26 @@ class OrderController extends Controller
                     ->orWhere('customer_name', 'like', "%{$q}%")
                     ->orWhere('order_code', 'like', "%{$q}%");
             }))
+            ->when($month !== '', $applyMonth)
             ->latest()
             ->paginate(15)
             ->withQueryString();
+
+        // monthly summary: ei month e koto sell + koyta order
+        $summaryQuery = Order::when($month !== '', $applyMonth);
+        $summary = [
+            'total' => (clone $summaryQuery)->where('status', '!=', 'cancelled')->sum('total'),
+            'count' => (clone $summaryQuery)->count(),
+            'delivered' => (clone $summaryQuery)->where('status', 'delivered')->count(),
+            'cancelled' => (clone $summaryQuery)->where('status', 'cancelled')->count(),
+        ];
 
         $counts = [];
         foreach (Order::statuses() as $s) {
             $counts[$s] = Order::where('status', $s)->count();
         }
 
-        return view('admin.orders.index', compact('orders', 'status', 'counts'));
+        return view('admin.orders.index', compact('orders', 'status', 'counts', 'month', 'summary'));
     }
 
     public function show(Order $order)

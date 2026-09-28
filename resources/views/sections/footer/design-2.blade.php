@@ -23,6 +23,8 @@
             <a href="{{ route('products') }}" data-en="All Products">সব প্রোডাক্ট</a>
             <a href="{{ url('/#ds-why') }}" data-en="Why Us">কেন আমরা</a>
             <a href="{{ route('track') }}" data-en="Order Track">অর্ডার ট্র্যাক</a>
+            <a href="{{ route('privacy') }}" data-en="Privacy Policy">প্রাইভেসি পলিসি</a>
+            <a href="{{ route('terms') }}" data-en="Terms and Conditions">শর্তাবলি ও নিয়মাবলি</a>
             @if ($phone !== '')<a href="tel:{{ $phone }}">{{ $phone }}</a>@endif
             @if ($fb !== '')<a href="{{ $fb }}" target="_blank" rel="noopener" data-en="Facebook">ফেসবুক</a>@endif
         </nav>

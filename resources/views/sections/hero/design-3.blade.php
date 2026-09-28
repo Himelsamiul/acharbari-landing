@@ -23,11 +23,11 @@
     <div class="hero-v3__grid">
         <div class="hero-v3__copy">
             <span class="hero-v3__chip" data-en="{{ $v3chip['en'] }}">{{ $v3chip['bn'] }}</span>
-            <h1 id="heroH1Slider" class="hero-v3__h1">
+            <h2 id="heroH1Slider" class="hero-v3__h1">
                 <span class="hslide active"><span data-en="{{ $v3s1['en'] }}">{{ $v3s1['bn'] }}</span> <em data-en="{{ $v3s1g['en'] }}">{{ $v3s1g['bn'] }}</em></span>
                 <span class="hslide"><span data-en="{{ $v3s2['en'] }}">{{ $v3s2['bn'] }}</span> <em data-en="{{ $v3s2g['en'] }}">{{ $v3s2g['bn'] }}</em></span>
                 <span class="hslide"><span data-en="{{ $v3s3['en'] }}">{{ $v3s3['bn'] }}</span> <em data-en="{{ $v3s3g['en'] }}">{{ $v3s3g['bn'] }}</em></span>
-            </h1>
+            </h2>
             <p class="hero-v3__lead" data-en="{{ $v3lead['en'] }}">{{ $v3lead['bn'] }}</p>
             <div class="hero-v3__cta">
                 <button class="hero-v3__main" onclick="document.getElementById('order-form').scrollIntoView({behavior:'smooth'})">

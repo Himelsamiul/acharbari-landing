@@ -21,11 +21,11 @@
 <section class="hero-v4">
     <div class="hero-v4__top">
         <span class="hero-v4__chip" data-en="{{ $v4chip['en'] }}">{{ $v4chip['bn'] }}</span>
-        <h1 id="heroH1Slider" class="hero-v4__h1">
+        <h2 id="heroH1Slider" class="hero-v4__h1">
             <span class="hslide active"><span data-en="{{ $v4s1['en'] }}">{{ $v4s1['bn'] }}</span> <em data-en="{{ $v4s1g['en'] }}">{{ $v4s1g['bn'] }}</em></span>
             <span class="hslide"><span data-en="{{ $v4s2['en'] }}">{{ $v4s2['bn'] }}</span> <em data-en="{{ $v4s2g['en'] }}">{{ $v4s2g['bn'] }}</em></span>
             <span class="hslide"><span data-en="{{ $v4s3['en'] }}">{{ $v4s3['bn'] }}</span> <em data-en="{{ $v4s3g['en'] }}">{{ $v4s3g['bn'] }}</em></span>
-        </h1>
+        </h2>
         <p class="hero-v4__lead" data-en="{{ $v4lead['en'] }}">{{ $v4lead['bn'] }}</p>
         <div class="hero-v4__cta">
             <button onclick="document.getElementById('order-form').scrollIntoView({behavior:'smooth'})" data-en="{{ $v4cta1['en'] }}">{{ $v4cta1['bn'] }}</button>

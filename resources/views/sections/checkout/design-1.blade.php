@@ -157,6 +157,41 @@
                                 <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></svg>
                                 <span data-en="{{ $cartEmpty['en'] }}">{{ $cartEmpty['bn'] }}</span>
                             </div>
+
+                            {{-- কার্টের নিচে প্রোডাক্ট স্ট্রিপ — উপরে স্ক্রল না করেও আরও প্রোডাক্ট যোগ করা যায় --}}
+                            @if (!empty($qv))
+                                <style>
+                                    .lp-cart-add-strip { margin-top: 14px; padding: 12px; border: 1px dashed rgba(5,150,105,.3);
+                                        border-radius: 14px; background: rgba(5,150,105,.03); }
+                                    .lp-strip-label { font-size: 12.5px; font-weight: 800; color: #1f4234; margin-bottom: 8px; }
+                                    .lp-strip-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+                                    .lp-strip-item { min-width: 108px; max-width: 108px; background: #fff; border: 1px solid rgba(5,150,105,.18);
+                                        border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+                                    .lp-strip-item img { width: 100%; height: 64px; object-fit: cover; border-radius: 8px; }
+                                    .lp-strip-name { font-size: 11px; font-weight: 700; color: #33443c;
+                                        overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                                    .lp-strip-price { font-size: 11.5px; font-weight: 800; color: #047857; }
+                                    .lp-strip-add { border: none; background: #059669; color: #fff; font-size: 11.5px;
+                                        font-weight: 800; padding: 5px 0; border-radius: 8px; cursor: pointer; }
+                                    .lp-strip-add:hover { filter: brightness(1.08); }
+                                </style>
+                                <div class="lp-cart-add-strip">
+                                    <div class="lp-strip-label" data-en="Add more products:">আরও প্রোডাক্ট যোগ করুন:</div>
+                                    <div class="lp-strip-row">
+                                        @foreach ($qv as $pid => $p)
+                                            <div class="lp-strip-item">
+                                                <img src="{{ $p['img'] }}" alt="{{ $p['alt'] }}" loading="lazy">
+                                                <span class="lp-strip-name">{{ $p['title'] }}</span>
+                                                <span class="lp-strip-price">{{ $p['price'] }}</span>
+                                                <button type="button" class="lp-strip-add"
+                                                    onclick="addToCartFromRow({{ $pid }})">
+                                                    + যোগ
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         <div id="landing-advance-box" class="p-4 border-t bg-yellow-50 hidden">

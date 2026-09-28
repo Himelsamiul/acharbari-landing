@@ -29,6 +29,8 @@
                 <a href="{{ url('/#ds-why') }}" data-en="{{ $ft4links['en'] }}">{{ $ft4links['bn'] }}</a>
                 <a href="{{ url('/#ds-faq') }}" data-en="FAQ">প্রশ্ন-উত্তর</a>
                 <a href="{{ route('track') }}" data-en="Order Track">অর্ডার ট্র্যাক</a>
+            <a href="{{ route('privacy') }}" data-en="Privacy Policy">প্রাইভেসি পলিসি</a>
+            <a href="{{ route('terms') }}" data-en="Terms and Conditions">শর্তাবলি ও নিয়মাবলি</a>
                 @if ($phone !== '')<a href="tel:{{ $phone }}">{{ $phone }}</a>@endif
             </nav>
 

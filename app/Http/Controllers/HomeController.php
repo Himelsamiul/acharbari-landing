@@ -16,6 +16,25 @@ class HomeController extends Controller
         return view('home', ['products' => $products, 'qv' => buildQuickView($products)]);
     }
 
+    /** Footer er legal pages — content Setting e thakle seta, nahole default. */
+    public function privacy()
+    {
+        return view('pages.legal', [
+            'title' => 'প্রাইভেসি পলিসি',
+            'titleEn' => 'Privacy Policy',
+            'content' => \App\Models\Setting::get('privacy_policy_content', DEFAULT_PRIVACY_CONTENT),
+        ]);
+    }
+
+    public function terms()
+    {
+        return view('pages.legal', [
+            'title' => 'শর্তাবলি ও নিয়মাবলি',
+            'titleEn' => 'Terms & Conditions',
+            'content' => \App\Models\Setting::get('terms_content', DEFAULT_TERMS_CONTENT),
+        ]);
+    }
+
     /** Isolated single-section render for the admin Section Design Studio preview. */
     public function previewSection(Request $request, string $section): View
     {

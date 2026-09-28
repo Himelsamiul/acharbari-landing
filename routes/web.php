@@ -19,6 +19,10 @@ Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product
 Route::get('/track', [OrderController::class, 'track'])->name('track');
 Route::get('/order/track-json', [OrderController::class, 'trackJson'])->name('order.track.json');
 
+// Legal pages (footer)
+Route::get('/privacy-policy', [HomeController::class, 'privacy'])->name('privacy');
+Route::get('/terms-and-conditions', [HomeController::class, 'terms'])->name('terms');
+
 // Public complaint submit (landing modal, fetch JSON)
 Route::post('/complaint-store', [ComplaintController::class, 'store'])->name('complaint.store');
 

@@ -7,10 +7,42 @@
 @section('content')
     @php $labels = \App\Models\Order::statusLabels(); @endphp
 
+    {{-- ===== মাসিক সামারি ===== --}}
+    @php
+        $monthLabel = $month !== ''
+            ? \Illuminate\Support\Carbon::parse($month . '-01')->locale('bn')->translatedFormat('F Y')
+            : 'সব সময়';
+    @endphp
+    <div class="fgrid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:14px">
+        <div class="card" style="margin:0">
+            <p class="desc" style="margin:0">{{ $monthLabel }} — বিক্রি</p>
+            <h3 style="margin:2px 0 0">৳{{ number_format($summary['total']) }}</h3>
+        </div>
+        <div class="card" style="margin:0">
+            <p class="desc" style="margin:0">অর্ডার সংখ্যা</p>
+            <h3 style="margin:2px 0 0">{{ $summary['count'] }}টি</h3>
+        </div>
+        <div class="card" style="margin:0">
+            <p class="desc" style="margin:0">ডেলিভারি সম্পন্ন</p>
+            <h3 style="margin:2px 0 0">{{ $summary['delivered'] }}টি</h3>
+        </div>
+        <div class="card" style="margin:0">
+            <p class="desc" style="margin:0">বাতিল</p>
+            <h3 style="margin:2px 0 0;color:#dc2626">{{ $summary['cancelled'] }}টি</h3>
+        </div>
+        <div class="card" style="margin:0;display:flex;align-items:center">
+            <div class="a-field" style="margin:0;width:100%">
+                <label style="font-size:11px;color:#8b7355">মাস বাছাই করুন</label>
+                <input type="month" class="a-input" id="orderMonth" value="{{ $month }}"
+                    onchange="var u=new URL(location.href); if(this.value){u.searchParams.set('month',this.value)}else{u.searchParams.delete('month')}; u.searchParams.delete('page'); location.href=u.toString()">
+            </div>
+        </div>
+    </div>
+
     <div class="filter-tabs">
-        <a class="filter-tab {{ is_null($status) ? 'active' : '' }}" href="{{ route('admin.orders.index', request('q') ? ['q' => request('q')] : []) }}">সব <b>({{ array_sum($counts) }})</b></a>
+        <a class="filter-tab {{ is_null($status) ? 'active' : '' }}" href="{{ route('admin.orders.index', array_filter(['q' => request('q'), 'month' => $month])) }}">সব <b>({{ array_sum($counts) }})</b></a>
         @foreach ($labels as $key => $label)
-            <a class="filter-tab {{ $status === $key ? 'active' : '' }}" href="{{ route('admin.orders.index', array_filter(['status' => $key, 'q' => request('q')])) }}">{{ $label }} <b>({{ $counts[$key] ?? 0 }})</b></a>
+            <a class="filter-tab {{ $status === $key ? 'active' : '' }}" href="{{ route('admin.orders.index', array_filter(['status' => $key, 'q' => request('q'), 'month' => $month])) }}">{{ $label }} <b>({{ $counts[$key] ?? 0 }})</b></a>
         @endforeach
     </div>
 

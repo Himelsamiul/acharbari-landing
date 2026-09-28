@@ -16,7 +16,7 @@
                     $s3g = ab_t('hero_s3_grad', '৬৪ জেলায় হোম ডেলিভারি', 'home delivery in 64 districts');
                     $lead = ab_t('hero_lead', 'মৌসুমি কাঁচা আম, জলপাই, তেঁতুল আর সরিষার তেলে ঘরে তৈরি আচারবাড়ির প্রতিটি জার। কোনো প্রিজারভেটিভ বা কেমিক্যাল নেই — সারা বাংলাদেশে দ্রুত হোম ডেলিভারিতে পৌঁছে যায় মায়ের হাতের সেই চেনা স্বাদ।', '');
                 @endphp
-                <h1 class="ds-h1" id="heroH1Slider">
+                <h2 class="ds-h1" id="heroH1Slider">
                     <span class="hslide active">
                         <span data-en="{{ $s1['en'] }}">{{ $s1['bn'] }}</span><br>
                         <span class="ds-grad" data-en="{{ $s1g['en'] }}">{{ $s1g['bn'] }}</span>
@@ -29,7 +29,7 @@
                         <span data-en="{{ $s3['en'] }}">{{ $s3['bn'] }}</span><br>
                         <span class="ds-grad" data-en="{{ $s3g['en'] }}">{{ $s3g['bn'] }}</span>
                     </span>
-                </h1>
+                </h2>
                 <p class="ds-lead" @if(trim($lead['en'])) data-en="{{ $lead['en'] }}" @endif>{{ $lead['bn'] }}</p>
 
                 <div class="ds-hero-cta">

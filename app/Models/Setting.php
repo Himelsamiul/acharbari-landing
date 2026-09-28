@@ -22,6 +22,12 @@ class Setting extends Model
         return $all[$key] ?? $default;
     }
 
+    /** Setting ROW ta ase kina (khali string holeo true — admin intentionally clear korse). */
+    public static function has(string $key): bool
+    {
+        return array_key_exists($key, self::allCached());
+    }
+
     /** Store a setting. */
     public static function set(string $key, $value): void
     {
