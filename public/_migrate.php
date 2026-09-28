@@ -32,8 +32,12 @@ echo "== migrate ==\n";
 Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
 echo Illuminate\Support\Facades\Artisan::output();
 
-echo "== seed ==\n";
-Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-echo Illuminate\Support\Facades\Artisan::output();
+// Seed hocche opt-in — live site e demo data hotat dhuke jabe na.
+// Setai chailе: _migrate.php?token=...&seed=1
+if (isset($_GET['seed'])) {
+    echo "== seed ==\n";
+    Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+    echo Illuminate\Support\Facades\Artisan::output();
+}
 
 echo "\nDONE — now DELETE this file.\n";
