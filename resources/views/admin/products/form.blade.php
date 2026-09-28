@@ -256,4 +256,21 @@
             .pf-two, .pf-status { grid-template-columns: 1fr; }
         }
     </style>
+
+    <script>
+        /* ছবি সিলেক্ট করলেই প্রিভিউ দেখাও */
+        (function () {
+            var imgInput = document.querySelector('input[type="file"][name="image"]');
+            var preview = document.querySelector('.pf-preview');
+            if (!imgInput || !preview) return;
+            var lastUrl = null;
+            imgInput.addEventListener('change', function () {
+                var f = imgInput.files && imgInput.files[0];
+                if (!f) return;
+                if (lastUrl) URL.revokeObjectURL(lastUrl);
+                lastUrl = URL.createObjectURL(f);
+                preview.innerHTML = '<img src="' + lastUrl + '" alt="">';
+            });
+        })();
+    </script>
 @endsection

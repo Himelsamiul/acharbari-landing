@@ -31,10 +31,14 @@ class SettingController extends Controller
             return back()->with('success', 'ফেভিকন ডিফল্টে ফিরে গেছে।');
         }
 
+        // logo thakle brand name lagbe na — header e logo image dekhabe.
+        // logo na thakle name 2 ta required (nahole header khali hoye jabe)
+        $hasLogo = $request->hasFile('logo') || trim((string) Setting::get('logo_path', '')) !== '';
+
         $data = $request->validate([
-            'brand_bn1' => 'required|string|max:20',
+            'brand_bn1' => ($hasLogo ? 'nullable' : 'required') . '|string|max:20',
             'brand_bn2' => 'nullable|string|max:20',
-            'brand_en1' => 'required|string|max:20',
+            'brand_en1' => ($hasLogo ? 'nullable' : 'required') . '|string|max:20',
             'brand_en2' => 'nullable|string|max:20',
             'logo' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:2048',
             'favicon' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg,ico|max:1024',
@@ -51,9 +55,9 @@ class SettingController extends Controller
         ]);
 
         $pairs = [
-            'brand_bn1' => $data['brand_bn1'],
+            'brand_bn1' => $data['brand_bn1'] ?? '',
             'brand_bn2' => $data['brand_bn2'] ?? '',
-            'brand_en1' => $data['brand_en1'],
+            'brand_en1' => $data['brand_en1'] ?? '',
             'brand_en2' => $data['brand_en2'] ?? '',
             'contact_phone' => $data['contact_phone'] ?? '',
             'contact_whatsapp' => $data['contact_whatsapp'] ?? '',

@@ -130,7 +130,8 @@
             <div class="brand-grid">
                 <div class="a-field @error('brand_bn1') field-error @enderror">
                     <label>বাংলা নাম — প্রথম অংশ *</label>
-                    <input class="a-input" name="brand_bn1" id="inBrandBn1" maxlength="20" value="{{ old('brand_bn1', $settings['brand_bn1'] ?? 'আচার') }}" required data-live="bpBn1">
+                    {{-- required server-e check hoy: logo thakle name lage na --}}
+                    <input class="a-input" name="brand_bn1" id="inBrandBn1" maxlength="20" value="{{ old('brand_bn1', $settings['brand_bn1'] ?? 'আচার') }}" data-live="bpBn1">
                     @error('brand_bn1')<small class="field-err-msg">{{ $message }}</small>@enderror
                 </div>
                 <div class="a-field @error('brand_bn2') field-error @enderror">
@@ -140,7 +141,7 @@
                 </div>
                 <div class="a-field @error('brand_en1') field-error @enderror">
                     <label>English — Part 1 *</label>
-                    <input class="a-input" name="brand_en1" id="inBrandEn1" maxlength="20" value="{{ old('brand_en1', $settings['brand_en1'] ?? 'Achar') }}" required data-live="bpEn1">
+                    <input class="a-input" name="brand_en1" id="inBrandEn1" maxlength="20" value="{{ old('brand_en1', $settings['brand_en1'] ?? 'Achar') }}" data-live="bpEn1">
                     @error('brand_en1')<small class="field-err-msg">{{ $message }}</small>@enderror
                 </div>
                 <div class="a-field @error('brand_en2') field-error @enderror">
