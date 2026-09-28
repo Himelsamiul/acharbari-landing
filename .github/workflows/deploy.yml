@@ -31,6 +31,19 @@ jobs:
       - name: Stamp deploy version
         run: git rev-parse --short HEAD > public/version.txt
 
+      # vendor/ gitignored — tai runner e fresh composer install kore
+      # vendor soho upload korte hoy, nahole notun package (jemon dompdf)
+      # server e kokhono jabe na
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_mysql, bcmath, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Install composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
+
       - name: FTP upload (full overwrite, never deletes)
         env:
           FTP_USER: ${{ secrets.FTP_USERNAME }}
@@ -83,6 +96,19 @@ jobs:
 
       - name: Stamp deploy version
         run: git rev-parse --short HEAD > public/version.txt
+
+      # vendor/ gitignored — tai runner e fresh composer install kore
+      # vendor soho upload korte hoy, nahole notun package (jemon dompdf)
+      # server e kokhono jabe na
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_mysql, bcmath, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Install composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
 
       - name: FTP upload (full overwrite, never deletes)
         env:
