@@ -32,11 +32,17 @@
             <div class="fgrid">
                 <div class="a-field">
                     <label>প্রোডাক্ট *</label>
-                    <select class="a-input" name="product_id" required>
+                    <select class="a-input" name="product_id" id="purchaseProduct" required onchange="fillPurchaseVariants()">
                         <option value="">— প্রোডাক্ট নির্বাচন করুন —</option>
                         @foreach ($allProducts as $p)
-                            <option value="{{ $p->id }}">{{ $p->name }} (স্টক: {{ $p->stock }})</option>
+                            <option value="{{ $p->id }}">{{ $p->name }}</option>
                         @endforeach
+                    </select>
+                </div>
+                <div class="a-field">
+                    <label>ভ্যারিয়েন্ট (ঐচ্ছিক)</label>
+                    <select class="a-input" name="variant_id" id="purchaseVariant">
+                        <option value="">— সাধারণ স্টক (ভ্যারিয়েন্ট নেই) —</option>
                     </select>
                 </div>
                 <div class="a-field">
@@ -60,6 +66,30 @@
         </form>
     </div>
 
+    @php
+        $variantMapJs = $allProducts->mapWithKeys(fn ($p) => [
+            $p->id => $p->variants->where('is_active', true)->map(fn ($v) => [
+                'id' => $v->id, 'size' => $v->size, 'stock' => $v->stock,
+            ])->values()->all(),
+        ])->all();
+    @endphp
+    <script>
+        /* product select korle oi product er variant dropdown bhore jabe */
+        var VARIANT_MAP = @json($variantMapJs);
+
+        function fillPurchaseVariants() {
+            var pid = document.getElementById('purchaseProduct').value;
+            var vSel = document.getElementById('purchaseVariant');
+            vSel.innerHTML = '<option value="">— সাধারণ স্টক (ভ্যারিয়েন্ট নেই) —</option>';
+            (VARIANT_MAP[pid] || []).forEach(function (v) {
+                var opt = document.createElement('option');
+                opt.value = v.id;
+                opt.textContent = v.size + ' (স্টক: ' + v.stock + ')';
+                vSel.appendChild(opt);
+            });
+        }
+    </script>
+
     <div class="card" style="margin-top:16px">
         <h3>পারচেজ হিস্ট্রি</h3>
         <p class="desc">এই সাপ্লায়ারের কাছ থেকে কী কী নিয়েছেন, কত টাকায় — মোট: ৳{{ number_format($totalSpent) }}</p>
@@ -71,7 +101,12 @@
                 @forelse ($purchases as $pu)
                     <tr>
                         <td>{{ $pu->purchased_at->format('d M Y') }}</td>
-                        <td><b>{{ $pu->product?->name ?? 'মুছে ফেলা প্রোডাক্ট' }}</b></td>
+                        <td>
+                            <b>{{ $pu->product?->name ?? 'মুছে ফেলা প্রোডাক্ট' }}</b>
+                            @if ($pu->variant)
+                                <span class="pill info" style="margin-left:4px">{{ $pu->variant->size }}</span>
+                            @endif
+                        </td>
                         <td>{{ $pu->quantity }}</td>
                         <td>৳{{ number_format($pu->unit_cost) }}</td>
                         <td><b>৳{{ number_format($pu->total) }}</b></td>

@@ -1813,6 +1813,12 @@ document.addEventListener('keydown', function (e) {
             var unit = v ? bnToNum(en ? (v.price_en || v.price) : v.price) : bnToNum(en ? (p.price_en || p.price) : p.price);
             var qty = cart[key].qty;
             subtotal += unit * qty;
+            // per-line VAT dekhano — product/variant er nijer % onujayi
+            var linePct = (v && v.vat_percent != null) ? parseFloat(v.vat_percent) : (parseFloat(p.vat_percent) || 0);
+            var lineVat = Math.round(unit * qty * linePct) / 100;
+            var vatLine = linePct > 0
+                ? '<small style="display:block;text-align:end;font-weight:600;color:#8b7355">' + L('ভ্যাট', 'VAT') + ' (' + linePct + '%): ৳ ' + fmt(lineVat) + '</small>'
+                : '';
             rowsHtml += '<div class="lp-cart-row" id="cart-row-' + key.replace(/\W/g, '_') + '">' +
                 '<input type="checkbox" checked onchange="toggleProductFromCart(\'' + key + '\', this.checked)">' +
                 '<div class="lp-cart-product"><img src="' + esc(p.img) + '" alt="">' +
@@ -1822,7 +1828,7 @@ document.addEventListener('keydown', function (e) {
                 '<span class="lp-cart-qty-val">' + qty + '</span>' +
                 '<button type="button" class="lp-cart-qty-btn" onclick="landingCartQty(\'' + key + '\',1)">+</button>' +
                 '</div>' +
-                '<div style="text-align:end;font-weight:700">৳ ' + fmt(unit * qty) + '</div>' +
+                '<div style="text-align:end;font-weight:700">৳ ' + fmt(unit * qty) + vatLine + '</div>' +
                 '</div>';
         });
 
@@ -1852,6 +1858,9 @@ document.addEventListener('keydown', function (e) {
             '<div class="lp-cart-totals">' +
             '<div class="lp-cart-total-row"><span>' + L('মোট', 'Subtotal') + '</span><span id="net_total">৳ <strong>' + fmt(subtotal) + '</strong></span></div>' +
             discountRow +
+            (vatTotal > 0
+                ? '<div class="lp-cart-total-row"><span>' + L('ভ্যাট (সব প্রোডাক্ট মিলিয়ে)', 'VAT (all products)') + '</span><span>৳ <strong>' + fmt(vatTotal) + '</strong></span></div>'
+                : '') +
             '<div class="lp-cart-total-row"><span>' + L('ডেলিভারি চার্জ', 'Delivery Charge') + '</span><span id="cart_shipping_cost">৳ <strong>' + (list.length ? fmt(ship) : 0) + '</strong></span></div>' +
             '<div class="lp-cart-total-row final"><span>' + L('সর্বমোট', 'Grand Total') + '</span><span id="grand_total">৳ <strong>' + fmt(grand) + '</strong></span></div>' +
             '</div>';

@@ -38,7 +38,7 @@ class SupplierController extends Controller
     public function show(Supplier $supplier)
     {
         // purchase history: what we bought from this supplier and at what cost
-        $purchases = $supplier->purchases()->with('product')->latest('purchased_at')->get();
+        $purchases = $supplier->purchases()->with(['product', 'variant'])->latest('purchased_at')->get();
 
         // per-product rollup: how many units of each item we took from this supplier
         $purchasedProducts = $supplier->purchases()
@@ -53,7 +53,7 @@ class SupplierController extends Controller
             'purchases' => $purchases,
             'purchasedProducts' => $purchasedProducts,
             'totalSpent' => (float) $purchases->sum('total'),
-            'allProducts' => Product::orderBy('name')->get(['id', 'name']),
+            'allProducts' => Product::with('variants')->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -78,35 +78,57 @@ class SupplierController extends Controller
         return redirect()->route('admin.suppliers')->with('success', 'সাপ্লায়ার ও তার পারচেজ হিস্ট্রি মুছে ফেলা হয়েছে।');
     }
 
-    /** Record a new purchase and increment the product stock. */
+    /** Record a new purchase and increment the product (or variant) stock. */
     public function storePurchase(Request $request, Supplier $supplier)
     {
         $data = $request->validate([
             'product_id' => 'required|integer|exists:products,id',
+            'variant_id' => 'nullable|integer|exists:product_variants,id',
             'quantity' => 'required|integer|min:1|max:100000',
             'unit_cost' => 'required|numeric|min:0|max:10000000',
             'purchased_at' => 'nullable|date|before_or_equal:today',
             'note' => 'nullable|string|max:300',
         ]);
 
+        // variant thakle seta JENO oi product tar e — cross-check
+        $variant = null;
+        if (!empty($data['variant_id'])) {
+            $variant = \App\Models\ProductVariant::where('id', $data['variant_id'])
+                ->where('product_id', $data['product_id'])->first();
+            if (! $variant) {
+                return back()->withErrors(['variant_id' => 'এই ভ্যারিয়েন্টটি ওই প্রোডাক্টের নয়।']);
+            }
+        }
+
         Purchase::create([
             'supplier_id' => $supplier->id,
             'product_id' => $data['product_id'],
+            'variant_id' => $variant?->id,
             'quantity' => $data['quantity'],
             'unit_cost' => $data['unit_cost'],
             'purchased_at' => $data['purchased_at'] ?? now()->toDateString(),
             'note' => $data['note'] ?? null,
         ]);
 
-        Product::where('id', $data['product_id'])->increment('stock', $data['quantity']);
+        // variant-wise purchase hole variant er stock e joge, nahole product er tate
+        if ($variant) {
+            \App\Models\ProductVariant::where('id', $variant->id)->increment('stock', $data['quantity']);
+        } else {
+            Product::where('id', $data['product_id'])->increment('stock', $data['quantity']);
+        }
 
-        return back()->with('success', 'পারচেজ যোগ হয়েছে এবং স্টক বাড়ানো হয়েছে।');
+        $target = $variant ? 'ভ্যারিয়েন্ট "' . $variant->size . '"-এর স্টক' : 'প্রোডাক্টের স্টক';
+        return back()->with('success', 'পারচেজ যোগ হয়েছে এবং ' . $target . ' বাড়ানো হয়েছে।');
     }
 
     /** Remove a purchase record and take the stock back out. */
     public function destroyPurchase(Purchase $purchase)
     {
-        Product::where('id', $purchase->product_id)->decrement('stock', $purchase->quantity);
+        if ($purchase->variant_id) {
+            \App\Models\ProductVariant::where('id', $purchase->variant_id)->decrement('stock', $purchase->quantity);
+        } else {
+            Product::where('id', $purchase->product_id)->decrement('stock', $purchase->quantity);
+        }
         $purchase->delete();
 
         return back()->with('success', 'পারচেজ রেকর্ড মুছে ফেলা হয়েছে (স্টক কমানো হয়েছে)।');

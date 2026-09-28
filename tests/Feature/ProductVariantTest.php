@@ -133,6 +133,52 @@ class ProductVariantTest extends TestCase
             ->assertSee('৳1,500–৳2,500');
     }
 
+    public function test_supplier_purchase_can_target_a_variant(): void
+    {
+        $this->actingAs($this->admin());
+        $p = $this->productWithVariants();
+        $v = $p->variants[1]; // 500ml, stock 80
+        $supplier = \App\Models\Supplier::create(['name' => 'Karim Traders']);
+
+        // variant-wise purchase: 25 units → variant er stock e joge
+        $this->post(route('admin.suppliers.purchases.store', $supplier), [
+            'product_id' => $p->id,
+            'variant_id' => $v->id,
+            'quantity' => 25,
+            'unit_cost' => 30,
+        ])->assertRedirect();
+
+        $this->assertSame(105, $v->fresh()->stock); // 80 + 25
+        $this->assertSame(0, $p->fresh()->stock);   // product stock na
+
+        // purchase delete korle variant stock thekeo kome
+        $purchase = \App\Models\Purchase::latest('id')->first();
+        $this->assertSame($v->id, $purchase->variant_id);
+        $this->delete(route('admin.purchases.destroy', $purchase))->assertRedirect();
+        $this->assertSame(80, $v->fresh()->stock);
+    }
+
+    public function test_product_show_page_renders_with_purchase_history(): void
+    {
+        $this->actingAs($this->admin());
+        $p = $this->productWithVariants();
+        $supplier = \App\Models\Supplier::create(['name' => 'Karim Traders']);
+        \App\Models\Purchase::create([
+            'supplier_id' => $supplier->id,
+            'product_id' => $p->id,
+            'variant_id' => $p->variants[0]->id,
+            'quantity' => 10,
+            'unit_cost' => 20,
+            'purchased_at' => now()->toDateString(),
+        ]);
+
+        $this->get(route('admin.products.show', $p))
+            ->assertOk()
+            ->assertSee('পারচেজ হিস্ট্রি')
+            ->assertSee('Karim Traders')
+            ->assertSee($p->variants[0]->size);
+    }
+
     public function test_variants_only_product_needs_no_product_price_or_stock(): void
     {
         // variant thakle upore price/stock field hidden thake — charao save hote hobe

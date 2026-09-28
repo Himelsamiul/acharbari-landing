@@ -84,8 +84,30 @@ class ProductController extends Controller
             ->with('success', 'প্রোডাক্ট "' . $product->name . '" তৈরি হয়েছে (বারকোড: ' . $product->barcode . ')।');
     }
 
-    public function edit(Product $product)
+    /** Product er full details + purchase history + recent orders. */
+    public function show(Product $product)
     {
+        $product->load('variants');
+
+        $purchases = \App\Models\Purchase::where('product_id', $product->id)
+            ->with(['supplier', 'variant'])
+            ->latest('purchased_at')->latest('id')->get();
+
+        $orderItems = \App\Models\OrderItem::where('product_id', $product->id)
+            ->with('order:id,order_code,customer_name,status,created_at')
+            ->latest('id')->limit(15)->get();
+
+        return view('admin.products.show', [
+            'product' => $product,
+            'purchases' => $purchases,
+            'orderItems' => $orderItems,
+            'soldQty' => (int) \App\Models\OrderItem::where('product_id', $product->id)->sum('quantity'),
+            'purchasedQty' => (int) $purchases->sum('quantity'),
+            'purchaseTotal' => (float) $purchases->sum('total'),
+        ]);
+    }
+
+    public function edit(Product $product)    {
         return view('admin.products.form', [
             'product' => $product,
             'categories' => Category::forIndustry($product->industry ?: ab_industry_active())->orderBy('id')->get(),

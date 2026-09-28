@@ -92,6 +92,8 @@
                         </td>
                         <td>
                             <div style="display:flex;gap:6px">
+                                <a class="side-link" style="background:rgba(59,130,246,.1);color:#1d4ed8;border-radius:10px;padding:7px 12px;width:auto;text-decoration:none"
+                                    href="{{ route('admin.products.show', $p) }}" title="বিস্তারিত দেখুন (পারচেজ হিস্ট্রি সহ)"><i class="fa-solid fa-eye"></i></a>
                                 <a class="side-link" style="background:rgba(5,150,105,.08);color:#1f4234;border-radius:10px;padding:7px 12px;width:auto;text-decoration:none"
                                     href="{{ route('admin.products.edit', $p) }}"><i class="fa-solid fa-pen"></i></a>
                                 @if ($deleteBlocked)

@@ -79,6 +79,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/products', [Admin\ProductController::class, 'index'])->middleware('perm:products')->name('admin.products.index');
     Route::get('/products/create', [Admin\ProductController::class, 'create'])->middleware('perm:products')->name('admin.products.create');
     Route::post('/products', [Admin\ProductController::class, 'store'])->middleware('perm:products')->name('admin.products.store');
+    Route::get('/products/{product}', [Admin\ProductController::class, 'show'])->middleware('perm:products')->name('admin.products.show');
     Route::get('/products/{product}/edit', [Admin\ProductController::class, 'edit'])->middleware('perm:products')->name('admin.products.edit');
     Route::put('/products/{product}', [Admin\ProductController::class, 'update'])->middleware('perm:products')->name('admin.products.update');
     Route::post('/products/{product}/toggle', [Admin\ProductController::class, 'toggle'])->middleware('perm:products')->name('admin.products.toggle');
