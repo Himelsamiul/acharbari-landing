@@ -53,13 +53,27 @@
                             @if ($pOrders > 0)<span class="pill mut" style="margin-left:4px" title="এই প্রোডাক্টের অর্ডার আছে — মোছা যাবে না"><i class="fa-solid fa-cart-shopping"></i> {{ $pOrders }}</span>@endif
                         </td>
                         <td>{{ $p->category }}<br><small style="color:#8b7355">{{ $p->brand }}</small></td>
-                        <td><b>৳{{ number_format($p->price) }}</b></td>
+                        <td>
+                            @php
+                                $vAct = $p->variants->where('is_active', true)->values();
+                            @endphp
+                            @if ($vAct->isNotEmpty())
+                                <b>৳{{ number_format($vAct->min('price')) }}–৳{{ number_format($vAct->max('price')) }}</b>
+                                <br><small style="color:#8b7355">{{ $vAct->count() }}টি সাইজ</small>
+                            @else
+                                <b>৳{{ number_format($p->price) }}</b>
+                            @endif
+                        </td>
                         <td>{{ $p->vat_percent > 0 ? $p->vat_percent . '%' : '—' }}</td>
                         <td>
-                            @if ($p->stock > 5)
-                                <span class="pill ok">{{ $p->stock }} {{ $p->unit }}</span>
-                            @elseif ($p->stock > 0)
-                                <span class="pill wait">{{ $p->stock }} {{ $p->unit }} (কম)</span>
+                            @php
+                                $vStock = $vAct->isNotEmpty() ? (int) $vAct->sum('stock') : $p->stock;
+                                $vUnit = $vAct->isNotEmpty() && $vAct->count() === 1 ? $vAct->first()->size : $p->unit;
+                            @endphp
+                            @if ($vStock > 5)
+                                <span class="pill ok">{{ $vStock }} {{ $vUnit }}</span>
+                            @elseif ($vStock > 0)
+                                <span class="pill wait">{{ $vStock }} {{ $vUnit }} (কম)</span>
                             @else
                                 <span class="pill red">স্টক শেষ</span>
                             @endif

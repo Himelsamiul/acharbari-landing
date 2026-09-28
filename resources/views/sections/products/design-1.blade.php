@@ -69,17 +69,27 @@
                             <span>{{ number_format($p->rating, 1) }} <span data-en="({{ $p->reviews_count }} reviews)">({{ bn_num($p->reviews_count) }}টি রিভিউ)</span></span>
                         </div>
                         <h3 class="ds-product-title" data-en="{{ $p->name_en }}">{{ $p->name }}</h3>
+                        @php
+                            $pVariants = $p->variants->where('is_active', true)->values();
+                            $pHasVariants = $pVariants->isNotEmpty();
+                            $pStock = $pHasVariants ? (int) $pVariants->sum('stock') : $p->stock;
+                            $pShowPrice = $pHasVariants ? (float) $pVariants->min('price') : (float) $p->price;
+                        @endphp
                         <div class="ds-product-price-row">
-                            <del>৳{{ bn_num($p->old_price) }}</del>
-                            <ins>৳{{ bn_num($p->price) }}</ins>
-                            @if ($p->stock > 0)
-                            <span class="ds-product-stock-pill" data-en="{{ $p->stock_badge_en ?? 'In Stock' }}">{{ $p->stock_badge ?? 'স্টকে আছে' }} ({{ bn_num($p->stock) }} {{ $p->unit }})</span>
+                            @if ($pHasVariants)
+                                <ins>৳{{ bn_num($pShowPrice) }} <small style="font-size:.72em;font-weight:700;color:#8b7355" data-en="onwards">থেকে শুরু</small></ins>
+                            @else
+                                <del>৳{{ bn_num($p->old_price) }}</del>
+                                <ins>৳{{ bn_num($p->price) }}</ins>
+                            @endif
+                            @if ($pStock > 0)
+                            <span class="ds-product-stock-pill" data-en="{{ $p->stock_badge_en ?? 'In Stock' }}">{{ $p->stock_badge ?? 'স্টকে আছে' }} ({{ bn_num($pStock) }} {{ $p->unit }})</span>
                             @else
                             <span class="ds-product-stock-pill" style="background:#fee2e2;color:#dc2626" data-en="Out of Stock">স্টক শেষ</span>
                             @endif
                         </div>
                         <div class="ds-product-actions">
-                            @if ($p->stock > 0)
+                            @if ($pStock > 0)
                             <button class="ds-btn ds-btn-block" onclick="selectProductForOrder({{ $p->id }})">
                                 <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> <span data-en="Order Now">অর্ডার করুন</span>
                             </button>

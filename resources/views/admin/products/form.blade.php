@@ -200,6 +200,19 @@
             </div>
         </div>
 
+        {{-- ===== ভ্যারিয়েন্ট (সাইজ/দাম) ===== --}}
+        <div class="card pf-card">
+            <h3><span class="pf-ic" style="--pc:#f59e0b"><i class="fa-solid fa-layer-group"></i></span> ভ্যারিয়েন্ট / সাইজ</h3>
+            <p class="desc">একই প্রোডাক্টের একাধিক সাইজ আলাদা দাম/স্টকে রাখুন — যেমন 250ml ৳30, 500ml ৳50। না দিলে উপরের দাম ও স্টকই চলবে।</p>
+
+            <div id="variantRows"></div>
+
+            <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
+                <button type="button" class="a-btn ghost" onclick="addVariantRow()"><i class="fa-solid fa-plus"></i> ভ্যারিয়েন্ট যোগ করুন</button>
+                <span style="color:#8b7355;font-size:12.5px">সাইজ + দাম দেওয়া রো-গুলোই সেভ হবে; খালি রো বাদ যাবে</span>
+            </div>
+        </div>
+
         {{-- ===== SAVE BAR ===== --}}
         <div class="pf-savebar">
             <button class="a-btn" style="padding:14px 34px;font-size:15px">
@@ -256,6 +269,55 @@
             .pf-two, .pf-status { grid-template-columns: 1fr; }
         }
     </style>
+
+    <style>
+        .vrow { display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr 1.2fr auto auto; gap:8px; align-items:end;
+            padding:10px; border:1px solid rgba(5,150,105,.18); border-radius:12px; margin-bottom:8px; background:#fff; }
+        .vrow .a-field { margin:0; }
+        .vrow .a-field label { font-size:11px; }
+        .vrow .vactive { display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:#33443c;
+            padding:10px 4px; white-space:nowrap; }
+        .vrow .vactive input { accent-color:#059669; width:15px; height:15px; }
+        .vrow .vdel { border:none; background:rgba(220,38,38,.08); color:#dc2626; border-radius:8px;
+            width:34px; height:38px; cursor:pointer; font-size:13px; }
+        @media (max-width: 900px) { .vrow { grid-template-columns:1fr 1fr; } }
+    </style>
+
+    <script>
+        /* ভ্যারিয়েন্ট রো রিপিটার */
+        function variantRowHtml(v) {
+            v = v || {};
+            return '<div class="vrow">' +
+                '<div class="a-field"><label>সাইজ / পরিমাণ *</label>' +
+                '<input class="a-input" name="variants[][size]" value="' + (v.size || '') + '" placeholder="যেমন: 500ml / 1kg / লার্জ" maxlength="50"></div>' +
+                '<div class="a-field"><label>দাম (৳) *</label>' +
+                '<input class="a-input" type="number" step="0.01" min="0" name="variants[][price]" value="' + (v.price || '') + '" placeholder="50"></div>' +
+                '<div class="a-field"><label>পুরাতন দাম</label>' +
+                '<input class="a-input" type="number" step="0.01" min="0" name="variants[][old_price]" value="' + (v.old_price || '') + '" placeholder="৬০"></div>' +
+                '<div class="a-field"><label>স্টক</label>' +
+                '<input class="a-input" type="number" min="0" name="variants[][stock]" value="' + (v.stock !== undefined && v.stock !== '' ? v.stock : 0) + '"></div>' +
+                '<div class="a-field"><label>SKU (ঐচ্ছিক)</label>' +
+                '<input class="a-input" name="variants[][sku]" value="' + (v.sku || '') + '" placeholder="CC-500" maxlength="60"></div>' +
+                '<label class="vactive"><input type="checkbox" name="variants[][is_active]" value="1" ' + (v.is_active === undefined || v.is_active ? 'checked' : '') + '> চালু</label>' +
+                '<input type="hidden" name="variants[][id]" value="' + (v.id || '') + '">' +
+                '<button type="button" class="vdel" title="রো মুছুন" onclick="this.closest(\'.vrow\').remove()"><i class="fa-solid fa-trash"></i></button>' +
+                '</div>';
+        }
+
+        function addVariantRow(v) {
+            document.getElementById('variantRows').insertAdjacentHTML('beforeend', variantRowHtml(v));
+        }
+
+        /* এডিটে পুরানো ভ্যারিয়েন্ট রো হিসেবে বসাও */
+        (function () {
+            var data = @json($product->variants->map(fn ($v) => [
+                'id' => $v->id, 'size' => $v->size, 'price' => $v->price,
+                'old_price' => $v->old_price, 'stock' => $v->stock,
+                'sku' => $v->sku, 'is_active' => $v->is_active,
+            ]));
+            if (data.length) data.forEach(addVariantRow);
+        })();
+    </script>
 
     <script>
         /* ছবি সিলেক্ট করলেই প্রিভিউ দেখাও */

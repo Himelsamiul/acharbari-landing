@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class ProductController extends Controller
             : null;
         $viewIndustry = $filter ?? $currentIndustry;
 
-        $products = Product::forIndustry($viewIndustry)->orderBy('sort_order')->get();
+        $products = Product::forIndustry($viewIndustry)->with('variants')->orderBy('sort_order')->get();
         $ids = $products->pluck('id');
 
         // dependency tracking: kon product e order/purchase ase — delete er age dekhano lage
@@ -64,6 +65,7 @@ class ProductController extends Controller
         $data['supplier_id'] = $request->filled('supplier_id') ? (int) $request->input('supplier_id') : null;
 
         $product = Product::create($data);
+        $this->syncVariants($request, $product);
 
         // initial stock bought from a supplier -> remember it as a purchase
         $cost = (float) $request->input('purchase_cost', 0);
@@ -100,6 +102,7 @@ class ProductController extends Controller
         $data['supplier_id'] = $request->filled('supplier_id') ? (int) $request->input('supplier_id') : null;
 
         $product->update($data);
+        $this->syncVariants($request, $product);
 
         return redirect()->route('admin.products.index')
             ->with('success', 'প্রোডাক্ট আপডেট হয়েছে।');
@@ -137,6 +140,53 @@ class ProductController extends Controller
         return back()->with('success', '"' . $product->name . '" এখন ' . ($product->is_active ? 'লাইভ' : 'বন্ধ') . '।');
     }
 
+    /**
+     * Variant rows sync: form e ja ase setai DB te — bad deya row delete,
+     * notun row create, purano row update. Khali row gulo bad porjay.
+     */
+    private function syncVariants(Request $request, Product $product): void
+    {
+        $rows = $request->input('variants', []);
+        if (!is_array($rows)) $rows = [];
+
+        $keepIds = [];
+
+        foreach (array_values($rows) as $i => $row) {
+            if (!is_array($row)) continue;
+
+            $size = trim((string) ($row['size'] ?? ''));
+            $price = (float) ($row['price'] ?? 0);
+            if ($size === '' || $price <= 0) continue; // ardhek bhora row — ignore
+
+            $payload = [
+                'size' => $size,
+                'price' => $price,
+                'old_price' => isset($row['old_price']) && $row['old_price'] !== '' ? (float) $row['old_price'] : null,
+                'stock' => max(0, (int) ($row['stock'] ?? 0)),
+                'sku' => trim((string) ($row['sku'] ?? '')) !== '' ? trim((string) $row['sku']) : null,
+                'is_active' => !empty($row['is_active']),
+                'sort_order' => (int) ($row['sort_order'] ?? $i),
+            ];
+
+            // existing row update (shudhu ei product tar tai)
+            $existing = null;
+            if (!empty($row['id'])) {
+                $existing = ProductVariant::where('id', (int) $row['id'])
+                    ->where('product_id', $product->id)->first();
+            }
+
+            if ($existing) {
+                $existing->update($payload);
+                $keepIds[] = $existing->id;
+            } else {
+                $keepIds[] = $product->variants()->create($payload)->id;
+            }
+        }
+
+        // form e ja ashe niye baki gulo delete (sohoj: submit e jeta nai seta muche jabe)
+        $product->variants()->whereNotIn('id', $keepIds)->delete();
+    }
+
     private function validateProduct(Request $request, ?Product $product = null): array
     {
         $data = $request->validate([
@@ -148,6 +198,15 @@ class ProductController extends Controller
             'unit' => 'required|in:pcs,gm,kg,ml,liter',
             'stock' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
+            'variants' => 'nullable|array',
+            'variants.*.id' => 'nullable|integer',
+            'variants.*.size' => 'nullable|string|max:50', // khali row sync e ignore hoy
+            'variants.*.price' => 'nullable|numeric|min:0|max:9999999',
+            'variants.*.old_price' => 'nullable|numeric|min:0|max:9999999',
+            'variants.*.stock' => 'nullable|integer|min:0',
+            'variants.*.sku' => 'nullable|string|max:60',
+            'variants.*.sort_order' => 'nullable|integer|min:0',
+            'variants.*.is_active' => 'nullable|boolean',
             'vat_percent' => 'nullable|numeric|min:0|max:100',
             'old_price' => 'nullable|numeric|min:0',
             'discount_bn' => 'nullable|string|max:30',

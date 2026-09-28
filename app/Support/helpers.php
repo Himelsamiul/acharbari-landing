@@ -418,15 +418,23 @@ if (!function_exists('buildQuickView')) {
     function buildQuickView($products): array
     {
         return $products->mapWithKeys(function ($p) {
+            // variant thakle default (prothom active) variant er dam base price —
+            // ar puro list JS ke pathano jate cart e size select kora jay
+            $variants = $p->variants->where('is_active', true)->values();
+            $default = $variants->first();
+            $price = $default ? (float) $default->price : (float) $p->price;
+            $oldPrice = $default && $default->old_price ? (float) $default->old_price : (float) $p->old_price;
+            $stock = $variants->isNotEmpty() ? (int) $variants->sum('stock') : (int) $p->stock;
+
             return [$p->id => [
                 'title' => $p->name,
                 'title_en' => $p->name_en,
                 'category' => $p->category,
                 'category_en' => $p->category_en,
-                'price' => '৳' . bn_num($p->price),
-                'price_en' => '৳' . number_format($p->price),
-                'oldPrice' => '৳' . bn_num($p->old_price),
-                'oldPrice_en' => '৳' . number_format($p->old_price),
+                'price' => '৳' . bn_num($price),
+                'price_en' => '৳' . number_format($price),
+                'oldPrice' => '৳' . bn_num($oldPrice),
+                'oldPrice_en' => '৳' . number_format($oldPrice),
                 'discount' => $p->discount_bn,
                 'discount_en' => $p->discount_en,
                 'img' => asset($p->image),
@@ -434,7 +442,14 @@ if (!function_exists('buildQuickView')) {
                 'desc' => $p->description,
                 'desc_en' => $p->description_en,
                 'vat_percent' => (float) $p->vat_percent,
-                'stock' => (int) $p->stock,
+                'stock' => $stock,
+                'variants' => $variants->map(fn ($v) => [
+                    'id' => $v->id,
+                    'size' => $v->size,
+                    'price' => '৳' . bn_num($v->price),
+                    'price_en' => '৳' . number_format($v->price),
+                    'stock' => (int) $v->stock,
+                ])->all(),
             ]];
         })->all();
     }

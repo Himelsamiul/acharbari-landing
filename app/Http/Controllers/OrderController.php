@@ -47,6 +47,17 @@ class OrderController extends Controller
         // hidden (other-industry) ids must not be orderable either
         $products = Product::whereIn('id', $productIds)->where('is_active', true)->forIndustry()->get()->keyBy('id');
 
+        // variant map: valid, ACTIVE variants of the ordered products only
+        $variantIds = array_values(array_filter(array_map(
+            fn ($i) => (int) ($i['variant_id'] ?? 0),
+            $items
+        )));
+        $variants = $variantIds
+            ? \App\Models\ProductVariant::whereIn('id', $variantIds)
+                ->whereIn('product_id', $products->keys())->where('is_active', true)
+                ->get()->keyBy('id')
+            : collect();
+
         $subtotal = 0;
         $vatTotal = 0;
         $lines = [];
@@ -54,17 +65,40 @@ class OrderController extends Controller
             $product = $products[(int) $item['id']] ?? null;
             if (! $product) continue;
             $qty = max(1, min(20, (int) ($item['qty'] ?? 1)));
-            if ($product->stock > 0 && $qty > $product->stock) {
-                $qty = (int) $product->stock;
+
+            // variant line: price/stock variant er ta — na thakle default variant,
+            // seta-o na thakle product er nijer price (variant-chara product)
+            $variant = $variants[(int) ($item['variant_id'] ?? 0)] ?? null;
+            if ($variant && (int) $variant->product_id !== (int) $product->id) {
+                $variant = null;
             }
-            $line = $product->price * $qty;
+            if (! $variant) {
+                $variant = $product->defaultVariant();
+            }
+
+            if ($variant) {
+                $unitPrice = (float) $variant->price;
+                $stock = $variant->stock;
+                $name = $product->name . ' (' . $variant->size . ')';
+            } else {
+                $unitPrice = (float) $product->price;
+                $stock = $product->stock;
+                $name = $product->name;
+            }
+
+            if ($stock > 0 && $qty > $stock) {
+                $qty = (int) $stock;
+            }
+            $line = $unitPrice * $qty;
             $vat = round($line * (float) $product->vat_percent / 100, 2);
             $subtotal += $line;
             $vatTotal += $vat;
             $lines[] = [
                 'product_id' => $product->id,
-                'product_name' => $product->name,
-                'price' => $product->price,
+                'variant_id' => $variant?->id,
+                'product_name' => $name,
+                'variant_size' => $variant?->size,
+                'price' => $unitPrice,
                 'quantity' => $qty,
                 'line_total' => $line,
                 'vat_percent' => (float) $product->vat_percent,
@@ -138,8 +172,12 @@ class OrderController extends Controller
             foreach ($lines as $line) {
                 $order->items()->create($line);
 
-                // stock management: decrement sold quantity
-                Product::where('id', $line['product_id'])->decrement('stock', $line['quantity']);
+                // stock management: variant thakle variant er stock, nahole product er
+                if (!empty($line['variant_id'])) {
+                    \App\Models\ProductVariant::where('id', $line['variant_id'])->decrement('stock', $line['quantity']);
+                } else {
+                    Product::where('id', $line['product_id'])->decrement('stock', $line['quantity']);
+                }
             }
 
             // admin notification (bell in admin panel)

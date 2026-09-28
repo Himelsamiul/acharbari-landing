@@ -35,4 +35,43 @@ class Product extends Model
     {
         return $query->where('industry', $industry ?: (ab_industry() ?: 'organic'));
     }
+
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function activeVariants()
+    {
+        return $this->variants()->where('is_active', true)->orderBy('sort_order')->orderBy('id');
+    }
+
+    /** Variant ase kina — order/price logic ekhane theke switch hoy. */
+    public function hasVariants(): bool
+    {
+        return $this->activeVariants()->exists();
+    }
+
+    /** Order/cart e default variant — na thakle null (product er nijer price). */
+    public function defaultVariant(): ?ProductVariant
+    {
+        return $this->activeVariants()->first();
+    }
+
+    /** Active variant der motal stock — landing e stock badge etai dekhabe. */
+    public function variantStock(): int
+    {
+        return (int) $this->activeVariants()->sum('stock');
+    }
+
+    /** Active variant der moddhe sosto dam — listing e "৳30 theke" dekhate. */
+    public function variantMinPrice(): ?float
+    {
+        return $this->activeVariants()->min('price');
+    }
+
+    public function variantMaxPrice(): ?float
+    {
+        return $this->activeVariants()->max('price');
+    }
 }

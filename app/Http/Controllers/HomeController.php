@@ -11,7 +11,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $products = Product::active()->forIndustry()->orderByDesc('is_featured')->get();
+        $products = Product::active()->forIndustry()->with('variants')->orderByDesc('is_featured')->get();
 
         return view('home', ['products' => $products, 'qv' => buildQuickView($products)]);
     }
@@ -27,7 +27,7 @@ class HomeController extends Controller
             $design = 1;
         }
 
-        $products = Product::active()->forIndustry()->orderByDesc('is_featured')->get();
+        $products = Product::active()->forIndustry()->with('variants')->orderByDesc('is_featured')->get();
 
         return view('sections.preview', [
             'section' => $section,

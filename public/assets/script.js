@@ -1656,6 +1656,18 @@ document.addEventListener('keydown', function (e) {
     var COUPONS = window.AB_COUPONS || {};
 
     function prodData(pid) { return (window.quickViewProducts || {})[pid] || null; }
+
+    /* cart key: "12" = product soho; "12:v5" = product 12 er variant 5 */
+    function parseKey(k) {
+        var m = /^(\d+):v(\d+)$/.exec(String(k));
+        return m ? { pid: parseInt(m[1], 10), vid: parseInt(m[2], 10) } : { pid: parseInt(k, 10), vid: null };
+    }
+    function makeKey(pid, vid) { return vid ? pid + ':v' + vid : String(pid); }
+    function variantOf(p, vid) {
+        if (!p || !p.variants || !vid) return null;
+        for (var i = 0; i < p.variants.length; i++) if (p.variants[i].id === vid) return p.variants[i];
+        return null;
+    }
     function bnToNum(s) {
         var out = String(s || '').replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); });
         var n = parseFloat(out.replace(/[^\d.]/g, ''));
@@ -1694,20 +1706,22 @@ document.addEventListener('keydown', function (e) {
         var list = ids();
         var subtotal = 0;
         var rowsHtml = '';
-        list.forEach(function (pid) {
-            var p = prodData(pid);
+        list.forEach(function (key) {
+            var k = parseKey(key);
+            var p = prodData(k.pid);
             if (!p) return;
-            var unit = bnToNum(en ? (p.price_en || p.price) : p.price);
-            var qty = cart[pid].qty;
+            var v = variantOf(p, k.vid);
+            var unit = v ? bnToNum(en ? (v.price_en || v.price) : v.price) : bnToNum(en ? (p.price_en || p.price) : p.price);
+            var qty = cart[key].qty;
             subtotal += unit * qty;
-            rowsHtml += '<div class="lp-cart-row" id="cart-row-' + pid + '">' +
-                '<input type="checkbox" checked onchange="toggleProductFromCart(' + pid + ', this.checked)">' +
+            rowsHtml += '<div class="lp-cart-row" id="cart-row-' + key.replace(/\W/g, '_') + '">' +
+                '<input type="checkbox" checked onchange="toggleProductFromCart(\'' + key + '\', this.checked)">' +
                 '<div class="lp-cart-product"><img src="' + esc(p.img) + '" alt="">' +
-                '<div class="lp-cart-product-name">' + esc(prodField(pid, 'title', 'title_en')) + '</div></div>' +
+                '<div class="lp-cart-product-name">' + esc(prodField(k.pid, 'title', 'title_en')) + (v ? '<small style="display:block;color:#8b7355;font-weight:700">' + esc(v.size) + ' · ' + (en ? (v.price_en || v.price) : v.price) + '</small>' : '') + '</div></div>' +
                 '<div class="lp-cart-qty-box">' +
-                '<button type="button" class="lp-cart-qty-btn" onclick="landingCartQty(' + pid + ',-1)">−</button>' +
+                '<button type="button" class="lp-cart-qty-btn" onclick="landingCartQty(\'' + key + '\',-1)">−</button>' +
                 '<span class="lp-cart-qty-val">' + qty + '</span>' +
-                '<button type="button" class="lp-cart-qty-btn" onclick="landingCartQty(' + pid + ',1)">+</button>' +
+                '<button type="button" class="lp-cart-qty-btn" onclick="landingCartQty(\'' + key + '\',1)">+</button>' +
                 '</div>' +
                 '<div style="text-align:end;font-weight:700">৳ ' + fmt(unit * qty) + '</div>' +
                 '</div>';
@@ -1716,11 +1730,14 @@ document.addEventListener('keydown', function (e) {
         var discount = coupon ? Math.round(subtotal * coupon.pct / 100) : 0;
         var ship = deliveryCharge();
         var vatTotal = 0;
-        list.forEach(function (pid) {
-            var p = prodData(pid);
+        list.forEach(function (key) {
+            var k = parseKey(key);
+            var p = prodData(k.pid);
             if (!p) return;
+            var v = variantOf(p, k.vid);
+            var unit = v ? bnToNum(en ? (v.price_en || v.price) : v.price) : bnToNum(en ? (p.price_en || p.price) : p.price);
             // per-line VAT rounded to 2dp — matches OrderController rounding exactly
-            vatTotal += Math.round(bnToNum(p.price) * cart[pid].qty * (parseFloat(p.vat_percent) || 0)) / 100;
+            vatTotal += Math.round(unit * cart[key].qty * (parseFloat(p.vat_percent) || 0)) / 100;
         });
         var grand = Math.max(0, subtotal - discount) + vatTotal + (list.length ? ship : 0);
 
@@ -1739,7 +1756,12 @@ document.addEventListener('keydown', function (e) {
             '</div>';
 
         wrap.setAttribute('data-cart-empty', list.length ? '0' : '1');
-        wrap.setAttribute('data-cart-items', JSON.stringify(list.map(function (pid) { return { id: parseInt(pid, 10), qty: cart[pid].qty }; })));
+        wrap.setAttribute('data-cart-items', JSON.stringify(list.map(function (key) {
+            var k = parseKey(key);
+            var line = { id: k.pid, qty: cart[key].qty };
+            if (k.vid) line.variant_id = k.vid;
+            return line;
+        })));
         wrap.setAttribute('data-subtotal', String(subtotal));
         wrap.setAttribute('data-grand', String(grand));
 
@@ -1770,30 +1792,32 @@ document.addEventListener('keydown', function (e) {
     // keep cart labels in sync when the language is switched
     document.addEventListener('ab:lang', function () { render(); });
 
-    window.landingCartQty = function (pid, delta) {
-        if (!cart[pid]) return;
-        cart[pid].qty = Math.max(1, Math.min(10, cart[pid].qty + delta));
+    window.landingCartQty = function (key, delta) {
+        if (!cart[key]) return;
+        cart[key].qty = Math.max(1, Math.min(10, cart[key].qty + delta));
         render();
     };
 
-    window.toggleProductFromCart = function (productId, isChecked) {
-        productId = parseInt(productId, 10);
+    window.toggleProductFromCart = function (key, isChecked) {
         if (isChecked) {
-            if (!cart[productId]) cart[productId] = { qty: 1 };
+            if (!cart[key]) cart[key] = { qty: 1 };
         } else {
-            delete cart[productId];
+            delete cart[key];
         }
         render();
     };
 
     window.addToCartFromRow = function (productId) {
         productId = parseInt(productId, 10);
+        // variant thakle default (prothom active) variant e add hoy
+        var p = prodData(productId);
+        var key = (p && p.variants && p.variants.length) ? makeKey(productId, p.variants[0].id) : String(productId);
         // already in the cart → bump the quantity instead of doing nothing
-        if (cart[productId] && cart[productId].qty < 10) {
-            cart[productId].qty++;
+        if (cart[key] && cart[key].qty < 10) {
+            cart[key].qty++;
             render();
         } else {
-            window.toggleProductFromCart(productId, true);
+            window.toggleProductFromCart(key, true);
         }
     };
 
@@ -1871,8 +1895,11 @@ document.addEventListener('keydown', function (e) {
             // fill hidden inputs for the server
             var itemsInput = document.getElementById('cart_items_input');
             if (itemsInput) {
-                itemsInput.value = JSON.stringify(ids().map(function (pid) {
-                    return { id: parseInt(pid, 10), qty: cart[pid].qty };
+                itemsInput.value = JSON.stringify(ids().map(function (key) {
+                    var k = parseKey(key);
+                    var line = { id: k.pid, qty: cart[key].qty };
+                    if (k.vid) line.variant_id = k.vid;
+                    return line;
                 }));
             }
             var couponInput = document.getElementById('coupon_input');
@@ -1886,4 +1913,17 @@ document.addEventListener('keydown', function (e) {
     }
 
     render();
+
+    /* product-details page theke size select kore asha hole cart e jug kore dao */
+    (function () {
+        try {
+            var pick = JSON.parse(sessionStorage.getItem('abVariantPick') || 'null');
+            if (pick && pick.id && prodData(pick.id)) {
+                var key = makeKey(pick.id, pick.variant_id || null);
+                cart[key] = { qty: Math.max(1, Math.min(10, parseInt(pick.qty, 10) || 1)) };
+                sessionStorage.removeItem('abVariantPick');
+                render();
+            }
+        } catch (e) { /* corrupted pick — ignore */ }
+    })();
 })();
