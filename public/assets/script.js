@@ -1333,6 +1333,8 @@ window.openQuickView = function (productId) {
                     '<input type="radio" name="qv_variant" value="' + v.id + '"' +
                     ' data-price-bn="' + qvEsc(v.price) + '" data-price-en="' + qvEsc(v.price_en) + '"' +
                     ' data-old-bn="' + qvEsc(v.oldPrice || '') + '" data-old-en="' + qvEsc(v.oldPrice_en || '') + '"' +
+                    ' data-discount-bn="' + qvEsc(v.discount || '') + '" data-discount-en="' + qvEsc(v.discount_en || '') + '"' +
+                    ' data-vat="' + (v.vat_percent == null ? '' : v.vat_percent) + '"' +
                     ' ' + (off ? 'disabled' : (sel ? 'checked' : '')) + '' +
                     ' onchange="qvPickVariant(this)">' +
                     '<span class="qv-size-name">' + qvEsc(v.size) + '</span>' +
@@ -1343,6 +1345,7 @@ window.openQuickView = function (productId) {
             vgrid.innerHTML = html;
             var first = vs.find(function (v) { return v.stock > 0; }) || vs[0];
             document.getElementById('qvModalPrice').textContent = pick(first.price, first.price_en);
+            document.getElementById('qvModalDiscount').textContent = pick(first.discount, first.discount_en);
         } else {
             vbox.classList.add('hidden');
             document.getElementById('qvModalPrice').textContent = pick(prod.price, prod.price_en);
@@ -1371,6 +1374,9 @@ window.qvPickVariant = function (input) {
     } else {
         oldEl.style.display = 'none';
     }
+    // oi variant er nijer discount badge
+    var badge = input.dataset.discountBn || '';
+    document.getElementById('qvModalDiscount').textContent = en ? (input.dataset.discountEn || badge) : badge;
 };
 
 window.closeQuickViewModal = function () {
@@ -1804,8 +1810,10 @@ document.addEventListener('keydown', function (e) {
             if (!p) return;
             var v = variantOf(p, k.vid);
             var unit = v ? bnToNum(en ? (v.price_en || v.price) : v.price) : bnToNum(en ? (p.price_en || p.price) : p.price);
+            // VAT: variant er nijer ta, na thakle product er ta (server eo same)
+            var lineVatPct = (v && v.vat_percent != null) ? parseFloat(v.vat_percent) : (parseFloat(p.vat_percent) || 0);
             // per-line VAT rounded to 2dp — matches OrderController rounding exactly
-            vatTotal += Math.round(unit * cart[key].qty * (parseFloat(p.vat_percent) || 0)) / 100;
+            vatTotal += Math.round(unit * cart[key].qty * lineVatPct) / 100;
         });
         var grand = Math.max(0, subtotal - discount) + vatTotal + (list.length ? ship : 0);
 

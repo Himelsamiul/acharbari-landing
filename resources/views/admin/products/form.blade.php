@@ -271,7 +271,7 @@
     </style>
 
     <style>
-        .vrow { display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr 1.2fr auto auto; gap:8px; align-items:end;
+        .vrow { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; align-items:end;
             padding:10px; border:1px solid rgba(5,150,105,.18); border-radius:12px; margin-bottom:8px; background:#fff; }
         .vrow .a-field { margin:0; }
         .vrow .a-field label { font-size:11px; }
@@ -300,6 +300,12 @@
                 '<input class="a-input" type="number" step="0.01" min="0" name="variants[' + i + '][price]" value="' + (v.price || '') + '" placeholder="50"></div>' +
                 '<div class="a-field"><label>পুরাতন দাম</label>' +
                 '<input class="a-input" type="number" step="0.01" min="0" name="variants[' + i + '][old_price]" value="' + (v.old_price || '') + '" placeholder="৬০"></div>' +
+                '<div class="a-field"><label>VAT %</label>' +
+                '<input class="a-input" type="number" step="0.01" min="0" max="100" name="variants[' + i + '][vat_percent]" value="' + (v.vat_percent ?? '') + '" placeholder="খালি = প্রোডাক্টের VAT"></div>' +
+                '<div class="a-field"><label>ডিসকাউন্ট ব্যাজ (বাংলা)</label>' +
+                '<input class="a-input" name="variants[' + i + '][discount_bn]" value="' + (v.discount_bn || '') + '" placeholder="-২৫% ছাড়" maxlength="30"></div>' +
+                '<div class="a-field"><label>Discount Badge (EN)</label>' +
+                '<input class="a-input" name="variants[' + i + '][discount_en]" value="' + (v.discount_en || '') + '" placeholder="-25% Off" maxlength="30"></div>' +
                 '<div class="a-field"><label>স্টক</label>' +
                 '<input class="a-input" type="number" min="0" name="variants[' + i + '][stock]" value="' + (v.stock !== undefined && v.stock !== '' ? v.stock : 0) + '"></div>' +
                 '<div class="a-field"><label>SKU (ঐচ্ছিক)</label>' +
@@ -321,8 +327,9 @@
                 // Blade directive truncate kore PHP parse error dey
                 $variantRows = $product->variants->map(fn ($v) => [
                     'id' => $v->id, 'size' => $v->size, 'price' => $v->price,
-                    'old_price' => $v->old_price, 'stock' => $v->stock,
-                    'sku' => $v->sku, 'is_active' => $v->is_active,
+                    'old_price' => $v->old_price, 'vat_percent' => $v->vat_percent,
+                    'discount_bn' => $v->discount_bn, 'discount_en' => $v->discount_en,
+                    'stock' => $v->stock, 'sku' => $v->sku, 'is_active' => $v->is_active,
                 ])->values()->all();
             @endphp
             var data = @json($variantRows);

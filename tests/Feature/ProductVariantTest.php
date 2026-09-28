@@ -97,6 +97,8 @@ class ProductVariantTest extends TestCase
             'vat_percent' => 0,
             'variants[0][size]' => 'Red',
             'variants[0][price]' => '1500',
+            'variants[0][vat_percent]' => '5',
+            'variants[0][discount_bn]' => '-১০% ছাড়',
             'variants[0][stock]' => '500',
             'variants[0][is_active]' => '1',
             'variants[1][size]' => 'Green',
@@ -119,6 +121,11 @@ class ProductVariantTest extends TestCase
         $p = Product::where('slug', 'shirt')->first();
         $this->assertNotNull($p, 'product createi hoy nai');
         $this->assertSame(3, $p->variants()->count(), 'variant row save hoy nai');
+
+        // variant-level VAT + discount badge o save hoy
+        $red = $p->variants()->where('size', 'Red')->first();
+        $this->assertSame(5.0, (float) $red->vat_percent);
+        $this->assertSame('-১০% ছাড়', $red->discount_bn);
 
         // admin list er ROW e price range dekhabe — user er complaint er jaygay
         $this->get(route('admin.products.index'))
@@ -184,6 +191,7 @@ class ProductVariantTest extends TestCase
     {
         $p = $this->productWithVariants();
         $v = $p->variants[1]; // 500ml @ 50, stock 80
+        $v->update(['vat_percent' => 10]); // variant er nijer VAT
 
         $this->post(route('order.store'), $this->validPayload($p, [
             ['id' => $p->id, 'variant_id' => $v->id, 'qty' => 3],
@@ -195,8 +203,23 @@ class ProductVariantTest extends TestCase
         $this->assertSame(150.0, (float) $item->line_total); // 50 x 3
         $this->assertSame('500ml', $item->variant_size);
         $this->assertStringContainsString('500ml', $item->product_name);
+        $this->assertSame(15.0, (float) $order->vat_total); // 150 er 10% — variant er nijer VAT
         $this->assertSame(77, $v->fresh()->stock);  // 80 - 3
         $this->assertSame(0, $p->fresh()->stock);   // product stock untouched
+    }
+
+    public function test_variant_without_own_vat_falls_back_to_product_vat(): void
+    {
+        $p = $this->productWithVariants();
+        $p->update(['vat_percent' => 5]);
+        $v = $p->variants[1]; // vat_percent null → product er 5% lagbe
+
+        $this->post(route('order.store'), $this->validPayload($p, [
+            ['id' => $p->id, 'variant_id' => $v->id, 'qty' => 2],
+        ]))->assertRedirect();
+
+        $order = \App\Models\Order::latest('id')->first();
+        $this->assertSame(5.0, (float) $order->vat_total); // 100 er 5% — product er VAT fallback
     }
 
     public function test_order_without_variant_falls_back_to_default(): void

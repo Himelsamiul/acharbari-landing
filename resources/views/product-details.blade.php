@@ -15,22 +15,24 @@
                 <span>{{ $product->name }}</span>
             </nav>
 
+            @php
+                // variant data sobar age define — badge, price, table sobai use kore
+                $vActive = $product->variants->where('is_active', true)->values();
+                $vHas = $vActive->isNotEmpty();
+                $vTotalStock = $vHas ? (int) $vActive->sum('stock') : (int) $product->stock;
+            @endphp
+
             <div class="pd-grid">
                 <div class="pd-media">
                     <img src="{{ asset(ab_img($product->image)) }}" alt="{{ $product->image_alt ?: $product->name }}" loading="eager">
-                    @if ($product->discount_bn)<span class="pd-badge">{{ $product->discount_bn }}</span>@endif
+                    @php $pdBadge = $vHas ? ($vActive->first()->discount_bn ?: $product->discount_bn) : $product->discount_bn; @endphp
+                    @if ($pdBadge)<span class="pd-badge">{{ $pdBadge }}</span>@endif
                 </div>
 
                 <div class="pd-info">
                     <span class="ds-chip-hero" style="font-size:11px">{{ $product->category }} @if($product->brand) • {{ $product->brand }}@endif</span>
                     <h1 class="ds-h2" style="margin:12px 0 8px">{{ $product->name }}</h1>
                     @if ($product->name_en)<p style="margin:0 0 12px;color:#8b7355;font-weight:600">{{ $product->name_en }}</p>@endif
-
-                    @php
-                        $vActive = $product->variants->where('is_active', true)->values();
-                        $vHas = $vActive->isNotEmpty();
-                        $vTotalStock = $vHas ? (int) $vActive->sum('stock') : (int) $product->stock;
-                    @endphp
 
                     <div class="pd-price-row">
                         <span class="pd-price" id="pdPrice">{{ $vHas
@@ -66,19 +68,26 @@
                                     <tr>
                                         <th>সাইজ / পরিমাণ</th>
                                         <th>দাম</th>
+                                        <th>VAT</th>
                                         <th>স্টক</th>
                                     </tr>
-                                </thead>
+                </thead>
                                 <tbody>
                                     @foreach ($vActive as $v)
                                         <tr class="{{ $v->stock <= 0 ? 'off' : '' }}">
-                                            <td><b>{{ $v->size }}</b></td>
+                                            <td>
+                                                <b>{{ $v->size }}</b>
+                                                @if ($v->discount_bn || $product->discount_bn)
+                                                    <span class="pill wait" style="margin-left:6px">{{ $v->discount_bn ?: $product->discount_bn }}</span>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <b class="pd-vt-price">৳{{ number_format($v->price) }}</b>
                                                 @if ($v->old_price && $v->old_price > $v->price)
                                                     <span class="pd-old" style="font-size:12px">৳{{ number_format($v->old_price) }}</span>
                                                 @endif
                                             </td>
+                                            <td>{{ $v->vat_percent !== null ? 'VAT ' . rtrim(rtrim(number_format($v->vat_percent, 2), '0'), '.') . '%' : 'VAT ' . rtrim(rtrim(number_format($product->vat_percent, 2), '0'), '.') . '%' }}</td>
                                             <td>
                                                 @if ($v->stock > 0)
                                                     <span class="pill ok">{{ bn_num($v->stock) }}টি আছে</span>
@@ -103,6 +112,7 @@
                                         <input type="radio" name="pd_variant" value="{{ $v->id }}"
                                             data-price="{{ $v->price }}" data-old="{{ $v->old_price ?? '' }}"
                                             data-size="{{ $v->size }}" data-stock="{{ $v->stock }}"
+                                            data-discount="{{ $v->discount_bn ?: ($product->discount_bn ?: '') }}"
                                             {{ $v->stock <= 0 ? 'disabled' : '' }} {{ $loop->first ? 'checked' : '' }}>
                                         <span class="pd-size-name">{{ $v->size }}</span>
                                         <span class="pd-size-price">৳{{ number_format($v->price) }}</span>
@@ -248,6 +258,14 @@
                     priceEl.innerHTML = '৳' + price.toLocaleString('en-US') + ' <span class="pd-old">৳' + oldPrice.toLocaleString('en-US') + '</span>';
                 } else {
                     priceEl.textContent = '৳' + price.toLocaleString('en-US');
+                }
+
+                // oi variant er nijer discount badge (image er upor)
+                var badge = document.querySelector('.pd-badge');
+                if (badge) {
+                    var badgeTxt = r.dataset.discount || '';
+                    badge.textContent = badgeTxt;
+                    badge.style.display = badgeTxt ? '' : 'none';
                 }
 
                 totalEl.textContent = '৳' + (price * qty).toLocaleString('en-US');

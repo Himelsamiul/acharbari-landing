@@ -7,13 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class ProductVariant extends Model
 {
     protected $fillable = [
-        'product_id', 'size', 'price', 'old_price', 'stock', 'sku',
+        'product_id', 'size', 'price', 'old_price', 'vat_percent',
+        'discount_bn', 'discount_en', 'stock', 'sku',
         'is_active', 'sort_order',
     ];
 
     protected $casts = [
         'price' => 'float',
         'old_price' => 'float',
+        'vat_percent' => 'float',
         'stock' => 'integer',
         'is_active' => 'boolean',
     ];

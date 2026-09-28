@@ -86,11 +86,16 @@ class OrderController extends Controller
                 $name = $product->name;
             }
 
+            // VAT: variant er nijer VAT thakle seta, nahole product er ta
+            $vatPercent = $variant && $variant->vat_percent !== null
+                ? (float) $variant->vat_percent
+                : (float) $product->vat_percent;
+
             if ($stock > 0 && $qty > $stock) {
                 $qty = (int) $stock;
             }
             $line = $unitPrice * $qty;
-            $vat = round($line * (float) $product->vat_percent / 100, 2);
+            $vat = round($line * $vatPercent / 100, 2);
             $subtotal += $line;
             $vatTotal += $vat;
             $lines[] = [
@@ -101,7 +106,7 @@ class OrderController extends Controller
                 'price' => $unitPrice,
                 'quantity' => $qty,
                 'line_total' => $line,
-                'vat_percent' => (float) $product->vat_percent,
+                'vat_percent' => $vatPercent,
             ];
         }
 

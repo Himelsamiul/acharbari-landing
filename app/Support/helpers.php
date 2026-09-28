@@ -450,6 +450,9 @@ if (!function_exists('buildQuickView')) {
                     'price_en' => '৳' . number_format($v->price),
                     'oldPrice' => $v->old_price ? '৳' . bn_num($v->old_price) : '',
                     'oldPrice_en' => $v->old_price ? '৳' . number_format($v->old_price) : '',
+                    'vat_percent' => $v->vat_percent !== null ? (float) $v->vat_percent : null,
+                    'discount' => $v->discount_bn ?: ($p->discount_bn ?: ''),
+                    'discount_en' => $v->discount_en ?: ($p->discount_en ?: ''),
                     'stock' => (int) $v->stock,
                 ])->all(),
             ]];
