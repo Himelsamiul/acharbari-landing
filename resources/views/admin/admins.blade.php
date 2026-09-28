@@ -7,8 +7,8 @@
 @section('content')
     <div class="note-banner">
         <i class="fa-solid fa-shield-halved"></i>
-        <span>প্রতিটি অ্যাডমিন শুধু যে সেকশনের পারমিশন পাবে সেটাই সাইডবারে দেখবে — বাকিগুলো লুকানো থাকবে।
-            ইমেইল সবসময় গোপন থাকে (<b>a***@g***.com</b>), পাসওয়ার্ড কখনো দেখানো হয় না।
+        <span>রোল সিলেক্ট করলে পারমিশনগুলো অটো বসে যায় — চাইলে চেকবক্স দিয়ে কাস্টমাইজও করা যাবে।
+            প্রথম অ্যাডমিন (মূল অ্যাকাউন্ট) এই লিস্টে আসে না; পাসওয়ার্ড কখনো দেখানো হয় না।
             নিজের পারমিশন নিজে এডিট করা যাবে না; শেষ অ্যাডমিন মুছে ফেলা যাবে না।</span>
     </div>
 
@@ -30,6 +30,14 @@
                 <div class="a-field">
                     <label>পাসওয়ার্ড *</label>
                     <input class="a-input" type="password" name="password" placeholder="কমপক্ষে ৬ অক্ষর" required minlength="6">
+                </div>
+                <div class="a-field">
+                    <label>রোল (পারমিশন অটো)</label>
+                    <select class="a-input role-preset" data-grid="perm-grid">
+                        @foreach ($rolePresets as $key => $preset)
+                            <option value="{{ $key }}">{{ $preset['label'] }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
 
@@ -59,12 +67,20 @@
                         <input class="a-input" value="{{ $editUser->name }}" disabled>
                     </div>
                     <div class="a-field">
-                        <label>ইমেইল (গোপন)</label>
-                        <input class="a-input" value="{{ mask_email($editUser->email) }}" disabled>
+                        <label>ইমেইল</label>
+                        <input class="a-input" value="{{ $editUser->email }}" disabled>
                     </div>
                     <div class="a-field">
                         <label>নতুন পাসওয়ার্ড (ঐচ্ছিক)</label>
                         <input class="a-input" type="password" name="password" placeholder="খালি রাখলে অপরিবর্তিত" minlength="6">
+                    </div>
+                    <div class="a-field">
+                        <label>রোল (পারমিশন অটো)</label>
+                        <select class="a-input role-preset" data-grid="perm-grid-edit" data-selected="{{ $editUser->roleLabel() }}">
+                            @foreach ($rolePresets as $key => $preset)
+                                <option value="{{ $key }}">{{ $preset['label'] }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
@@ -104,9 +120,10 @@
                                 <span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(22,163,74,.12);color:#16a34a;margin-left:6px">আপনি</span>
                             @endif
                         </td>
-                        <td style="font-family:monospace">{{ mask_email($admin->email) }}</td>
+                        <td style="font-family:monospace">{{ $admin->email }}</td>
                         <td>
-                            <span class="pill info">{{ count($admin->permissions ?? []) }}টি সেকশন</span>
+                            <span class="pill info">{{ $admin->roleLabel() }}</span>
+                            <span class="pill mut" style="margin-left:4px">{{ count($admin->permissions ?? []) }}টি সেকশন</span>
                         </td>
                         <td style="color:#8b7355">{{ $admin->created_at?->format('d M Y') ?? '—' }}</td>
                         <td style="white-space:nowrap">
@@ -149,6 +166,41 @@
                 var allOn = Array.from(boxes).every(function (b) { return b.checked; });
                 boxes.forEach(function (b) { b.checked = !allOn; });
             });
+        });
+
+        /* রোল প্রিসেট: dropdown change korlei checkbox gulo auto-fill */
+        @php
+            $rolePermsJs = array_map(
+                fn ($p) => $p['perms'] ?? array_keys(\App\Models\User::PERMISSIONS),
+                $rolePresets
+            );
+        @endphp
+        var ROLE_PERMS = @json($rolePermsJs);
+
+        function applyRolePreset(select) {
+            var perms = ROLE_PERMS[select.value] || [];
+            var grid = document.getElementById(select.dataset.grid);
+            if (!grid) return;
+            grid.querySelectorAll('input[type="checkbox"]').forEach(function (b) {
+                b.checked = perms.indexOf(b.value) !== -1;
+            });
+        }
+
+        document.querySelectorAll('.role-preset').forEach(function (sel) {
+            // edit form: current permission der sathe mille seta preselect
+            if (sel.dataset.selected) {
+                Object.keys(ROLE_PERMS).forEach(function (k) {
+                    var perms = ROLE_PERMS[k];
+                    var grid = document.getElementById(sel.dataset.grid);
+                    if (!grid) return;
+                    var cur = Array.from(grid.querySelectorAll('input[type="checkbox"]'))
+                        .filter(function (b) { return b.checked; })
+                        .map(function (b) { return b.value; })
+                        .sort();
+                    if (JSON.stringify(perms.slice().sort()) === JSON.stringify(cur)) sel.value = k;
+                });
+            }
+            sel.addEventListener('change', function () { applyRolePreset(sel); });
         });
     </script>
 @endsection

@@ -41,6 +41,41 @@ class User extends Authenticatable
     ];
 
     /**
+     * Role presets — dropdown theke select korlei checkbox gulo auto-fill hoy.
+     * DB te sudhu permissions save hoy (role = preset er sathe match kore dekhao).
+     */
+    public const ROLE_PRESETS = [
+        'admin' => [
+            'label' => 'Admin — সব এক্সেস',
+            'perms' => null, // null = all keys
+        ],
+        'manager' => [
+            'label' => 'Manager — অর্ডার, প্রোডাক্ট, গ্রাহক',
+            'perms' => ['orders', 'complaints', 'products', 'suppliers', 'customers', 'taxonomy', 'coupons', 'delivery', 'reviews'],
+        ],
+        'sub_admin' => [
+            'label' => 'Sub Admin — অর্ডার ও প্রোডাক্ট',
+            'perms' => ['orders', 'products', 'customers'],
+        ],
+    ];
+
+    /** Ei permission set kon role preset er sathe mille seta return kore (nahole 'custom'). */
+    public function roleLabel(): string
+    {
+        $perms = $this->permissions ?? [];
+        $all = array_keys(self::PERMISSIONS);
+        sort($perms);
+        foreach (self::ROLE_PRESETS as $preset) {
+            $presetPerms = $preset['perms'] ?? $all;
+            sort($presetPerms);
+            if ($perms === $presetPerms) {
+                return trim(explode('—', $preset['label'])[0]);
+            }
+        }
+        return 'Custom';
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>

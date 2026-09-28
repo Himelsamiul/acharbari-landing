@@ -13,8 +13,8 @@
                 <input class="a-input" value="{{ $user->name }}" disabled>
             </div>
             <div class="a-field">
-                <label>ইমেইল (গোপন)</label>
-                <input class="a-input" value="{{ mask_email($user->email) }}" disabled>
+                <label>ইমেইল</label>
+                <input class="a-input" value="{{ $user->email }}" disabled>
             </div>
             <div class="a-field">
                 <label>পারমিশন</label>

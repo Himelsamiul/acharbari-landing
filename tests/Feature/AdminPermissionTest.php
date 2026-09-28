@@ -60,14 +60,29 @@ class AdminPermissionTest extends TestCase
         $this->assertStringNotContainsString('অ্যাডমিন ম্যানেজমেন্ট', $html);
     }
 
-    public function test_email_is_masked_in_admin_list(): void
+    public function test_emails_are_visible_but_first_admin_hidden(): void
     {
-        $boss = $this->superAdmin();
-        $this->actingAs($boss)
+        // first admin (sob theke puran, seed type) — list e THAKBE NA
+        $first = User::create([
+            'name' => 'First', 'email' => 'first@test.bd', 'password' => 'secret123',
+            'permissions' => array_keys(User::PERMISSIONS),
+        ]);
+        $boss = User::create([
+            'name' => 'Boss', 'email' => 'boss@test.bd', 'password' => 'secret123',
+            'permissions' => array_keys(User::PERMISSIONS),
+        ]);
+
+        $html = $this->actingAs($boss)
             ->get(route('admin.admins.index'))
             ->assertOk()
-            ->assertSee('b***@t***.bd') // boss@test.bd masked
-            ->assertDontSee('boss@test.bd');
+            ->getContent();
+
+        // email visible (mask na)
+        $this->assertStringContainsString('boss@test.bd', $html);
+        // first admin er kono chinh nei (name o email) — shudhu boss dekhabe
+        $this->assertStringNotContainsString('first@test.bd', $html);
+        $this->assertStringNotContainsString('>First<', $html);
+        $this->assertSame(1, substr_count($html, 'boss@test.bd'));
     }
 
     public function test_cannot_edit_own_permissions(): void
