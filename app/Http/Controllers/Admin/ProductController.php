@@ -205,7 +205,7 @@ class ProductController extends Controller
             'slug' => 'nullable|string|max:220',
             'category_key' => 'required|string|exists:categories,key',
             'brand' => 'nullable|string|max:80',
-            'unit' => 'required|in:pcs,gm,kg,ml,liter',
+            'unit' => 'required|in:pcs,gm,kg,ml,liter,jar', // form e জার (jar) option-o ase
             'stock' => ($hasVariantRows ? 'nullable' : 'required') . '|integer|min:0',
             'price' => ($hasVariantRows ? 'nullable' : 'required') . '|numeric|min:0',
             'variants' => 'nullable|array',

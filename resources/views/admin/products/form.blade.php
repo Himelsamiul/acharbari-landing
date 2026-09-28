@@ -26,6 +26,21 @@
                 title="বন্ধ করুন">×</button>
         </div>
 
+        {{-- validation error hole sob ekhane dekhabe — nahole bujha jay na keno save hoy nai --}}
+        @if ($errors->any())
+            <div class="note-banner" style="background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.35)">
+                <i class="fa-solid fa-circle-exclamation" style="color:#dc2626"></i>
+                <span>
+                    <b style="color:#dc2626">সেভ হয়নি — এই সমস্যাগুলো ঠিক করুন:</b>
+                    <ul style="margin:4px 0 0;padding-inline-start:18px;color:#7f1d1d">
+                        @foreach ($errors->all() as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </span>
+            </div>
+        @endif
+
         {{-- ===== 1. বেসিক ===== --}}
         <div class="card pf-card">
             <h3><span class="pf-ic" style="--pc:#059669"><i class="fa-solid fa-jar"></i></span> বেসিক তথ্য</h3>
