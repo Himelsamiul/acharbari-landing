@@ -912,7 +912,8 @@
                 var parentEl = node.parentElement;
                 parentEl.style.outline = '2px solid #f59e0b';
                 parentEl.style.borderRadius = '4px';
-                parentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                /* NOTE: scrollIntoView NEI — field e click korle page upore
+                   jump kortilo, admin er typing bhangto (user-reported) */
             } else {
                 /* English text lives in [data-en] attributes (hidden in bn mode) */
                 var doc = cpDoc();
@@ -929,7 +930,6 @@
                 hl.enOrig = enEl.getAttribute('data-en');
                 enEl.style.outline = '2px solid #f59e0b';
                 enEl.style.borderRadius = '4px';
-                enEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
 
