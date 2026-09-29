@@ -21,7 +21,6 @@
                 {!! $content !!}
             </div>
         </div>
-page-end
     </section>
 
     <style>

@@ -571,6 +571,11 @@
                 <div class="fgrid">
                     {!! $tf('footer_rights', 'কপিরাইট লাইন') !!}
                     {!! $tf('footer_made', 'Made with love লাইন') !!}
+                    <div class="a-field">
+                        <label>Made with love — কার নাম? (ডেভেলপার/এজেন্সি)</label>
+                        <input class="a-input" name="made_by_name" value="{{ $settings['made_by_name'] ?? '' }}"
+                            placeholder="যেমন: PrimeByte / Himel / Daief — খালি রাখলে ব্র্যান্ড নাম" maxlength="60">
+                    </div>
                 </div>
                 <p class="desc">ফোন/WhatsApp/Facebook বদলাতে <a href="{{ route('admin.settings.brand') }}">লোগো ও ব্র্যান্ড</a> পেজে যান। কপিরাইটের বছর অটো বসে।</p>
             </div>

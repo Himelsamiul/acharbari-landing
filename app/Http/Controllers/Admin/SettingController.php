@@ -467,6 +467,7 @@ class SettingController extends Controller
             'rating_json' => 'nullable|string|max:10000',
             'privacy_policy_content' => 'nullable|string|max:20000',
             'terms_content' => 'nullable|string|max:20000',
+            'made_by_name' => 'nullable|string|max:60',
             'delivery_inside' => 'nullable|integer|min:0|max:5000',
             'delivery_outside' => 'nullable|integer|min:0|max:5000',
         ];
@@ -511,6 +512,11 @@ class SettingController extends Controller
                     ? $data[$legal]
                     : '';
             }
+        }
+
+        // "Made with love by ___" — developer/agency name (khali = brand name)
+        if (array_key_exists('made_by_name', $data)) {
+            $pairs['made_by_name'] = trim((string) ($data['made_by_name'] ?? ''));
         }
 
         // hero images follow the logo upload pattern (removal restores the bundled default)

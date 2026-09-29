@@ -68,6 +68,19 @@ if (!function_exists('ab_img')) {
     }
 }
 
+if (!function_exists('ab_made_by')) {
+    /**
+     * Footer er "Made with love by ___" line er naam — admin e alada
+     * input field (made_by_name setting). Khali thakle brand name dekhabe.
+     */
+    function ab_made_by(): string
+    {
+        $name = trim((string) \App\Models\Setting::get('made_by_name', ''));
+
+        return $name !== '' ? $name : ab_brand('bn');
+    }
+}
+
 if (!function_exists('ab_industry_active')) {
     /**
      * Industry that owns the catalogue data — the active preset key, or
