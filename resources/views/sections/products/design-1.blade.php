@@ -83,7 +83,7 @@
                                 <ins>৳{{ bn_num($p->price) }}</ins>
                             @endif
                             @if ($pStock > 0)
-                            <span class="ds-product-stock-pill" data-en="{{ $p->stock_badge_en ?? 'In Stock' }}">{{ $p->stock_badge ?? 'স্টকে আছে' }} ({{ bn_num($pStock) }} {{ $p->unit }})</span>
+                            <span class="ds-product-stock-pill" data-en="{{ $p->stock_badge_en ?? 'In Stock' }}">{{ $p->stock_badge ?? 'স্টকে আছে' }}</span>
                             @else
                             <span class="ds-product-stock-pill" style="background:#fee2e2;color:#dc2626" data-en="Out of Stock">স্টক শেষ</span>
                             @endif

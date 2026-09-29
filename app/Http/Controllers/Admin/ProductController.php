@@ -120,7 +120,7 @@ class ProductController extends Controller
     {
         $data = $this->validateProduct($request, $product);
         // ইন্ডাস্ট্রি এডিটে অপরিবর্তিত থাকে — $data-তে industry নেই তাই update এতে ধরে না
-        $data = $this->handleUpload($request, $data, $product->industry ?: ab_industry_active());
+        $data = $this->handleUpload($request, $data, $product->industry ?: ab_industry_active(), $product);
         $data['supplier_id'] = $request->filled('supplier_id') ? (int) $request->input('supplier_id') : null;
 
         $product->update($data);
@@ -293,12 +293,18 @@ class ProductController extends Controller
         return $data;
     }
 
-    private function handleUpload(Request $request, array $data, string $industry): array
+    private function handleUpload(Request $request, array $data, string $industry, ?Product $product = null): array
     {
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
             $data['image'] = 'storage/' . $path;
         } elseif (!isset($data['image']) || trim((string) $data['image']) === '') {
+            // EDIT e notun upload na dile ager image-tai THAKBE — placeholder diye
+            // overwrite kora jabe na (user-reported bug)
+            if ($product && trim((string) $product->image) !== '') {
+                return $data;
+            }
+
             // strict MySQL: products.image has no default — placeholder keeps no-image products savable.
             // ছবি না থাকলে ওই ইন্ডাস্ট্রির genre-pack আর্ট, না পেলে জেনেরিক অর্গানিক প্লেসহোল্ডার
             $placeholder = 'assets/img/genres/' . $industry . '/product-1.jpg';

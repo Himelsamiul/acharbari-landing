@@ -211,6 +211,29 @@ class ProductVariantTest extends TestCase
         ])->assertSessionHasErrors('price');
     }
 
+
+    public function test_edit_without_new_image_keeps_existing_image(): void
+    {
+        $this->actingAs($this->admin());
+        Category::create(['name' => 'ড্রিংকস', 'name_en' => 'Drinks', 'key' => 'drink', 'industry' => 'organic', 'is_active' => true]);
+        $p = $this->productWithVariants();
+        $p->update(['image' => 'storage/products/my-burger.jpg']);
+        $original = $p->fresh()->image;
+
+        // edit korte gele image field KHALI (notun upload nai) — ager image thakbe
+        $this->put(route('admin.products.update', $p), [
+            'name' => $p->name,
+            'name_en' => $p->name_en,
+            'category_key' => 'drink',
+            'unit' => 'pcs',
+            'stock' => 5,
+            'price' => 99,
+            // kono 'image' input nai — browser e file select kora hoyni
+        ])->assertRedirect(route('admin.products.index'));
+
+        $this->assertSame($original, $p->fresh()->image, 'image placeholder diye overwrite hoye gese!');
+    }
+
     public function test_admin_can_create_product_with_variants(): void
     {
         $this->actingAs($this->admin());

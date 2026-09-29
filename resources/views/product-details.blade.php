@@ -90,7 +90,7 @@
                                             <td>{{ $v->vat_percent !== null ? 'VAT ' . rtrim(rtrim(number_format($v->vat_percent, 2), '0'), '.') . '%' : 'VAT ' . rtrim(rtrim(number_format($product->vat_percent, 2), '0'), '.') . '%' }}</td>
                                             <td>
                                                 @if ($v->stock > 0)
-                                                    <span class="pill ok">{{ bn_num($v->stock) }}টি আছে</span>
+                                                    <span class="pill ok">স্টকে আছে</span>
                                                 @else
                                                     <span class="pill red">স্টক শেষ</span>
                                                 @endif
