@@ -66,7 +66,7 @@
                     </div>
                     <div style="color:#5f7a6d"><i class="fa-solid fa-credit-card" style="color:#059669;width:18px"></i>
                         {{ strtoupper($order->payment_method) }}
-                        @if ($order->payment_method !== 'cod' && $order->payment_status)
+                        @if ($order->payment_status)
                             @if ($order->payment_status === 'paid')
                                 <b style="color:#059669">— PAID ✓</b>
                             @elseif ($order->payment_status === 'pending')
@@ -97,22 +97,20 @@
                     </button>
                 </form>
 
-                @if ($order->payment_method !== 'cod')
-                    {{-- manual/gateway payment verify — admin TrxID dekhe paid kore --}}
-                    <form method="POST" action="{{ route('admin.orders.payment', $order) }}" style="margin-top:14px">
-                        @csrf
-                        @php $isPaid = $order->payment_status === 'paid'; @endphp
-                        {{-- toggle er target value — eta chara validation fail hole silent back hoy --}}
-                        <input type="hidden" name="status" value="{{ $isPaid ? 'pending' : 'paid' }}">
-                        <button type="submit" class="a-btn {{ $isPaid ? 'ghost' : '' }}"
-                            style="width:100%;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:13px;padding:12px;border-radius:12px;{{ $isPaid
-                                ? 'background:#fff;color:#b45309;border:1.5px solid #fcd34d'
-                                : 'background:linear-gradient(135deg,#b45309,#d97706);color:#fff;box-shadow:0 10px 22px -8px rgba(180,83,9,.5)' }}">
-                            <i class="fa-solid {{ $isPaid ? 'fa-rotate-left' : 'fa-circle-check' }}"></i>
-                            {{ $isPaid ? 'পেমেন্ট আন-মার্ক করুন (বাকি করুন)' : 'টাকা পেয়েছি — PAID করুন' }}
-                        </button>
-                    </form>
-                @endif
+                {{-- payment mark — COD e taka hate pele paid koren, gateway/manual er bhul thakle thik koren --}}
+                <form method="POST" action="{{ route('admin.orders.payment', $order) }}" style="margin-top:14px">
+                    @csrf
+                    @php $isPaid = $order->payment_status === 'paid'; @endphp
+                    {{-- COD un-mark korle abar faka (null) hoy; baki gulo pending e feye dey --}}
+                    <input type="hidden" name="status" value="{{ $isPaid ? ($order->payment_method === 'cod' ? 'clear' : 'pending') : 'paid' }}">
+                    <button type="submit" class="a-btn {{ $isPaid ? 'ghost' : '' }}"
+                        style="width:100%;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:13px;padding:12px;border-radius:12px;{{ $isPaid
+                            ? 'background:#fff;color:#b45309;border:1.5px solid #fcd34d'
+                            : 'background:linear-gradient(135deg,#b45309,#d97706);color:#fff;box-shadow:0 10px 22px -8px rgba(180,83,9,.5)' }}">
+                        <i class="fa-solid {{ $isPaid ? 'fa-rotate-left' : 'fa-circle-check' }}"></i>
+                        {{ $isPaid ? 'পেমেন্ট আন-মার্ক করুন' : 'টাকা পেয়েছি — PAID করুন' }}
+                    </button>
+                </form>
 
                 <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return swConfirmSubmit(event, 'অর্ডারটি মুছে ফেলবেন? এটি ফিরে আসবে না।')" style="margin-top:10px">
                     @csrf

@@ -105,6 +105,28 @@ class ManualPaymentTest extends TestCase
         $this->assertNull($order->payment_txn_id);
     }
 
+    public function test_admin_can_mark_cod_order_paid_and_clear_it(): void
+    {
+        // COD: taka hate pele admin paid kore, dorkar hole abar faka kore
+        $this->enableManual();
+        $p = $this->makeProduct();
+
+        $this->post(route('order.store'), $this->payload($p, ['payment_method' => 'cod']))
+            ->assertRedirect();
+
+        $order = Order::where('phone', '01700000002')->latest('id')->first();
+        $this->assertNull($order->payment_status);
+
+        $this->actingAsAdmin()->post(route('admin.orders.payment', $order), ['status' => 'paid'])
+            ->assertRedirect();
+        $this->assertSame('paid', $order->fresh()->payment_status);
+
+        // COD un-mark = faka (null), pending na
+        $this->actingAsAdmin()->post(route('admin.orders.payment', $order), ['status' => 'clear'])
+            ->assertRedirect();
+        $this->assertNull($order->fresh()->payment_status);
+    }
+
     public function test_admin_can_mark_manual_payment_paid(): void
     {
         $this->enableManual();
@@ -126,12 +148,15 @@ class ManualPaymentTest extends TestCase
     /** Admin panel e perm:orders middleware — full-permission admin banai. */
     private function actingAsAdmin(): self
     {
-        $user = \App\Models\User::create([
-            'name' => 'Test Admin',
-            'email' => 'admin-test@example.com',
-            'password' => bcrypt('secret123'),
-            'permissions' => array_keys(\App\Models\User::PERMISSIONS),
-        ]);
+        // ekoi test e dukbar call hote pare — firstOrCreate na hole unique violation
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => 'admin-test@example.com'],
+            [
+                'name' => 'Test Admin',
+                'password' => bcrypt('secret123'),
+                'permissions' => array_keys(\App\Models\User::PERMISSIONS),
+            ]
+        );
 
         return $this->actingAs($user);
     }

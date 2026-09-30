@@ -73,18 +73,20 @@ class OrderController extends Controller
     }
 
     /**
-     * Manual payment verification — admin TrxID চেক করে paid করে দেয়
-     * (gateway order-এর ক্ষেত্রেও ভুল থাকলে হাতে ঠিক করা যায়)।
+     * Payment verification — manual order-এ admin TrxID দেখে paid করে,
+     * COD order-এ টাকা হাতে পেলে paid করে ('clear' দিলে আবার ফাঁকা),
+     * gateway order অটো paid হয় (ভুল হলে হাতে ঠিক করা যায়)।
      */
     public function updatePaymentStatus(Request $request, Order $order)
     {
         $data = $request->validate([
-            'status' => 'required|in:paid,pending,failed',
+            'status' => 'required|in:paid,pending,failed,clear',
         ]);
 
-        // COD order-এ পেমেন্ট স্ট্যাটাস নেই — ফাঁকা-ই থাকে
-        if ($order->payment_method === 'cod') {
-            return back()->withErrors(['payment' => 'COD অর্ডারে পেমেন্ট স্ট্যাটাস নেই।']);
+        if ($data['status'] === 'clear') {
+            $order->update(['payment_status' => null]);
+
+            return back()->with('success', 'পেমেন্ট স্ট্যাটাস মুছে ফেলা হয়েছে।');
         }
 
         $order->update(['payment_status' => $data['status']]);

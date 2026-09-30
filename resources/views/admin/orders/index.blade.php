@@ -93,7 +93,7 @@
                             <td><b>৳{{ number_format($o->total) }}</b></td>
                             <td>
                                 <span class="pill mut">{{ strtoupper($o->payment_method) }}</span>
-                                @if ($o->payment_method !== 'cod' && $o->payment_status)
+                                @if ($o->payment_status)
                                     <span class="pill {{ $o->payment_status === 'paid' ? 'ok' : ($o->payment_status === 'pending' ? 'wait' : 'red') }}"
                                         style="margin-top:4px;display:inline-block">{{ $o->payment_status === 'paid' ? 'PAID ✓' : ($o->payment_status === 'pending' ? 'পেমেন্ট বাকি' : strtoupper($o->payment_status)) }}</span><br>
                                 @endif
