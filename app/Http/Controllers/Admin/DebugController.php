@@ -43,13 +43,14 @@ class DebugController extends Controller
         ];
 
         $logFile = $this->latestLogFile();
-        $logLines = $debugOn ? $this->tailLog($logFile, 150) : [];
+        $errors = $debugOn ? $this->parseLog($logFile, 60) : [];
 
         return view('admin.debug', [
             'debugOn' => $debugOn,
             'info' => $info,
             'logFile' => $logFile,
-            'logLines' => $logLines,
+            'errors' => $errors,
+            'errorCount' => count(array_filter($errors, fn ($e) => $e['level'] === 'error')),
             'logSize' => $logFile !== '' && is_file($logFile) ? number_format(filesize($logFile) / 1024, 1) . ' KB' : '—',
         ]);
     }
@@ -83,16 +84,45 @@ class DebugController extends Controller
         return (string) max($files);
     }
 
-    /** Log er shesh dik theke $lines ta line. */
-    private function tailLog(string $file, int $lines): array
+    /**
+     * Laravel log ke alada alada error entry-e bhange, NOTUN theke purano —
+     * .env te APP_DEBUG on na korei prottekta error er message, file/line
+     * ar stack trace ekhanei dekha jay.
+     */
+    private function parseLog(string $file, int $limit): array
     {
         if ($file === '' || ! is_file($file)) {
             return [];
         }
 
         $content = (string) file_get_contents($file);
-        $all = preg_split('/\r\n|\r|\n/', trim($content)) ?: [];
+        $all = preg_split('/\r\n|\r|\n/', $content) ?: [];
 
-        return array_slice($all, -$lines);
+        // log entry shuru hoy "[2026-10-01 12:00:00] production.ERROR: message"
+        $entries = [];
+        $current = null;
+        foreach ($all as $line) {
+            if (preg_match('/^\[(\d{4}-\d{2}-\d{2}[^\]]*)\]\s+\S+\.(\w+):\s?(.*)$/', $line, $m)) {
+                if ($current !== null) {
+                    $entries[] = $current;
+                }
+                $level = strtolower($m[2]);
+                $current = [
+                    'time' => $m[1],
+                    'level' => in_array($level, ['error', 'critical', 'alert', 'emergency'], true) ? 'error'
+                        : ($level === 'warning' ? 'warning' : 'info'),
+                    'level_name' => strtoupper($level),
+                    'message' => $m[3] !== '' ? $m[3] : '(empty)',
+                    'stack' => '',
+                ];
+            } elseif ($current !== null && $line !== '') {
+                $current['stack'] .= ($current['stack'] === '' ? '' : "\n") . $line;
+            }
+        }
+        if ($current !== null) {
+            $entries[] = $current;
+        }
+
+        return array_slice(array_reverse($entries), 0, $limit);
     }
 }
