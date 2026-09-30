@@ -36,10 +36,11 @@
 </head>
 <body>
     @php
-        // company header: logo + brand + slogan + phone — admin settings theke
+        // company header: logo + brand + slogan + phone — admin settings theke.
+        // PDF A-to-Z English: English brand/tagline use hoy, na thakle line skip
         $rptLogo = trim((string) \App\Models\Setting::get('logo_path', ''));
         $rptLogoFile = $rptLogo !== '' ? public_path($rptLogo) : '';
-        $rptSlogan = trim((string) \App\Models\Setting::get('footer_tag_bn', ''));
+        $rptSlogan = trim((string) \App\Models\Setting::get('footer_tag_en', ''));
         $rptPhone = ab_contact('phone');
     @endphp
     <table style="width:100%;border-collapse:collapse;margin-bottom:10px">
@@ -52,7 +53,7 @@
             <td style="vertical-align:middle">
                 <h1 style="font-size:20px;margin:0;color:#065f46">{{ $brandName }}</h1>
                 @if ($rptSlogan !== '')<p style="margin:2px 0 0;font-size:11px;color:#374151">{{ $rptSlogan }}</p>@endif
-                @if ($rptPhone !== '')<p style="margin:3px 0 0;font-size:10px;color:#6b7280">হটলাইন: {{ $rptPhone }}</p>@endif
+                @if ($rptPhone !== '')<p style="margin:3px 0 0;font-size:10px;color:#6b7280">Hotline: {{ $rptPhone }}</p>@endif
             </td>
             <td style="vertical-align:middle;text-align:right;font-size:10px;color:#6b7280">
                 <b style="font-size:12px;color:#1f2937">Customer Order Report</b><br>
@@ -60,7 +61,7 @@
             </td>
         </tr>
     </table>
-    <p class="meta" style="border-top:2px solid #065f46;padding-top:8px">Period: {{ $period }} • Total orders: {{ $orders->count() }} • Total sales: ৳{{ number_format($totalMoney, 2) }}</p>
+    <p class="meta" style="border-top:2px solid #065f46;padding-top:8px">Period: {{ $period }} • Total orders: {{ $orders->count() }} • Total sales: Tk {{ number_format($totalMoney, 2) }}</p>
 
     <table>
         <thead>
@@ -81,14 +82,14 @@
                     <td>{{ $o->order_code }}</td>
                     <td>{{ $o->customer_name }}</td>
                     <td>{{ $o->phone }}</td>
-                    <td class="items">{{ $o->items->map(fn ($i) => $i->product_name . ' x' . $i->quantity)->implode(', ') }}</td>
+                    <td class="items">{{ $o->items->map(fn ($i) => ($productNamesEn[$i->product_id] ?? $i->product_name) . ' x' . $i->quantity)->implode(', ') }}</td>
                     <td>{{ number_format((float) $o->total, 2) }}</td>
                     <td>{{ strtoupper($o->status) }}</td>
                 </tr>
             @endforeach
             <tr class="total">
                 <td colspan="5">GRAND TOTAL</td>
-                <td colspan="2">৳{{ number_format($totalMoney, 2) }}</td>
+                <td colspan="2">Tk {{ number_format($totalMoney, 2) }}</td>
             </tr>
         </tbody>
     </table>

@@ -83,11 +83,21 @@ class CustomerController extends Controller
             : 'সব সময়';
 
         if ($type === 'pdf') {
+            // PDF ta A-to-Z English — brand/slogan er English version + English product name
+            $periodEn = ($from !== '' || $to !== '')
+                ? ($from !== '' && $to !== '' ? $from . ' to ' . $to : ($from !== '' ? $from . ' onwards' : 'up to ' . $to))
+                : 'All time';
+            $productNamesEn = \App\Models\Product::whereIn('id', $orders->flatMap->items->pluck('product_id'))
+                ->get()
+                ->mapWithKeys(fn ($p) => [$p->id => $p->name_en ?: $p->name])
+                ->all();
+
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.customers.report-pdf', [
                 'orders' => $orders,
-                'period' => $period,
+                'period' => $periodEn,
                 'totalMoney' => (float) $orders->sum('total'),
-                'brandName' => ab_brand('bn'),
+                'brandName' => ab_brand('en'),
+                'productNamesEn' => $productNamesEn,
             ]);
             $name = 'customer-report-' . now()->format('Ymd-His') . '.pdf';
 
