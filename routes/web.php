@@ -51,6 +51,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/orders', [Admin\OrderController::class, 'index'])->middleware('perm:orders')->name('admin.orders.index');
     Route::get('/orders/{order}', [Admin\OrderController::class, 'show'])->middleware('perm:orders')->name('admin.orders.show');
     Route::post('/orders/{order}/status', [Admin\OrderController::class, 'updateStatus'])->middleware('perm:orders')->name('admin.orders.status');
+    Route::post('/orders/{order}/payment', [Admin\OrderController::class, 'updatePaymentStatus'])->middleware('perm:orders')->name('admin.orders.payment');
     Route::delete('/orders/{order}', [Admin\OrderController::class, 'destroy'])->middleware('perm:orders')->name('admin.orders.destroy');
 
     Route::get('/complaints', [Admin\ComplaintController::class, 'index'])->middleware('perm:complaints')->name('admin.complaints');

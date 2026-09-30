@@ -65,7 +65,20 @@
                         @endif
                     </div>
                     <div style="color:#5f7a6d"><i class="fa-solid fa-credit-card" style="color:#059669;width:18px"></i>
-                        {{ strtoupper($order->payment_method) }}</div>
+                        {{ strtoupper($order->payment_method) }}
+                        @if ($order->payment_method !== 'cod' && $order->payment_status)
+                            @if ($order->payment_status === 'paid')
+                                <b style="color:#059669">— PAID ✓</b>
+                            @elseif ($order->payment_status === 'pending')
+                                <b style="color:#b45309">— পেমেন্ট বাকি</b>
+                            @else
+                                <b style="color:#dc2626">— {{ strtoupper($order->payment_status) }}</b>
+                            @endif
+                        @endif
+                        @if ($order->payment_txn_id)
+                            <span style="color:#6b7280">• TrxID: <b style="color:#1f2937">{{ $order->payment_txn_id }}</b></span>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -83,6 +96,21 @@
                         <i class="fa-solid fa-floppy-disk"></i> আপডেট করুন
                     </button>
                 </form>
+
+                @if ($order->payment_method !== 'cod')
+                    {{-- manual/gateway payment verify — admin TrxID dekhe paid kore --}}
+                    <form method="POST" action="{{ route('admin.orders.payment', $order) }}" style="margin-top:14px">
+                        @csrf
+                        @php $isPaid = $order->payment_status === 'paid'; @endphp
+                        <button type="submit" class="a-btn {{ $isPaid ? 'ghost' : '' }}"
+                            style="width:100%;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:13px;padding:12px;border-radius:12px;{{ $isPaid
+                                ? 'background:#fff;color:#b45309;border:1.5px solid #fcd34d'
+                                : 'background:linear-gradient(135deg,#b45309,#d97706);color:#fff;box-shadow:0 10px 22px -8px rgba(180,83,9,.5)' }}">
+                            <i class="fa-solid {{ $isPaid ? 'fa-rotate-left' : 'fa-circle-check' }}"></i>
+                            {{ $isPaid ? 'পেমেন্ট আন-মার্ক করুন (বাকি করুন)' : 'টাকা পেয়েছি — PAID করুন' }}
+                        </button>
+                    </form>
+                @endif
 
                 <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return swConfirmSubmit(event, 'অর্ডারটি মুছে ফেলবেন? এটি ফিরে আসবে না।')" style="margin-top:10px">
                     @csrf

@@ -140,6 +140,7 @@
             <div class="sum-row"><span>নাম</span><span>{{ $order->customer_name }}</span></div>
             <div class="sum-row"><span>মোবাইল</span><span>{{ $order->phone }}</span></div>
             <div class="sum-row"><span>ঠিকানা</span><span>{{ $order->address }}</span></div>
+            <div class="sum-row"><span>অর্ডারের সময়</span><span>{{ $order->created_at?->format('d M Y, h:i A') }}</span></div>
             @foreach ($order->items as $item)
                 <div class="sum-row"><span>{{ $item->product_name }} × {{ $item->quantity }}</span>
                     <span>৳{{ number_format($item->line_total) }}</span></div>

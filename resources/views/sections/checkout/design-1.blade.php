@@ -420,16 +420,11 @@
                                                 @if ($manualNote !== '')
                                                 <p style="margin:0 0 8px;font-size:11.5px;color:#6b7280;line-height:1.5">{{ $manualNote }}</p>
                                                 @endif
-                                                <label class="pay-opt sel" style="--pbc:var(--ds-primary)">
-                                                    <span class="pay-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
-                                                    <span class="pay-tx">
-                                                        <b data-en="I have sent the money — place order">টাকা পাঠিয়েছি — অর্ডার করুন</b>
-                                                        <small data-en="We verify and confirm by phone">টাকা চেক করে ফোনে কনফার্ম করা হবে</small>
-                                                    </span>
-                                                    <input type="radio" name="payment_method" value="manual" id="payment_manual">
-                                                </label>
-                                                <input type="text" name="payment_ref" placeholder="যে TrxID/নম্বর থেকে পাঠিয়েছেন (ঐচ্ছিক)" maxlength="60"
-                                                    class="w-full border border-gray-300 rounded-lg p-2.5 text-sm mt-2 outline-none focus:ring-2 focus:ring-green-500">
+                                                {{-- manual select korle TrxID ABASHYOK — order er sathe store hoy,
+                                                     admin verify kore payment paid kore dey --}}
+                                                <input type="radio" name="payment_method" value="manual" id="payment_manual" class="hidden">
+                                                <input type="text" name="payment_ref" id="payment_ref" placeholder="TrxID লিখুন — টাকা পাঠানোর পর (আবশ্যক)" maxlength="60" autocomplete="off"
+                                                    class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-green-500">
                                             </div>
                                         </div>
                                         @endif

@@ -38,7 +38,10 @@ class OrderController extends Controller
             'district' => 'nullable|string|max:100',
             'payment_method' => 'required|in:' . implode(',', $payMethods),
             'coupon_code' => 'nullable|string|max:30',
-            'payment_ref' => 'nullable|string|max:60',
+            // manual payment hole TrxID abashyok — baki method e lagbe na
+            'payment_ref' => $request->input('payment_method') === 'manual'
+                ? 'required|string|max:60'
+                : 'nullable|string|max:60',
             'items' => 'required|json',
         ]);
 

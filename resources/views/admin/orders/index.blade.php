@@ -91,7 +91,13 @@
                             <td style="white-space:nowrap"><b>{{ $o->created_at?->format('d M Y') }}</b><br><small style="color:#8b7355">{{ $o->created_at?->format('h:i A') }}</small></td>
                             <td>{{ $o->area === 'inside' ? 'ঢাকার ভিতরে' : 'ঢাকার বাহিরে' }}</td>
                             <td><b>৳{{ number_format($o->total) }}</b></td>
-                            <td><span class="pill mut">{{ strtoupper($o->payment_method) }}</span></td>
+                            <td>
+                                <span class="pill mut">{{ strtoupper($o->payment_method) }}</span>
+                                @if ($o->payment_method !== 'cod' && $o->payment_status)
+                                    <span class="pill {{ $o->payment_status === 'paid' ? 'ok' : ($o->payment_status === 'pending' ? 'wait' : 'red') }}"
+                                        style="margin-top:4px;display:inline-block">{{ $o->payment_status === 'paid' ? 'PAID ✓' : ($o->payment_status === 'pending' ? 'পেমেন্ট বাকি' : strtoupper($o->payment_status)) }}</span><br>
+                                @endif
+                            </td>
                             <td>
                                 <form method="POST" action="{{ route('admin.orders.status', $o) }}" style="display:flex;gap:6px;align-items:center">
                                     @csrf

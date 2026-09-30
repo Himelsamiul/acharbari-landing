@@ -1152,6 +1152,16 @@ function toggleManualPay() {
     if (!btn || !wrap) return;
     var open = wrap.classList.toggle('open');
     btn.classList.toggle('open', open);
+    // accordion khullei manual method select hoy — tarpor TrxID deya lagbe
+    if (open) {
+        var radio = document.getElementById('payment_manual');
+        if (radio && !radio.checked) {
+            radio.checked = true;
+            radio.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        var refInput = document.getElementById('payment_ref');
+        if (refInput) refInput.focus();
+    }
 }
 
 /* number copy button */
@@ -2064,6 +2074,18 @@ document.addEventListener('keydown', function (e) {
                 e.preventDefault();
                 if (payErr) payErr.classList.remove('hidden');
                 payErr && payErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            // manual payment hole TrxID ABASHYOK — taka pathiye TrxID chara order hobe na
+            var payRef = document.getElementById('payment_ref');
+            if (payChecked.value === 'manual' && payRef && payRef.value.trim() === '') {
+                e.preventDefault();
+                if (payErr) {
+                    var payErrMsg = payErr.querySelector('span');
+                    if (payErrMsg) payErrMsg.textContent = AB.t('টাকা পাঠানোর পর TrxID লিখুন — তারপর অর্ডার করুন।', 'Enter the TrxID after sending the money — then place the order.');
+                    payErr.classList.remove('hidden');
+                    payErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
                 return;
             }
             if (payErr) payErr.classList.add('hidden');
