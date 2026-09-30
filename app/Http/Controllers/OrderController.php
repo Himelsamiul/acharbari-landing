@@ -25,15 +25,20 @@ class OrderController extends Controller
         if (NagadGateway::enabled()) {
             $payMethods[] = 'nagad';
         }
+        // manual (bkash/nagad number e send money) — gateway theke alada
+        if (ab_manual_payment()) {
+            $payMethods[] = 'manual';
+        }
 
         $data = $request->validate([
             'customer_name' => 'required|string|max:120',
             'phone' => 'required|string|min:10|max:15',
-            'address' => 'required|string|max:500',
+            'address' => "required|string|max:500",
             'area' => 'required|in:inside,outside',
             'district' => 'nullable|string|max:100',
             'payment_method' => 'required|in:' . implode(',', $payMethods),
             'coupon_code' => 'nullable|string|max:30',
+            'payment_ref' => 'nullable|string|max:60',
             'items' => 'required|json',
         ]);
 
@@ -164,7 +169,11 @@ class OrderController extends Controller
                 'area' => $area,
                 'district' => $districtName !== '' ? $districtName : null,
                 'payment_method' => $data['payment_method'],
-                'payment_status' => in_array($data['payment_method'], ['bkash', 'nagad']) ? 'pending' : null,
+                'payment_status' => in_array($data['payment_method'], ['bkash', 'nagad', 'manual']) ? 'pending' : null,
+                // manual payment e customer-er দেওয়া TrxID/number — admin verification er jonno
+                'payment_txn_id' => $data['payment_method'] === 'manual'
+                    ? (trim((string) ($data['payment_ref'] ?? '')) ?: null)
+                    : null,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'coupon_code' => $couponCode,

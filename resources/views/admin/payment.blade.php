@@ -99,6 +99,36 @@
                 </div>
                 <p class="pay-hint">নগদ মার্চেন্ট পোর্টালে এই Callback URL দিন: <code>{{ route('payment.callback.nagad', 'ORDER_CODE') }}</code></p>
             </div>
+            {{-- ===== MANUAL PAYMENT: gateway API chara bkash/nagad number e taka pathano ===== --}}
+            <div class="pay-gw-head" style="margin-top:24px">
+                <span class="gw-logo" style="background:#fef3c7;color:#b45309"><i class="fa-solid fa-mobile-screen-button"></i></span>
+                <div class="pay-toggle-info">
+                    <b>ম্যানুয়াল পেমেন্ট — নম্বরে টাকা পাঠান</b>
+                    <span>গেটওয়ে API ছাড়াই কাস্টমার আপনার বিকাশ/নগদ নম্বরে Send Money করবে। উপরের গেটওয়ে চালু/বন্ধ থাকা থাকুক — এটা আলাদাভাবে চালু করা যায়।</span>
+                </div>
+                <label class="pay-switch">
+                    <input type="checkbox" name="manual_payment_enabled" value="1" {{ ($settings['manual_payment_enabled'] ?? '') === '1' ? 'checked' : '' }}>
+                    <span class="pay-slider"></span>
+                </label>
+            </div>
+            <div class="gw-fields">
+                <div class="brand-grid">
+                    <div class="a-field">
+                        <label>bKash নম্বর (Send Money)</label>
+                        <input class="a-input" name="manual_bkash_number" placeholder="যেমন: 01700000000" value="{{ $settings['manual_bkash_number'] ?? '' }}" maxlength="30">
+                    </div>
+                    <div class="a-field">
+                        <label>Nagad নম্বর (Send Money)</label>
+                        <input class="a-input" name="manual_nagad_number" placeholder="যেমন: 01800000000" value="{{ $settings['manual_nagad_number'] ?? '' }}" maxlength="30">
+                    </div>
+                </div>
+                <div class="a-field" style="margin-top:10px">
+                    <label>কাস্টমারকে দেখানোর নির্দেশনা (ঐচ্ছিক)</label>
+                    <textarea class="a-input" name="manual_payment_note" rows="2" placeholder="যেমন: যেকোনো একটি নম্বরে Send Money করে অর্ডার কনফার্ম করুন">{{ $settings['manual_payment_note'] ?? '' }}</textarea>
+                </div>
+                <p class="pay-hint">দুই নম্বরই খালি রাখলে কাস্টমার এই অপশন দেখবে না। চেকআউটে নম্বর + কপি বাটন সহ দেখাবে — কাস্টমার চাইলে TrxID লিখে দিতে পারবে, অর্ডারের সাথেই সেভ থাকবে।</p>
+            </div>
+
             <button class="a-btn" style="margin-top:18px"><i class="fa-solid fa-floppy-disk"></i> সব সেটিংস সেভ করুন</button>
         </form>
     </div>

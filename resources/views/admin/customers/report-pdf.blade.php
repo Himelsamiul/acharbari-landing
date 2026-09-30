@@ -23,8 +23,32 @@
     </style>
 </head>
 <body>
-    <h1>Customer Order Report — {{ $brandName }}</h1>
-    <p class="meta">Period: {{ $period }} • Total orders: {{ $orders->count() }} • Total sales: ৳{{ number_format($totalMoney, 2) }} • Generated: {{ now()->format('d M Y, h:i A') }}</p>
+    @php
+        // company header: logo + brand + slogan + phone — admin settings theke
+        $rptLogo = trim((string) \App\Models\Setting::get('logo_path', ''));
+        $rptLogoFile = $rptLogo !== '' ? public_path($rptLogo) : '';
+        $rptSlogan = trim((string) \App\Models\Setting::get('footer_tag_bn', ''));
+        $rptPhone = ab_contact('phone');
+    @endphp
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px">
+        <tr>
+            <td style="vertical-align:middle;width:74px">
+                @if ($rptLogo !== '' && is_file($rptLogoFile))
+                    <img src="{{ $rptLogoFile }}" style="width:62px;height:62px;object-fit:contain">
+                @endif
+            </td>
+            <td style="vertical-align:middle">
+                <h1 style="font-size:20px;margin:0;color:#065f46">{{ $brandName }}</h1>
+                @if ($rptSlogan !== '')<p style="margin:2px 0 0;font-size:11px;color:#374151">{{ $rptSlogan }}</p>@endif
+                @if ($rptPhone !== '')<p style="margin:3px 0 0;font-size:10px;color:#6b7280">হটলাইন: {{ $rptPhone }}</p>@endif
+            </td>
+            <td style="vertical-align:middle;text-align:right;font-size:10px;color:#6b7280">
+                <b style="font-size:12px;color:#1f2937">Customer Order Report</b><br>
+                {{ now()->format('d M Y, h:i A') }}
+            </td>
+        </tr>
+    </table>
+    <p class="meta" style="border-top:2px solid #065f46;padding-top:8px">Period: {{ $period }} • Total orders: {{ $orders->count() }} • Total sales: ৳{{ number_format($totalMoney, 2) }}</p>
 
     <table>
         <thead>

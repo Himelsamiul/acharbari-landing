@@ -384,6 +384,55 @@
                                             </div>
                                         </div>
                                         @endif
+                                        @if (ab_manual_payment())
+                                        @php
+                                            $manualNums = ab_manual_payment_numbers();
+                                            $manualNote = trim((string) \App\Models\Setting::get('manual_payment_note', ''));
+                                        @endphp
+                                        <button type="button" class="pay-toggle" id="manualPayToggle"
+                                            onclick="toggleManualPay()">
+                                            <span class="pay-toggle-l">
+                                                <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+                                                <span data-en="Send money to bKash / Nagad number">bKash / Nagad নম্বরে টাকা পাঠান</span>
+                                            </span>
+                                            <svg class="pay-toggle-chev" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                                        </button>
+                                        <div class="pay-collapse" id="manualPayWrap">
+                                            <div class="pay-collapse-in">
+                                                @if ($manualNums['bkash'] !== '')
+                                                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;border:1.5px dashed rgba(226,53,110,.45);background:#fff5f8;border-radius:12px;padding:9px 12px;margin-bottom:8px">
+                                                    <div>
+                                                        <b style="color:#e2136e;font-size:11px;text-transform:uppercase;letter-spacing:.5px">bKash — Send Money</b>
+                                                        <div style="font-weight:800;font-size:15px;letter-spacing:.5px">{{ $manualNums['bkash'] }}</div>
+                                                    </div>
+                                                    <button type="button" onclick="abCopyText('{{ $manualNums['bkash'] }}')" style="border:1.5px solid #e2136e;background:#fff;color:#e2136e;font-weight:800;font-size:11.5px;border-radius:999px;padding:5px 12px;cursor:pointer">কপি</button>
+                                                </div>
+                                                @endif
+                                                @if ($manualNums['nagad'] !== '')
+                                                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;border:1.5px dashed rgba(246,146,30,.5);background:#fff9f2;border-radius:12px;padding:9px 12px;margin-bottom:8px">
+                                                    <div>
+                                                        <b style="color:#d97706;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Nagad — Send Money</b>
+                                                        <div style="font-weight:800;font-size:15px;letter-spacing:.5px">{{ $manualNums['nagad'] }}</div>
+                                                    </div>
+                                                    <button type="button" onclick="abCopyText('{{ $manualNums['nagad'] }}')" style="border:1.5px solid #d97706;background:#fff;color:#d97706;font-weight:800;font-size:11.5px;border-radius:999px;padding:5px 12px;cursor:pointer">কপি</button>
+                                                </div>
+                                                @endif
+                                                @if ($manualNote !== '')
+                                                <p style="margin:0 0 8px;font-size:11.5px;color:#6b7280;line-height:1.5">{{ $manualNote }}</p>
+                                                @endif
+                                                <label class="pay-opt sel" style="--pbc:var(--ds-primary)">
+                                                    <span class="pay-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                                                    <span class="pay-tx">
+                                                        <b data-en="I have sent the money — place order">টাকা পাঠিয়েছি — অর্ডার করুন</b>
+                                                        <small data-en="We verify and confirm by phone">টাকা চেক করে ফোনে কনফার্ম করা হবে</small>
+                                                    </span>
+                                                    <input type="radio" name="payment_method" value="manual" id="payment_manual">
+                                                </label>
+                                                <input type="text" name="payment_ref" placeholder="যে TrxID/নম্বর থেকে পাঠিয়েছেন (ঐচ্ছিক)" maxlength="60"
+                                                    class="w-full border border-gray-300 rounded-lg p-2.5 text-sm mt-2 outline-none focus:ring-2 focus:ring-green-500">
+                                            </div>
+                                        </div>
+                                        @endif
                                     </div>
                                     <div id="payment-error" class="hidden mt-2 text-sm font-bold text-red-600">
                                         <span data-en="Please select a payment method.">অনুগ্রহ করে একটি পেমেন্ট মেথড সিলেক্ট করুন।</span>

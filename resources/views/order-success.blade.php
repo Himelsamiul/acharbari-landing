@@ -158,7 +158,11 @@
                 @if ($order->payment_status === 'paid')
                     <div class="sum-row" style="color:#059669;font-weight:700"><span>পেমেন্ট স্ট্যাটাস</span><span>পরিশোধ হয়েছে ✓ @if($order->payment_txn_id)<small style="display:block;color:#8b7355">TrxID: {{ $order->payment_txn_id }}</small>@endif</span></div>
                 @elseif ($order->payment_status === 'pending')
-                    <div class="sum-row" style="color:#b45309;font-weight:700"><span>পেমেন্ট স্ট্যাটাস</span><span>পেন্ডিং — পেমেন্ট সম্পন্ন হয়নি</span></div>
+                    @if ($order->payment_method === 'manual')
+                        <div class="sum-row" style="color:#b45309;font-weight:700"><span>পেমেন্ট স্ট্যাটাস</span><span>টাকা পাঠানোর অপেক্ষায় — উপরের নম্বরে পাঠিয়ে নিন @if($order->payment_txn_id)<small style="display:block;color:#8b7355">আপনার দেওয়া তথ্য: {{ $order->payment_txn_id }}</small>@endif</span></div>
+                    @else
+                        <div class="sum-row" style="color:#b45309;font-weight:700"><span>পেমেন্ট স্ট্যাটাস</span><span>পেন্ডিং — পেমেন্ট সম্পন্ন হয়নি</span></div>
+                    @endif
                 @else
                     <div class="sum-row" style="color:#dc2626;font-weight:700"><span>পেমেন্ট স্ট্যাটাস</span><span>ব্যর্থ — আমাদের প্রতিনিধি কল করে পেমেন্ট নিশ্চিত করবেন</span></div>
                 @endif

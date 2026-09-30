@@ -205,6 +205,34 @@ if (!function_exists('ab_online_payment')) {
     }
 }
 
+if (!function_exists('ab_manual_payment_numbers')) {
+    /** Admin-set bKash/Nagad numbers for manual (send money) payment. */
+    function ab_manual_payment_numbers(): array
+    {
+        return [
+            'bkash' => trim((string) \App\Models\Setting::get('manual_bkash_number', '')),
+            'nagad' => trim((string) \App\Models\Setting::get('manual_nagad_number', '')),
+        ];
+    }
+}
+
+if (!function_exists('ab_manual_payment')) {
+    /**
+     * Manual payment option on/off — admin toggle AND kamothekuno number set kora
+     * lagbe; duito chara checkout e option dekhay na.
+     */
+    function ab_manual_payment(): bool
+    {
+        if (\App\Models\Setting::get('manual_payment_enabled', '') !== '1') {
+            return false;
+        }
+
+        $nums = ab_manual_payment_numbers();
+
+        return $nums['bkash'] !== '' || $nums['nagad'] !== '';
+    }
+}
+
 if (!function_exists('ab_charge')) {
     /** Numeric setting (delivery charges etc.) with default. */
     function ab_charge(string $key, int $default): int

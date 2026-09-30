@@ -626,6 +626,10 @@ class SettingController extends Controller
             'nagad_merchant_id' => 'nullable|string|max:120',
             'nagad_public_key' => 'nullable|string|max:5000',
             'nagad_private_key' => 'nullable|string|max:5000',
+            'manual_payment_enabled' => 'nullable|boolean',
+            'manual_bkash_number' => 'nullable|string|max:30',
+            'manual_nagad_number' => 'nullable|string|max:30',
+            'manual_payment_note' => 'nullable|string|max:500',
         ]);
 
         Setting::setMany([
@@ -643,6 +647,11 @@ class SettingController extends Controller
             'nagad_merchant_id' => trim($data['nagad_merchant_id'] ?? ''),
             'nagad_public_key' => trim($data['nagad_public_key'] ?? ''),
             'nagad_private_key' => trim($data['nagad_private_key'] ?? ''),
+            // Manual payment (number e send money) — gateway theke alada toggle
+            'manual_payment_enabled' => $request->boolean('manual_payment_enabled') ? '1' : '',
+            'manual_bkash_number' => trim($data['manual_bkash_number'] ?? ''),
+            'manual_nagad_number' => trim($data['manual_nagad_number'] ?? ''),
+            'manual_payment_note' => trim($data['manual_payment_note'] ?? ''),
         ]);
 
         return back()->with('success', 'পেমেন্ট সেটিংস সেভ হয়েছে — চেকআউটে দেখুন।');

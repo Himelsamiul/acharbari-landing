@@ -351,7 +351,7 @@ function updateAdvanceBoxForProduct(productId) {
         if (hasAdvance || !hasPhysical) {
             codWrap.classList.add('hidden');
             if (paymentCod && paymentCod.checked) {
-                var firstOnline = document.querySelector('#payment-methods-grid input[name="payment_method"]:not(#payment_cod)');
+                var firstOnline = document.querySelector('#payment-methods-grid input[name="payment_method"]:not(#payment_cod):not(#payment_manual)');
                 if (firstOnline) { firstOnline.checked = true; }
             }
         } else {
@@ -477,7 +477,7 @@ function updateAdvanceBoxMultiProduct(productIds) {
         if (hasAnyAdvance || !hasAnyPhysical) {
             codWrap.classList.add('hidden');
             if (paymentCod && paymentCod.checked) {
-                var firstOnline = document.querySelector('#payment-methods-grid input[name="payment_method"]:not(#payment_cod)');
+                var firstOnline = document.querySelector('#payment-methods-grid input[name="payment_method"]:not(#payment_cod):not(#payment_manual)');
                 if (firstOnline) { firstOnline.checked = true; }
             }
         } else {
@@ -1144,6 +1144,26 @@ function toggleOnlinePay() {
     var open = wrap.classList.toggle('open');
     btn.classList.toggle('open', open);
 }
+
+/* manual payment (bkash/nagad number e send money) accordion */
+function toggleManualPay() {
+    var btn = document.getElementById('manualPayToggle');
+    var wrap = document.getElementById('manualPayWrap');
+    if (!btn || !wrap) return;
+    var open = wrap.classList.toggle('open');
+    btn.classList.toggle('open', open);
+}
+
+/* number copy button */
+window.abCopyText = function (text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+            if (window.showToast) showToast('কপি হয়েছে: ' + text);
+        });
+        return;
+    }
+    window.prompt('কপি করুন:', text);
+};
 
 
 // ===== RATING BARS + PROMISE CARD SPOTLIGHT =====
