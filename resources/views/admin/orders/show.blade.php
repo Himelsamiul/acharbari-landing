@@ -102,6 +102,8 @@
                     <form method="POST" action="{{ route('admin.orders.payment', $order) }}" style="margin-top:14px">
                         @csrf
                         @php $isPaid = $order->payment_status === 'paid'; @endphp
+                        {{-- toggle er target value — eta chara validation fail hole silent back hoy --}}
+                        <input type="hidden" name="status" value="{{ $isPaid ? 'pending' : 'paid' }}">
                         <button type="submit" class="a-btn {{ $isPaid ? 'ghost' : '' }}"
                             style="width:100%;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:13px;padding:12px;border-radius:12px;{{ $isPaid
                                 ? 'background:#fff;color:#b45309;border:1.5px solid #fcd34d'
