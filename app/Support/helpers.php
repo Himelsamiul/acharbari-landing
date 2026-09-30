@@ -256,6 +256,43 @@ if (!function_exists('ab_brand')) {
     }
 }
 
+if (!function_exists('ab_seo_default_title')) {
+    /**
+     * Meta/OG title er dynamic default — sudhu brand name. Kokhono hardcoded
+     * AcharBari tagline na, karon onno business er site eo eta dekhato.
+     */
+    function ab_seo_default_title(): string
+    {
+        return ab_brand('bn');
+    }
+}
+
+if (!function_exists('ab_seo_default_desc')) {
+    /**
+     * Meta/OG description er dynamic default — brand name + active industry
+     * preset er desc, tai prottek business e nijer moto description dekhay.
+     */
+    function ab_seo_default_desc(): string
+    {
+        $pack = \App\Http\Controllers\Admin\IndustryPack::all()[ab_industry_active()] ?? null;
+        $desc = trim((string) ($pack['desc'] ?? ''));
+
+        return trim(ab_brand('bn') . ($desc !== '' ? ' — ' . $desc : '') . '। ক্যাশ অন ডেলিভারিতে সারা বাংলাদেশে হোম ডেলিভারি।');
+    }
+}
+
+if (!function_exists('ab_seo_default_keywords')) {
+    /** Meta keywords er dynamic default — brand-ভিত্তিক, AcharBari নাম ছাড়া। */
+    function ab_seo_default_keywords(): string
+    {
+        return implode(', ', array_filter([
+            ab_brand('en'), ab_brand('bn'),
+            'online shopping BD', 'cash on delivery',
+            'অনলাইন শপ', 'হোম ডেলিভারি',
+        ]));
+    }
+}
+
 if (!function_exists('ab_social')) {
     /**
      * Footer/chat social icon link: accepts a full URL pasted by the admin as-is,
@@ -493,6 +530,24 @@ if (!function_exists('buildQuickView')) {
                 ])->all(),
             ]];
         })->all();
+    }
+}
+
+if (!function_exists('ab_section_active')) {
+    /**
+     * Landing section on/off — admin Design Studio toggle. Hidden section keys
+     * live in the `sections_hidden` JSON setting. Hideable whitelist o check hoy —
+     * checkout (order form) ar unknown key kokhono luke na, DB hand-edit holeo na.
+     */
+    function ab_section_active(string $section): bool
+    {
+        if (!in_array($section, \App\Http\Controllers\Admin\SectionDesignLibrary::hideable(), true)) {
+            return true;
+        }
+
+        $hidden = json_decode((string) \App\Models\Setting::get('sections_hidden', ''), true);
+
+        return !(is_array($hidden) && in_array($section, $hidden, true));
     }
 }
 

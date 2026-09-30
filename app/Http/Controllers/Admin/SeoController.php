@@ -11,10 +11,15 @@ class SeoController extends Controller
 {
     public function index()
     {
+        // default gulo dynamic (brand + industry) — hardcoded AcharBari text na,
+        // nahole onno business er admin form e bhul default boshe thake
         return view('admin.seo', [
-            'title' => Setting::get('seo_title', 'আচারবাড়ি — ঘরে তৈরি খাঁটি দেশি আচার ও প্রিজার্ভ'),
-            'desc' => Setting::get('seo_desc', 'ঘরে তৈরি খাঁটি দেশি আচার, মধু, ঘি ও চাটনি — প্রিজার্ভেটিভ মুক্ত, ক্যাশ অন ডেলিভারিতে সারা বাংলাদেশে হোম ডেলিভারি।'),
-            'keywords' => Setting::get('seo_keywords', 'deshi achar, mango pickle, আচারবাড়ি, homemade pickle BD, sundarban honey, deshi ghee, tamarind chutney, achar online BD, খাঁটি মধু, দেশি ঘি'),
+            'title' => Setting::get('seo_title', ''),
+            'desc' => Setting::get('seo_desc', ''),
+            'keywords' => Setting::get('seo_keywords', ''),
+            'defTitle' => ab_seo_default_title(),
+            'defDesc' => ab_seo_default_desc(),
+            'defKeywords' => ab_seo_default_keywords(),
             'canonical' => Setting::get('seo_canonical', ''),
             'ogTitle' => Setting::get('og_title', ''),
             'ogDesc' => Setting::get('og_desc', ''),
@@ -25,10 +30,11 @@ class SeoController extends Controller
 
     public function save(Request $request)
     {
+        // nullable — khali rakhle dynamic brand-based default use hoy (auto mode)
         $data = $request->validate([
-            'seo_title' => 'required|string|max:150',
-            'seo_desc' => 'required|string|max:400',
-            'seo_keywords' => 'required|string|max:500',
+            'seo_title' => 'nullable|string|max:150',
+            'seo_desc' => 'nullable|string|max:400',
+            'seo_keywords' => 'nullable|string|max:500',
             'seo_canonical' => 'nullable|url|max:300',
             'og_title' => 'nullable|string|max:150',
             'og_desc' => 'nullable|string|max:300',
@@ -37,9 +43,9 @@ class SeoController extends Controller
         ]);
 
         $pairs = [
-            'seo_title' => $data['seo_title'],
-            'seo_desc' => $data['seo_desc'],
-            'seo_keywords' => $data['seo_keywords'],
+            'seo_title' => $data['seo_title'] ?? '',
+            'seo_desc' => $data['seo_desc'] ?? '',
+            'seo_keywords' => $data['seo_keywords'] ?? '',
             'seo_canonical' => $data['seo_canonical'] ?? '',
             'og_title' => $data['og_title'] ?? '',
             'og_desc' => $data['og_desc'] ?? '',

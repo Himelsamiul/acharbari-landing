@@ -12,18 +12,18 @@
             <div>
                 <div class="card">
                     <h3><i class="fa-solid fa-heading"></i> Meta Title</h3>
-                    <p class="desc">গুগল সার্চে যে টাইটেল দেখাবে — <b>৫০-৮০ অক্ষর</b></p>
-                    <input class="a-input" name="seo_title" id="seoTitle" value="{{ $title }}" maxlength="150">
+                    <p class="desc">গুগল সার্চে যে টাইটেল দেখাবে — <b>৫০-৮০ অক্ষর</b>। খালি রাখলে ব্র্যান্ড নেম অটো ব্যবহার হবে।</p>
+                    <input class="a-input" name="seo_title" id="seoTitle" value="{{ $title }}" placeholder="{{ $defTitle }}" maxlength="150">
                     <div class="char-counter" id="cntTitle"></div>
 
                     <h3 style="margin-top:18px"><i class="fa-solid fa-align-left"></i> Meta Description</h3>
-                    <p class="desc"><b>১৬০-৩০০ অক্ষর</b></p>
-                    <textarea class="a-input" name="seo_desc" id="seoDesc" rows="4">{{ $desc }}</textarea>
+                    <p class="desc"><b>১৬০-৩০০ অক্ষর</b>। খালি হলে ব্র্যান্ড + ইন্ডাস্ট্রি থেকে অটো টেক্সট যাবে।</p>
+                    <textarea class="a-input" name="seo_desc" id="seoDesc" rows="4" placeholder="{{ $defDesc }}">{{ $desc }}</textarea>
                     <div class="char-counter" id="cntDesc"></div>
 
                     <h3 style="margin-top:18px"><i class="fa-solid fa-key"></i> Meta Keywords</h3>
-                    <p class="desc">কমা দিয়ে আলাদা করুন — <b>১০-১৫টি</b></p>
-                    <textarea class="a-input" name="seo_keywords" id="seoKeywords" rows="3">{{ $keywords }}</textarea>
+                    <p class="desc">কমা দিয়ে আলাদা করুন — <b>১০-১৫টি</b>। খালি রাখলে ব্র্যান্ড-ভিত্তিক অটো কীওয়ার্ড।</p>
+                    <textarea class="a-input" name="seo_keywords" id="seoKeywords" rows="3" placeholder="{{ $defKeywords }}">{{ $keywords }}</textarea>
                     <div class="char-counter" id="cntKeywords"></div>
 
                     <h3 style="margin-top:18px"><i class="fa-solid fa-link"></i> Canonical URL</h3>
@@ -121,6 +121,10 @@
             if (len >= min * 0.6 && len <= max * 1.2) return 'warn';
             return 'bad';
         }
+        // khali field = auto mode — dynamic default (brand + industry) dekhabe
+        var DEF_TITLE = @json($defTitle);
+        var DEF_DESC = @json($defDesc);
+
         function updateSeoCounters() {
             var t = document.getElementById('seoTitle').value.length;
             var d = document.getElementById('seoDesc').value.length;
@@ -128,24 +132,28 @@
             var kw = k.split(',').filter(function (x) { return x.trim(); }).length;
 
             var ct = document.getElementById('cntTitle');
-            ct.textContent = t + ' অক্ষর • রেঞ্জ: ৫০-৮০';
-            ct.className = 'char-counter ' + seoRange(t, 50, 80);
+            ct.textContent = t > 0
+                ? t + ' অক্ষর • রেঞ্জ: ৫০-৮০'
+                : 'অটো — ডিফল্ট (' + DEF_TITLE.length + ' অক্ষর) ব্যবহার হচ্ছে';
+            ct.className = 'char-counter ' + (t === 0 ? 'ok' : seoRange(t, 50, 80));
 
             var cd = document.getElementById('cntDesc');
-            cd.textContent = d + ' অক্ষর • রেঞ্জ: ১৬০-৩০০';
-            cd.className = 'char-counter ' + seoRange(d, 160, 300);
+            cd.textContent = d > 0
+                ? d + ' অক্ষর • রেঞ্জ: ১৬০-৩০০'
+                : 'অটো — ডিফল্ট (' + DEF_DESC.length + ' অক্ষর) ব্যবহার হচ্ছে';
+            cd.className = 'char-counter ' + (d === 0 ? 'ok' : seoRange(d, 160, 300));
 
             var ck = document.getElementById('cntKeywords');
             ck.textContent = kw + 'টি কিওয়ার্ড • ' + k.length + ' অক্ষর';
             ck.className = 'char-counter ' + (kw >= 10 && kw <= 15 ? 'ok' : kw >= 5 ? 'warn' : 'bad');
 
-            document.getElementById('serpTitle').textContent = document.getElementById('seoTitle').value || 'Meta title…';
-            document.getElementById('serpDesc').textContent = document.getElementById('seoDesc').value || 'Meta description…';
+            document.getElementById('serpTitle').textContent = document.getElementById('seoTitle').value || DEF_TITLE;
+            document.getElementById('serpDesc').textContent = document.getElementById('seoDesc').value || DEF_DESC;
 
             var ot = document.querySelector('[name="og_title"]');
             var od = document.querySelector('[name="og_desc"]');
-            document.getElementById('ogTitlePrev').textContent = (ot && ot.value) || document.getElementById('seoTitle').value || 'OG title…';
-            document.getElementById('ogDescPrev').textContent = (od && od.value) || document.getElementById('seoDesc').value || 'OG description…';
+            document.getElementById('ogTitlePrev').textContent = (ot && ot.value) || document.getElementById('seoTitle').value || DEF_TITLE;
+            document.getElementById('ogDescPrev').textContent = (od && od.value) || document.getElementById('seoDesc').value || DEF_DESC;
         }
         ['seoTitle', 'seoDesc', 'seoKeywords', 'og_title', 'og_desc'].forEach(function (name) {
             var el = document.querySelector('[name="' + name + '"]');

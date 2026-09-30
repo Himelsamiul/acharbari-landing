@@ -206,7 +206,7 @@ class OrderController extends Controller
                 . "মোট: ৳" . number_format($order->total) . "\n"
                 . "ট্র্যাকিং কোড: {$order->order_code}",
                 function ($message) {
-                    $message->to('admin@khorak.shop')->subject('নতুন অর্ডার — আচারবাড়ি');
+                    $message->to('admin@khorak.shop')->subject('নতুন অর্ডার — ' . ab_brand('bn'));
                 }
             );
         } catch (\Throwable $e) {
@@ -276,7 +276,7 @@ class OrderController extends Controller
 
         return \Barryvdh\DomPDF\Facade\Pdf::loadView('invoice', [
             'order' => $order,
-            'brandName' => $brandName !== '' ? $brandName : 'AcharBari',
+            'brandName' => $brandName !== '' ? $brandName : ab_brand('en'),
             'logo' => $logo,
             'contactPhone' => $contactPhone,
             'productNames' => $productNames,

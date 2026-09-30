@@ -12,6 +12,7 @@
         }
         $customized = count(array_filter($selected, fn ($d) => $d !== 1));
         $totalDesigns = array_sum(array_map(fn ($s) => count($s['designs']), $catalog));
+        $hiddenSaved = array_values(array_intersect($hideable, $hiddenSaved ?? []));
     @endphp
 
     <div class="note-banner">
@@ -77,7 +78,7 @@
     {{-- ===== SECTION CARDS ===== --}}
     <div class="sec-list" id="sectionList">
         @foreach ($catalog as $sec)
-            <div class="card sec-block" data-section="{{ $sec['section'] }}" data-name="{{ $sec['bn'] }} {{ $sec['en'] }}">
+            <div class="card sec-block {{ in_array($sec['section'], $hiddenSaved) ? 'sec-off' : '' }}" data-section="{{ $sec['section'] }}" data-name="{{ $sec['bn'] }} {{ $sec['en'] }}">
                 <div class="sec-block-head">
                     <div class="sec-block-title">
                         <span class="sec-ic"><i class="fa-solid {{ $sec['icon'] }}"></i></span>
@@ -87,6 +88,15 @@
                         </div>
                     </div>
                     <div class="sec-block-actions">
+                        @if (in_array($sec['section'], $hideable))
+                            <label class="sec-vis-toggle" title="ল্যান্ডিং পেজে এই সেকশন দেখান বা লুকান">
+                                <input type="checkbox" data-vis="{{ $sec['section'] }}" {{ !in_array($sec['section'], $hiddenSaved) ? 'checked' : '' }} onchange="toggleVis(this)">
+                                <span class="sec-vis-track"><span class="sec-vis-thumb"></span></span>
+                                <span class="sec-vis-label">{{ in_array($sec['section'], $hiddenSaved) ? 'লুকানো' : 'দেখাচ্ছে' }}</span>
+                            </label>
+                        @elseif ($sec['section'] === 'checkout')
+                            <small class="sec-always-badge" title="অর্ডার ফর্ম — অর্ডার বাটনগুলো এখানেই আসে"><i class="fa-solid fa-lock"></i> সবসময় থাকবে</small>
+                        @endif
                         <button type="button" class="a-btn ghost sec-preview" onclick="previewSection('{{ $sec['section'] }}')">
                             <i class="fa-solid fa-eye"></i> প্রিভিউ
                         </button>
@@ -204,7 +214,19 @@
             color: #047857;
         }
         .sec-en { font-size: 11px; color: #8b7355; font-weight: 600; }
-        .sec-block-actions { display: flex; gap: 8px; }
+        .sec-block-actions { display: flex; gap: 8px; align-items: center; }
+        /* section show/hide toggle */
+        .sec-vis-toggle { display: inline-flex; gap: 7px; align-items: center; cursor: pointer; user-select: none; }
+        .sec-vis-toggle input { display: none; }
+        .sec-vis-track { width: 34px; height: 19px; border-radius: 999px; background: #d1d5db; position: relative; transition: background .2s; flex-shrink: 0; }
+        .sec-vis-toggle input:checked + .sec-vis-track { background: linear-gradient(135deg, #059669, #10b981); }
+        .sec-vis-thumb { position: absolute; top: 2px; left: 2px; width: 15px; height: 15px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: left .2s; }
+        .sec-vis-toggle input:checked + .sec-vis-track .sec-vis-thumb { left: 17px; }
+        .sec-vis-label { font-size: 11.5px; font-weight: 800; color: #6b7280; min-width: 46px; }
+        .sec-vis-toggle input:checked ~ .sec-vis-label { color: #047857; }
+        .sec-always-badge { font-size: 10.5px; font-weight: 700; color: #8b7355; background: rgba(139,115,85,.08); border: 1px solid rgba(139,115,85,.2); border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+        .sec-block.sec-off { opacity: .55; }
+        .sec-block.sec-off .sec-designs { opacity: .4; pointer-events: none; filter: grayscale(.6); }
         .sec-designs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 195px), 1fr)); gap: 12px; }
         .design-card {
             position: relative; border: 2px solid rgba(5,150,105,.15); border-radius: 14px; padding: 10px 12px 12px;
@@ -301,6 +323,23 @@
         var SAVED_BEFORE = @json($saved);
         var DIRTY = false;
         var SECTIONS = @json(array_column($catalog, 'section'));
+        var HIDDEN = @json($hiddenSaved);
+
+        /* ===== section show/hide toggle ===== */
+        function toggleVis(inp) {
+            var sec = inp.dataset.vis;
+            var on = inp.checked;
+            inp.closest('.sec-vis-toggle').querySelector('.sec-vis-label').textContent = on ? 'দেখাচ্ছে' : 'লুকানো';
+            var block = document.querySelector('.sec-block[data-section="' + sec + '"]');
+            if (block) block.classList.toggle('sec-off', !on);
+            if (on) {
+                HIDDEN = HIDDEN.filter(function (s) { return s !== sec; });
+            } else if (HIDDEN.indexOf(sec) === -1) {
+                HIDDEN.push(sec);
+            }
+            markDirty();
+            showToast(on ? 'সেকশন দেখানো হবে — সেভ করুন' : 'সেকশন লুকানো হবে — সেভ করুন');
+        }
 
         var PRESETS = {
             classic: {},
@@ -398,6 +437,7 @@
             var fd = new FormData();
             fd.append('_token', '{{ csrf_token() }}');
             fd.append('designs', JSON.stringify(silentCfg || CURRENT));
+            fd.append('hidden', JSON.stringify(HIDDEN));
             var btn = document.getElementById('saveBtn');
             btn.disabled = true;
             fetch('{{ route('admin.settings.sections.save') }}', { method: 'POST', body: fd })

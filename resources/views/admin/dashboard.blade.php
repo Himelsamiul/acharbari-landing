@@ -5,8 +5,14 @@
 @section('page_sub', 'আজকের সারসংক্ষেপ এক নজরে')
 
 @section('content')
-    <div class="dash-banner" style="position:relative;border-radius:18px;overflow:hidden;margin-bottom:18px;min-height:156px;display:flex;align-items:center;box-shadow:0 20px 44px -20px rgba(6,78,59,.5)">
-        <img src="{{ asset('assets/img/hero_achar.jpg') }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+    @php
+        // admin-er upload kora banner — na thakle kono image nei, sudhu gradient
+        $adminBanner = trim((string) \App\Models\Setting::get('admin_banner_path', ''));
+    @endphp
+    <div class="dash-banner" style="position:relative;border-radius:18px;overflow:hidden;margin-bottom:18px;min-height:156px;display:flex;align-items:center;box-shadow:0 20px 44px -20px rgba(6,78,59,.5);background:linear-gradient(120deg,#022c22,#065f46 60%,#047857)">
+        @if ($adminBanner !== '')
+            <img src="{{ asset($adminBanner) }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        @endif
         <div style="position:relative;z-index:1;width:100%;padding:30px 32px;color:#fff;background:linear-gradient(90deg, rgba(2,44,34,.92), rgba(2,44,34,.55) 62%, rgba(2,44,34,.12))">
             <span style="display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;letter-spacing:1.2px;padding:5px 13px;border-radius:999px;background:rgba(163,230,53,.18);border:1px solid rgba(163,230,53,.45);color:#a3e635">
                 <span style="width:7px;height:7px;border-radius:50%;background:#a3e635"></span> LIVE STORE

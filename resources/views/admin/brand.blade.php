@@ -67,6 +67,7 @@
             <form method="POST" action="{{ route('admin.settings.brand.save') }}" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="remove_favicon" value="0" id="removeFaviconFlag">
+                <input type="hidden" name="favicon_only" value="1">
                 <div class="logo-upload-row">
                     <div class="logo-preview" id="faviconPreview">
                         @if (!empty($settings['favicon_path']))
@@ -89,6 +90,38 @@
                             <i class="fa-solid fa-floppy-disk"></i> সেভ
                         </button>
                         <p class="brand-hint">সর্বোচ্চ 1MB • PNG/SVG/ICO/JPG</p>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {{-- ===== ADMIN BANNER IMAGE (dashboard + login background) ===== --}}
+        <div class="card brand-card" style="grid-column:1/-1">
+            <h3><span class="brand-ic" style="--bc:#0ea5e9"><i class="fa-solid fa-panorama"></i></span> অ্যাডমিন ব্যানার ইমেজ</h3>
+            <p class="desc">ড্যাশবোর্ডের স্বাগতম ব্যানার ও লগইন পেজের ব্যাকগ্রাউন্ড (wide/landscape ছবি ভালো)। <b>না দিলে কোনো ছবি ব্যবহার হবে না</b> — সাধারণ সবুজ ডিজাইন দেখাবে।</p>
+            <form method="POST" action="{{ route('admin.settings.brand.save') }}" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="remove_banner" value="0" id="removeBannerFlag">
+                <input type="hidden" name="banner_only" value="1">
+                <div class="logo-upload-row">
+                    <div class="logo-preview" id="bannerPreview">
+                        @if (!empty($settings['admin_banner_path']))
+                            <img src="{{ asset($settings['admin_banner_path']) }}" alt="banner">
+                        @else
+                            <i class="fa-solid fa-panorama"></i>
+                        @endif
+                    </div>
+                    <div class="logo-actions">
+                        <input type="file" name="banner" id="bannerFile" accept="image/*" style="display:none" onchange="previewBanner(this)">
+                        <button type="button" class="a-btn" onclick="document.getElementById('bannerFile').click()">
+                            <i class="fa-solid fa-upload"></i> আপলোড
+                        </button>
+                        @if (!empty($settings['admin_banner_path']))
+                            <button type="button" class="a-btn ghost" onclick="removeBanner()">
+                                <i class="fa-solid fa-trash-can"></i> মুছে ফেলুন
+                            </button>
+                        @endif
+                        <p class="brand-hint">সর্বোচ্চ 4MB • JPG/PNG/WebP — সিলেক্ট করলেই সেভ হয়ে যাবে</p>
                     </div>
                 </div>
             </form>
@@ -336,6 +369,33 @@
             t.type = 'hidden'; t.name = '_token'; t.value = '{{ csrf_token() }}';
             var r = document.createElement('input');
             r.type = 'hidden'; r.name = 'remove_favicon'; r.value = '1';
+            f.appendChild(t); f.appendChild(r);
+            document.body.appendChild(f);
+            f.submit();
+        }
+        function previewBanner(input) {
+            if (fileSizeFail(input, 4)) return;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('bannerPreview').innerHTML = '<img src="' + e.target.result + '">';
+                };
+                reader.readAsDataURL(input.files[0]);
+                showToast('ব্যানার সেভ হচ্ছে...');
+                // foolproof: file select korlei tar sath-sathi ei card er form save hoy —
+                // alada "সেভ" button e chapte hobe na
+                input.closest('form').submit();
+            }
+        }
+        function removeBanner() {
+            document.getElementById('removeBannerFlag').value = '1';
+            var f = document.createElement('form');
+            f.method = 'POST';
+            f.action = BRAND_SAVE_URL;
+            var t = document.createElement('input');
+            t.type = 'hidden'; t.name = '_token'; t.value = '{{ csrf_token() }}';
+            var r = document.createElement('input');
+            r.type = 'hidden'; r.name = 'remove_banner'; r.value = '1';
             f.appendChild(t); f.appendChild(r);
             document.body.appendChild(f);
             f.submit();

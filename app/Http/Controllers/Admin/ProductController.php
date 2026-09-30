@@ -284,7 +284,7 @@ class ProductController extends Controller
 
         $data['is_active'] = $request->boolean('is_active');
         $data['is_featured'] = $request->boolean('is_featured');
-        $data['brand'] = $data['brand'] ?? 'আচারবাড়ি';
+        $data['brand'] = $data['brand'] ?? ab_brand('bn');
 
         // variant thakle ei duita hidden thake — DB e 0 bosiye dao (variant thekei asbe)
         $data['price'] = (float) ($data['price'] ?? 0);

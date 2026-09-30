@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login — {{ \App\Models\Order::class ? 'আচারবাড়ি' : '' }}</title>
+    <title>Admin Login — {{ ab_brand('bn') }}</title>
     <link rel="icon" href="{{ asset($settings['favicon_path'] ?? 'assets/img/favicon.svg') }}" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -136,7 +136,13 @@
 </head>
 
 <body>
-    <img class="login-bg" src="{{ asset('assets/img/hero_achar.jpg') }}" alt="">
+    @php
+        // admin-er upload kora banner — na thakle kono image nei (sudhu dark gradient)
+        $loginBanner = trim((string) \App\Models\Setting::get('admin_banner_path', ''));
+    @endphp
+    @if ($loginBanner !== '')
+        <img class="login-bg" src="{{ asset($loginBanner) }}" alt="">
+    @endif
     <div class="login-bg-ov"></div>
     <div class="login-card">
         <div class="login-logo">

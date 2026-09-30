@@ -3,10 +3,11 @@
     $p = $product ?? null;
     $sectionTitle = trim($__env->getSections()['title'] ?? '');
 
-    // seo_title khali hole sudhu brand name — harcoded achar-tagline onno business e bhul dekhay
-    $defTitle = $S::get('seo_title') ?: ab_brand('bn');
-    $defDesc = $S::get('seo_desc', 'ঘরে তৈরি খাঁটি দেশি আচার, মধু, ঘি ও চাটনি — প্রিজার্ভেটিভ মুক্ত, ক্যাশ অন ডেলিভারিতে সারা বাংলাদেশে হোম ডেলিভারি।');
-    $defKw = $S::get('seo_keywords', 'deshi achar, mango pickle, আচারবাড়ি, homemade pickle BD, sundarban honey, deshi ghee, tamarind chutney');
+    // seo_title khali hole dynamic default (brand + industry) — harcoded achar-tagline
+    // onno business e bhul dekhay, tai default kono AcharBari lekha na
+    $defTitle = $S::get('seo_title') ?: ab_seo_default_title();
+    $defDesc = $S::get('seo_desc') ?: ab_seo_default_desc();
+    $defKw = $S::get('seo_keywords') ?: ab_seo_default_keywords();
 
     // Per-product SEO override > page section title > global settings
     $metaTitle = $p?->meta_title ?: ($sectionTitle ?: $defTitle);
@@ -19,14 +20,15 @@
     $ogTitle = $S::get('og_title') ?: $metaTitle;
     $ogDesc = $S::get('og_desc') ?: $metaDesc;
     $ogImage = $S::get('og_image');
-    $ogImage = $ogImage ? asset($ogImage) : asset('assets/img/hero_achar.jpg');
+    // share-card image o industry onujayi — acharbusiness chara onno business e achar er chobi na
+    $ogImage = $ogImage ? asset($ogImage) : ab_img_setting('hero_img1', 'assets/img/hero_achar.jpg');
     if ($p?->image) { $ogImage = asset($p->image); }
 @endphp
 <title>{{ $metaTitle }}</title>
 <meta name="description" content="{{ $metaDesc }}">
 <meta name="keywords" content="{{ $metaKw }}">
 <meta name="robots" content="index, follow">
-<meta name="author" content="AcharBari">
+<meta name="author" content="{{ ab_brand('en') }}">
 <link rel="canonical" href="{{ $canonicalUrl }}">
 
 @php $gsc = $S::get('gsc_verification'); @endphp
@@ -42,7 +44,7 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="{{ $canonicalUrl }}">
-<meta property="og:site_name" content="{{ config('app.name') === 'Laravel' ? 'আচারবাড়ি' : config('app.name') }}">
+<meta property="og:site_name" content="{{ config('app.name') === 'Laravel' ? ab_brand('bn') : config('app.name') }}">
 <meta property="og:locale" content="bn_BD">
 
 {{-- Twitter Card --}}
@@ -53,7 +55,7 @@
 
 {{-- JSON-LD Structured Data: Organization + WebSite --}}
 @php
-    $brandName = trim(($S::get('brand_bn1', '') ?: '') . ($S::get('brand_bn2', '') ?: '')) ?: 'AcharBari';
+    $brandName = ab_brand('bn');
     $orgSchema = [
         '@context' => 'https://schema.org',
         '@type' => 'OnlineStore',
@@ -87,7 +89,7 @@
             'description' => $p->meta_description ?: $p->description ?: $p->name,
             'image' => asset($p->image),
             'sku' => $p->barcode,
-            'brand' => ['@type' => 'Brand', 'name' => $p->brand ?: 'আচারবাড়ি'],
+            'brand' => ['@type' => 'Brand', 'name' => $p->brand ?: ab_brand('bn')],
             'offers' => [
                 '@type' => 'Offer',
                 'url' => url('/product/' . $p->slug),

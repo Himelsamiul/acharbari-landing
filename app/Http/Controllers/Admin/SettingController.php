@@ -31,6 +31,38 @@ class SettingController extends Controller
             return back()->with('success', 'ফেভিকন ডিফল্টে ফিরে গেছে।');
         }
 
+        // admin banner removal (dashboard + login background) — default: kono image na
+        if ($request->boolean('remove_banner')) {
+            Setting::set('admin_banner_path', '');
+            return back()->with('success', 'ব্যানার ইমেজ মুছে ফেলা হয়েছে — ড্যাশবোর্ড ও লগইন পেজে সাধারণ সবুজ ডিজাইন ফিরে এসেছে।');
+        }
+
+        // banner card er nijer chhoto form theke ashle shudhu banner save hoy —
+        // ei request e brand name field nai, tai name-validation e dhukle bhul error ashto
+        if ($request->boolean('banner_only')) {
+            if (!$request->hasFile('banner')) {
+                return back()->with('error', 'ব্যানারের ছবি সিলেক্ট করা হয়নি — আবার চেষ্টা করুন।');
+            }
+            $request->validate(['banner' => 'required|file|mimes:jpg,jpeg,png,webp|max:4096']);
+            $path = $request->file('banner')->store('brand', 'public');
+            Setting::set('admin_banner_path', 'storage/' . $path);
+
+            return back()->with('success', 'ব্যানার ইমেজ সেভ হয়েছে — ড্যাশবোর্ড ও লগইন পেজে দেখুন।');
+        }
+
+        // favicon card er form-o ek — logo na thakle name required hoye favicon
+        // upload atke jeto, tai favicon-only request alada handle kori
+        if ($request->boolean('favicon_only')) {
+            if (!$request->hasFile('favicon')) {
+                return back()->with('error', 'ফেভিকনের ছবি সিলেক্ট করা হয়নি — আবার চেষ্টা করুন।');
+            }
+            $request->validate(['favicon' => 'required|file|mimes:jpg,jpeg,png,webp,svg,ico|max:1024']);
+            $path = $request->file('favicon')->store('brand', 'public');
+            Setting::set('favicon_path', 'storage/' . $path);
+
+            return back()->with('success', 'ফেভিকন সেভ হয়েছে — ব্রাউজার ট্যাবে দেখুন।');
+        }
+
         // logo thakle brand name lagbe na — header e logo image dekhabe.
         // logo na thakle name 2 ta required (nahole header khali hoye jabe)
         $hasLogo = $request->hasFile('logo') || trim((string) Setting::get('logo_path', '')) !== '';
@@ -42,6 +74,7 @@ class SettingController extends Controller
             'brand_en2' => 'nullable|string|max:20',
             'logo' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:2048',
             'favicon' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg,ico|max:1024',
+            'banner' => 'nullable|file|mimes:jpg,jpeg,png,webp|max:4096',
             'contact_phone' => 'nullable|string|max:20',
             'contact_whatsapp' => 'nullable|string|max:255',
             'contact_messenger' => 'nullable|string|max:60',
@@ -73,6 +106,11 @@ class SettingController extends Controller
         if ($request->hasFile('favicon')) {
             $path = $request->file('favicon')->store('brand', 'public');
             $pairs['favicon_path'] = 'storage/' . $path;
+        }
+
+        if ($request->hasFile('banner')) {
+            $path = $request->file('banner')->store('brand', 'public');
+            $pairs['admin_banner_path'] = 'storage/' . $path;
         }
 
         Setting::setMany($pairs);
@@ -369,13 +407,30 @@ class SettingController extends Controller
         return view('admin.sections', [
             'catalog' => \App\Http\Controllers\Admin\SectionDesignLibrary::catalog(),
             'saved' => $saved,
+            'hideable' => \App\Http\Controllers\Admin\SectionDesignLibrary::hideable(),
+            'hiddenSaved' => self::hiddenSections(),
         ]);
+    }
+
+    /** Landing-e kon kon section lukano — `sections_hidden` JSON theke (whitelist-checked). */
+    public static function hiddenSections(): array
+    {
+        $hidden = json_decode((string) Setting::get('sections_hidden', ''), true);
+        if (!is_array($hidden)) {
+            return [];
+        }
+
+        return array_values(array_intersect(
+            \App\Http\Controllers\Admin\SectionDesignLibrary::hideable(),
+            array_map('strval', $hidden)
+        ));
     }
 
     public function saveSections(Request $request)
     {
         $data = $request->validate([
             'designs' => 'required|json',
+            'hidden' => 'nullable|json',
         ]);
 
         $incoming = json_decode($data['designs'], true);
@@ -395,6 +450,19 @@ class SettingController extends Controller
 
         Setting::set('section_designs_prev', (string) Setting::get('section_designs', ''));
         Setting::set('section_designs', count($clean) ? json_encode($clean, JSON_UNESCAPED_UNICODE) : '');
+
+        // section show/hide — request e `hidden` na thakle purano list untouched thake
+        // (undo/preset er silent save gulo hidden na pathay)
+        if ($request->exists('hidden')) {
+            $incomingHidden = json_decode((string) $request->input('hidden', '[]'), true);
+            $cleanHidden = is_array($incomingHidden)
+                ? array_values(array_intersect(
+                    \App\Http\Controllers\Admin\SectionDesignLibrary::hideable(),
+                    array_map('strval', $incomingHidden)
+                ))
+                : [];
+            Setting::set('sections_hidden', count($cleanHidden) ? json_encode($cleanHidden) : '');
+        }
 
         return back()->with('success', 'সেকশন ডিজাইন সেভ হয়েছে — ল্যান্ডিং পেজে দেখুন।');
     }

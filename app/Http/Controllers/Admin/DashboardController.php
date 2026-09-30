@@ -28,8 +28,9 @@ class DashboardController extends Controller
 
     private function seoChecks(): array
     {
-        $title = Setting::get('seo_title', '');
-        $desc = Setting::get('seo_desc', '');
+        // khali hole dynamic default-i cholche — check ta effective value er upor
+        $title = Setting::get('seo_title') ?: ab_seo_default_title();
+        $desc = Setting::get('seo_desc') ?: ab_seo_default_desc();
         $active = Product::where('is_active', true);
         $total = (clone $active)->count();
 

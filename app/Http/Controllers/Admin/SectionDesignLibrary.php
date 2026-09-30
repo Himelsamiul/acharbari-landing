@@ -31,6 +31,12 @@ class SectionDesignLibrary
         ];
     }
 
+    /** Sections the admin can hide from the landing page. checkout = order form (#order-form) — order buttons depend on it, so it always shows. */
+    public static function hideable(): array
+    {
+        return ['hero', 'trust', 'products', 'promises', 'how-it-works', 'why-us', 'faq', 'reviews', 'bottom-cta'];
+    }
+
     /** Per-design metadata (merged over auto-discovered files). */
     public static function designs(): array
     {
