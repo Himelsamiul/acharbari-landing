@@ -2108,6 +2108,26 @@ document.addEventListener('keydown', function (e) {
                 banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
+            // phone: shudhu valid BD mobile — 10 digit/bhul format e order hobe na
+            var phoneEl = document.getElementById('phone');
+            var phoneVal = phoneEl ? phoneEl.value.trim() : '';
+            function abNormPhone(v) {
+                var d = (v || '').replace(/\D+/g, '');
+                if (d.indexOf('880') === 0) d = '0' + d.slice(3);
+                return /^01[3-9]\d{8}$/.test(d) ? d : null;
+            }
+            if (!abNormPhone(phoneVal)) {
+                e.preventDefault();
+                var phOld = document.getElementById('lpOrderSuccess');
+                if (phOld) phOld.remove();
+                var phBanner = document.createElement('div');
+                phBanner.id = 'lpOrderSuccess';
+                phBanner.className = 'lp-order-success';
+                phBanner.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ' + AB.t('সঠিক মোবাইল নম্বর দিন — ১১ ডিজিটের নম্বর 01 দিয়ে শুরু (যেমন: 01712345678)।', 'Enter a valid mobile number — 11 digits starting with 01 (e.g. 01712345678).');
+                form.parentNode.insertBefore(phBanner, form);
+                phBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
             // payment method check (vanilla — reliable)
             var payErr = document.getElementById('payment-error');
             var payChecked = form.querySelector('input[name="payment_method"]:checked');

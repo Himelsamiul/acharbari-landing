@@ -32,7 +32,7 @@ class OrderController extends Controller
 
         $data = $request->validate([
             'customer_name' => 'required|string|max:120',
-            'phone' => 'required|string|min:10|max:15',
+            'phone' => 'required|string|max:20',
             'address' => "required|string|max:500",
             'area' => 'required|in:inside,outside',
             'district' => 'nullable|string|max:100',
@@ -49,6 +49,15 @@ class OrderController extends Controller
         if (!is_array($items) || count($items) === 0) {
             return back()->withErrors(['items' => 'কার্ট খালি — অন্তত একটি প্রোডাক্ট যোগ করুন।']);
         }
+
+        // phone: shudhu valid BD mobile (11 digit, 01[3-9]...) — 10 digit/bhul format reject
+        $phone = ab_normalize_phone((string) $data['phone']);
+        if ($phone === null) {
+            return back()
+                ->withErrors(['phone' => 'সঠিক মোবাইল নম্বর দিন — ১১ ডিজিটের নম্বর 01 দিয়ে শুরু (যেমন: 01712345678)।'])
+                ->withInput();
+        }
+        $data['phone'] = $phone;
 
         $productIds = array_map(fn ($i) => (int) $i['id'], $items);
         // industry scoping: landing only sells the active industry's products —
@@ -312,7 +321,13 @@ class OrderController extends Controller
         if ($code !== '' && $phone !== '') {
             // invoice prefix (AB-) chara shudhu tail dileo match korbe
             $order = Order::with('items')
-                ->where('phone', $phone)
+                ->where(function ($q) use ($phone) {
+                    $norm = ab_normalize_phone($phone);
+                    $q->where('phone', $phone);
+                    if ($norm !== null && $norm !== $phone) {
+                        $q->orWhere('phone', $norm);
+                    }
+                })
                 ->where(function ($q) use ($code) {
                     $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $code);
                     $q->where('order_code', $code)
@@ -344,10 +359,22 @@ class OrderController extends Controller
                     ->orWhere('order_code', 'like', '%' . $escaped);
             });
             if ($phone !== '') {
-                $query->where('phone', $phone);
+                $query->where(function ($q) use ($phone) {
+                    $norm = ab_normalize_phone($phone);
+                    $q->where('phone', $phone);
+                    if ($norm !== null && $norm !== $phone) {
+                        $q->orWhere('phone', $norm);
+                    }
+                });
             }
         } else {
-            $query->where('phone', $phone);
+            $query->where(function ($q) use ($phone) {
+                $norm = ab_normalize_phone($phone);
+                $q->where('phone', $phone);
+                if ($norm !== null && $norm !== $phone) {
+                    $q->orWhere('phone', $norm);
+                }
+            });
         }
         $orders = $query->limit(5)->get();
 

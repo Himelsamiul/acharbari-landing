@@ -62,6 +62,25 @@ class OrderFlowTest extends TestCase
         ]);
     }
 
+    public function test_phone_must_be_valid_bd_mobile(): void
+    {
+        $p = $this->makeProduct();
+
+        // 10 digit / bhul format — reject
+        $this->post(route('order.store'), $this->validPayload($p, ['phone' => '1712345678']))
+            ->assertSessionHasErrors(['phone']);
+        $this->post(route('order.store'), $this->validPayload($p, ['phone' => '0171234567']))
+            ->assertSessionHasErrors(['phone']);
+        $this->post(route('order.store'), $this->validPayload($p, ['phone' => '03123456789']))
+            ->assertSessionHasErrors(['phone']);
+
+        // +880/880 prefix — normalize hoye 11 digit e store
+        $this->post(route('order.store'), $this->validPayload($p, ['phone' => '+8801712345678']))
+            ->assertRedirect();
+        $order = Order::latest('id')->first();
+        $this->assertSame('01712345678', $order->phone);
+    }
+
     public function test_store_rejects_invalid_area(): void
     {
         $p = $this->makeProduct();

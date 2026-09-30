@@ -28,6 +28,25 @@ define('DEFAULT_ABOUT_CONTENT', <<<HTML
 <p><b>আপনার ভালোবাসাই আমাদের শক্তি।</b> আমাদের সাথে থাকার জন্য ধন্যবাদ।</p>
 HTML);
 
+if (!function_exists('ab_normalize_phone')) {
+    /**
+     * BD mobile number normalize + validate — 11-digit 01[3-9]XXXXXXXX return kore,
+     * bhul hole null. +880/880/00880 prefix o space/dash thakle thik kore dey.
+     */
+    function ab_normalize_phone(string $phone): ?string
+    {
+        $digits = preg_replace('/\D+/', '', $phone);
+
+        if ($digits !== '' && str_starts_with($digits, '880')) {
+            $digits = '0' . substr($digits, 3);
+        } elseif (str_starts_with($digits, '00880')) {
+            $digits = '0' . substr($digits, 5);
+        }
+
+        return preg_match('/^01[3-9]\d{8}$/', $digits) ? $digits : null;
+    }
+}
+
 if (!function_exists('mask_email')) {
     /**
      * Admin list e real email dekhano jabe na — a***@g***.com style e mask.
