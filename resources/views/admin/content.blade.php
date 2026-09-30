@@ -598,7 +598,12 @@
                     <textarea class="a-input" rows="8" name="terms_content"
                         placeholder="খালি রাখলে ডিফল্ট শর্তাবলি দেখাবে">{{ $settings['terms_content'] ?? '' }}</textarea>
                 </div>
-                <p class="desc">পেজ দেখতে: সাইটের ফুটারে <b>প্রাইভেসি পলিসি</b> / <b>শর্তাবলি</b> লিংকে ক্লিক করুন।</p>
+                <div class="a-field">
+                    <label>আমাদের সম্পর্কে (About Us) পেজের লেখা (HTML ট্যাগ চলবে)</label>
+                    <textarea class="a-input" rows="8" name="about_us_content"
+                        placeholder="খালি রাখলে ডিফল্ট About Us লেখা দেখাবে">{{ $settings['about_us_content'] ?? '' }}</textarea>
+                </div>
+                <p class="desc">পেজ দেখতে: সাইটের ফুটারে <b>আমাদের সম্পর্কে</b> / <b>প্রাইভেসি পলিসি</b> / <b>শর্তাবলি</b> লিংকে ক্লিক করুন।</p>
             </div>
 
             <div class="ct-savebar">

@@ -20,6 +20,7 @@ Route::get('/track', [OrderController::class, 'track'])->name('track');
 Route::get('/order/track-json', [OrderController::class, 'trackJson'])->name('order.track.json');
 
 // Legal pages (footer)
+Route::get('/about-us', [HomeController::class, 'about'])->name('about');
 Route::get('/privacy-policy', [HomeController::class, 'privacy'])->name('privacy');
 Route::get('/terms-and-conditions', [HomeController::class, 'terms'])->name('terms');
 

@@ -443,7 +443,11 @@ function updateAreaVisibility() {
         areaSelectWrap.classList.toggle('hidden', isFree);
         freeDeliveryWrap.classList.toggle('hidden', !isFree);
         if (areaSelect) areaSelect.toggleAttribute('required', !isFree);
-        if (areaInput) areaInput.value = isFree ? 'inside' : (areaSelect ? ((areaSelect.selectedOptions && areaSelect.selectedOptions[0] && areaSelect.selectedOptions[0].getAttribute('data-area')) || 'inside') : 'inside');
+        var zoneEl = document.getElementById('area_zone');
+        var zoneInside = !!(zoneEl && zoneEl.value === 'inside');
+        if (areaInput) areaInput.value = isFree ? 'inside' : (zoneInside ? 'inside' : (areaSelect ? ((areaSelect.selectedOptions && areaSelect.selectedOptions[0] && areaSelect.selectedOptions[0].getAttribute('data-area')) || 'inside') : 'inside'));
+        var districtEl = document.getElementById('landing_district_input');
+        if (districtEl && zoneInside && !isFree) districtEl.value = 'Dhaka';
     }
 }
 
@@ -1779,13 +1783,31 @@ document.addEventListener('keydown', function (e) {
 
     function deliveryCharge() {
         if (!ids().length) return 0;
+        var pick = resolveAreaSelection();
+
+        return (pick && !isNaN(pick.charge)) ? pick.charge : 80;
+    }
+
+    /* zone-aware selection — "ঢাকার ভিতরে" hole district list chara-i inside+Dhaka dhore ney */
+    function resolveAreaSelection() {
+        var zone = document.getElementById('area_zone');
         var sel = document.getElementById('area');
-        if (sel && sel.options && sel.options[sel.selectedIndex]) {
-            var opt = sel.options[sel.selectedIndex];
-            var c = parseFloat(opt.getAttribute('data-charge'));
-            if (!isNaN(c)) return c;
+        if (zone && zone.selectedOptions && zone.selectedOptions[0]) {
+            var z = zone.selectedOptions[0];
+            if (z.value === 'inside') {
+                var zc = parseFloat(z.getAttribute('data-charge'));
+
+                return { area: 'inside', district: 'Dhaka', charge: isNaN(zc) ? 80 : zc };
+            }
         }
-        return 80;
+        if (sel && sel.selectedOptions && sel.selectedOptions[0]) {
+            var o = sel.selectedOptions[0];
+            var c = parseFloat(o.getAttribute('data-charge'));
+
+            return { area: o.getAttribute('data-area') || 'inside', district: sel.value || '', charge: isNaN(c) ? 80 : c };
+        }
+
+        return null;
     }
 
     function render() {
@@ -1889,12 +1911,21 @@ document.addEventListener('keydown', function (e) {
         }
         var sel = document.getElementById('area');
         if (sel) sel.toggleAttribute('required', list.length > 0);
+        // zone picker ("ঢাকার ভিতরে/বাইরে") thakle district list shudhu "বাইরে" te dekhay
+        var zone = document.getElementById('area_zone');
+        var pick = resolveAreaSelection();
+        if (zone) {
+            var insideZone = zone.value === 'inside';
+            var outWrap = document.getElementById('landing-outside-wrap');
+            if (outWrap) outWrap.classList.toggle('hidden', insideZone);
+            if (sel) sel.toggleAttribute('required', list.length > 0 && !insideZone);
+        }
         // keep the hidden "area" field in sync (server validates inside|outside)
         var areaInput = document.getElementById('landing_area_input');
-        if (areaInput) areaInput.value = (list.length && sel && sel.selectedOptions[0]) ? (sel.selectedOptions[0].getAttribute('data-area') || 'inside') : 'inside';
+        if (areaInput) areaInput.value = (list.length && pick) ? pick.area : 'inside';
         // and the chosen district (server validates it against admin-configured districts)
         var districtInput = document.getElementById('landing_district_input');
-        if (districtInput) districtInput.value = (list.length && sel) ? sel.value : '';
+        if (districtInput) districtInput.value = (list.length && pick) ? pick.district : '';
 
         try { landingCartItems = list.map(function (pid) { return parseInt(pid, 10); }); } catch (e) { }
     }
@@ -1987,6 +2018,8 @@ document.addEventListener('keydown', function (e) {
     // delivery area change → recalc totals
     var areaSel = document.getElementById('area');
     if (areaSel) areaSel.addEventListener('change', render);
+    var zoneSel = document.getElementById('area_zone');
+    if (zoneSel) zoneSel.addEventListener('change', render);
 
     // real order submit: serialize cart into hidden input, form POSTs to Laravel
     var form = document.getElementById('landing-checkout-form');

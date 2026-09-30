@@ -269,16 +269,57 @@
 
                                     <div id="landing-area-physical-wrap" class="hidden">
                                         <div id="landing-area-select-wrap" class="">
-                                            <select id="area"
-                                                class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white"
-                                                required="">
-                                                @foreach (ab_districts() as $d)
-                                                    <option value="{{ $d['en'] }}" data-charge="{{ $d['charge'] }}"
-                                                        data-area="{{ strcasecmp($d['en'], 'Dhaka') === 0 ? 'inside' : 'outside' }}">
-                                                        {{ $d['bn'] }} ({{ $d['en'] }}) — ৳{{ bn_num($d['charge']) }}
+                                            @php
+                                                $abDistricts = ab_districts();
+                                                $abDhaka = null;
+                                                foreach ($abDistricts as $d) {
+                                                    if (strcasecmp((string) $d['en'], 'Dhaka') === 0) { $abDhaka = $d; break; }
+                                                }
+                                                $abOutside = array_values(array_filter($abDistricts, fn ($d) => strcasecmp((string) $d['en'], 'Dhaka') !== 0));
+                                            @endphp
+                                            @if ($abDhaka && count($abOutside))
+                                                {{-- zone picker: "ঢাকার ভিতরে" select korle district khujte hoy na --}}
+                                                <select id="area_zone"
+                                                    class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white"
+                                                    required="">
+                                                    <option value="inside" data-charge="{{ $abDhaka['charge'] }}">
+                                                        ঢাকার ভিতরে (Dhaka) — ৳{{ bn_num($abDhaka['charge']) }}
                                                     </option>
-                                                @endforeach
-                                            </select>
+                                                    <option value="outside">ঢাকার বাইরে (Outside Dhaka)</option>
+                                                </select>
+                                                <div id="landing-outside-wrap" class="hidden mt-2">
+                                                    <select id="area"
+                                                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white"
+                                                        required="">
+                                                        @foreach ($abOutside as $d)
+                                                            <option value="{{ $d['en'] }}" data-charge="{{ $d['charge'] }}" data-area="outside">
+                                                                {{ $d['bn'] }} ({{ $d['en'] }}) — ৳{{ bn_num($d['charge']) }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @elseif ($abDhaka)
+                                                {{-- shudhu Dhaka-te delivery — kono district list/search nei --}}
+                                                <select id="area" class="hidden" tabindex="-1" aria-hidden="true">
+                                                    <option value="Dhaka" data-charge="{{ $abDhaka['charge'] }}" data-area="inside" selected>
+                                                        {{ $abDhaka['bn'] }} ({{ $abDhaka['en'] }}) — ৳{{ bn_num($abDhaka['charge']) }}
+                                                    </option>
+                                                </select>
+                                                <input type="text" readonly
+                                                    class="w-full border border-gray-300 rounded-lg p-2.5 text-sm bg-green-50 text-green-800 font-semibold"
+                                                    value="ঢাকার ভিতরে — ৳{{ bn_num($abDhaka['charge']) }}">
+                                            @else
+                                                {{-- Dhaka nai — config kora district der list (aage jemon chhilo) --}}
+                                                <select id="area"
+                                                    class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white"
+                                                    required="">
+                                                    @foreach ($abOutside as $d)
+                                                        <option value="{{ $d['en'] }}" data-charge="{{ $d['charge'] }}" data-area="outside">
+                                                            {{ $d['bn'] }} ({{ $d['en'] }}) — ৳{{ bn_num($d['charge']) }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            @endif
                                         </div>
                                         <div id="landing-free-delivery-wrap" class="hidden">
                                             <input type="text"

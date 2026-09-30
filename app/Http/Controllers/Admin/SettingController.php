@@ -535,6 +535,7 @@ class SettingController extends Controller
             'rating_json' => 'nullable|string|max:10000',
             'privacy_policy_content' => 'nullable|string|max:20000',
             'terms_content' => 'nullable|string|max:20000',
+            'about_us_content' => 'nullable|string|max:20000',
             'made_by_name' => 'nullable|string|max:60',
             'delivery_inside' => 'nullable|integer|min:0|max:5000',
             'delivery_outside' => 'nullable|integer|min:0|max:5000',
@@ -573,8 +574,8 @@ class SettingController extends Controller
             }
         }
 
-        // legal pages (footer): privacy policy + terms content — khali dile default ferot ashe
-        foreach (['privacy_policy_content', 'terms_content'] as $legal) {
+        // legal pages (footer): privacy policy + terms + about us — khali dile default ferot ashe
+        foreach (['privacy_policy_content', 'terms_content', 'about_us_content'] as $legal) {
             if (array_key_exists($legal, $data)) {
                 $pairs[$legal] = trim((string) ($data[$legal] ?? '')) !== ''
                     ? $data[$legal]
@@ -665,14 +666,15 @@ class SettingController extends Controller
         $all = json_decode(Setting::get('pixels_json', ''), true) ?: [];
         $current = $all[$key] ?? ['enabled' => false, 'value' => ''];
         $current['value'] = trim($data['value'] ?? '');
-        if ($request->has('enabled')) {
-            $current['enabled'] = $request->boolean('enabled');
-        }
+        // checkbox er mathik onujayi — unchecked dile off hoy (aage off kora jato na)
+        $current['enabled'] = $request->boolean('enabled');
+        // ID chhara সক্রিয় করা যাবে না — nahole bhul kore empty tag fire
+        $current['enabled'] = $current['enabled'] && $current['value'] !== '';
         $all[$key] = $current;
 
         Setting::set('pixels_json', json_encode($all));
 
-        return back()->with('success', 'ট্র্যাকিং সেটিংস সেভ হয়েছে (ডেমো)।');
+        return back()->with('success', 'ট্র্যাকিং সেটিংস সেভ হয়েছে — ল্যান্ডিং পেজে স্ক্রিপ্ট লাইভ।');
     }
     /* ================= Industry Preset System ================= */
 
