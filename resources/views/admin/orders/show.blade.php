@@ -121,6 +121,26 @@
                 </form>
             </div>
 
+            <div class="card">
+                <h3><i class="fa-solid fa-truck-fast"></i> Pathao Delivery</h3>
+                @if (! \App\Services\Delivery\PathaoCourier::ready())
+                    <p class="desc">Pathao API কনফিগার করা নেই — <a href="{{ route('admin.settings.pathao') }}"><b>Pathao API</b></a> পেজ থেকে চালু করে credentials বসান।</p>
+                @elseif ($order->pathao_consignment_id)
+                    <p class="desc" style="margin-bottom:6px">Consignment: <code style="font-weight:800">{{ $order->pathao_consignment_id }}</code></p>
+                    <p class="desc" style="margin-bottom:10px">Status: <b>{{ $order->pathao_status }}</b></p>
+                    <form method="POST" action="{{ route('admin.orders.pathao.status', $order) }}">
+                        @csrf
+                        <button class="a-btn ghost" style="width:100%"><i class="fa-solid fa-rotate"></i> স্ট্যাটাস রিফ্রেশ</button>
+                    </form>
+                @else
+                    <p class="desc">অর্ডারটা এখনো Pathao তে যায়নি। {{ $order->payment_status === 'paid' ? 'Prepaid — collection ৳0 হবে।' : 'COD — ৳' . number_format($order->total) . ' collection হবে।' }}</p>
+                    <form method="POST" action="{{ route('admin.orders.pathao.send', $order) }}" onsubmit="return swConfirmSubmit(event, 'অর্ডারটি Pathao তে পাঠাবেন?')">
+                        @csrf
+                        <button class="a-btn" style="width:100%"><i class="fa-solid fa-paper-plane"></i> Pathao তে পাঠান</button>
+                    </form>
+                @endif
+            </div>
+
             <a class="side-link" href="{{ route('admin.orders.index') }}" style="background:#fff;color:#1f4234;border-radius:12px;text-decoration:none"><i class="fa-solid fa-arrow-left"></i> সব অর্ডারে ফিরুন</a>
         </div>
     </div>

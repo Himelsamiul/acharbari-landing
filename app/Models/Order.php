@@ -10,6 +10,7 @@ class Order extends Model
         'order_code', 'customer_name', 'phone', 'address', 'area', 'district',
         'payment_method', 'payment_status', 'payment_txn_id', 'subtotal', 'discount', 'coupon_code',
         'vat_total', 'shipping_cost', 'total', 'status',
+        'pathao_consignment_id', 'pathao_status',
     ];
 
     protected $casts = [

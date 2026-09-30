@@ -52,6 +52,13 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/orders/{order}', [Admin\OrderController::class, 'show'])->middleware('perm:orders')->name('admin.orders.show');
     Route::post('/orders/{order}/status', [Admin\OrderController::class, 'updateStatus'])->middleware('perm:orders')->name('admin.orders.status');
     Route::post('/orders/{order}/payment', [Admin\OrderController::class, 'updatePaymentStatus'])->middleware('perm:orders')->name('admin.orders.payment');
+
+    // Pathao Courier API
+    Route::get('/settings/pathao', [Admin\PathaoController::class, 'page'])->middleware('perm:delivery')->name('admin.settings.pathao');
+    Route::post('/settings/pathao', [Admin\PathaoController::class, 'saveSettings'])->middleware('perm:delivery')->name('admin.settings.pathao.save');
+    Route::post('/settings/pathao/test', [Admin\PathaoController::class, 'testConnection'])->middleware('perm:delivery')->name('admin.settings.pathao.test');
+    Route::post('/orders/{order}/pathao', [Admin\PathaoController::class, 'sendOrder'])->middleware('perm:orders')->name('admin.orders.pathao.send');
+    Route::post('/orders/{order}/pathao/status', [Admin\PathaoController::class, 'refreshStatus'])->middleware('perm:orders')->name('admin.orders.pathao.status');
     Route::delete('/orders/{order}', [Admin\OrderController::class, 'destroy'])->middleware('perm:orders')->name('admin.orders.destroy');
 
     Route::get('/complaints', [Admin\ComplaintController::class, 'index'])->middleware('perm:complaints')->name('admin.complaints');

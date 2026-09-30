@@ -471,7 +471,7 @@
 
         <!-- Sidebar -->
         <aside class="sidebar" id="adminSidebar">
-            <div class="side-brand">
+            <a class="side-brand" href="{{ url('/') }}" target="_blank" rel="noopener" title="ওয়েবসাইট দেখুন" style="cursor:pointer;text-decoration:none">
                 <div class="logo-box">
                     @if (!empty($settings['logo_path']))
                         <img src="{{ asset($settings['logo_path']) }}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
@@ -480,10 +480,10 @@
                     @endif
                 </div>
                 <div>
-                    <b>{{ ab_brand('bn') }}</b>
+                    <b style="color:inherit">{{ ab_brand('bn') }}</b>
                     <span>ADMIN PANEL</span>
                 </div>
-            </div>
+            </a>
 
             @php
                 $sideIndustryKey = ab_industry_active();
@@ -557,6 +557,9 @@
                 @endif
                 @if ($u->hasPerm('tracking'))
                 <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
+                @endif
+                @if ($u->hasPerm('delivery'))
+                <a class="side-link {{ request()->routeIs('admin.settings.pathao') ? 'active' : '' }}" href="{{ route('admin.settings.pathao') }}"><i class="fa-solid fa-truck-fast"></i> Pathao API</a>
                 @endif
 
                 @php
