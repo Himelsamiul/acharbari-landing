@@ -5,14 +5,26 @@
     <title>Customer Report</title>
     <style>
         {{-- @font-face must stay INSIDE the style tag — bairer thakle font load hoy na,
-             ar Bangla lekha (brand/customer/product name) PDF e bhanga dekhay --}}
+             ar Bangla lekha (brand/customer/product name) PDF e bhanga dekhay.
+             BOLD face o ek-i file — bold face register na thakle dompdf h1/grand-total
+             er mota lekha Helvetica-Bold e pathay, ar sekhan Bangla glyph nai → "???" --}}
         @font-face {
             font-family: 'NotoBengali';
             src: url({{ public_path('assets/fonts/NotoSansBengali.ttf') }}) format('truetype');
             font-weight: normal;
             font-style: normal;
         }
+        @font-face {
+            font-family: 'NotoBengali';
+            src: url({{ public_path('assets/fonts/NotoSansBengali.ttf') }}) format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
         body { font-family: 'NotoBengali', 'hind_siliguri', Helvetica, Arial, sans-serif; color: #1f2937; font-size: 11px; margin: 0; }
+        h1 { font-weight: 800; }
+        {{-- bold jaygaguloteo Bangla-capable family force kora — nahole dompdf Times-Bold e
+             chole jay ar sekhane Bangla glyph nai thake --}}
+        h1, h1 *, th, tr.total td, b, strong { font-family: 'NotoBengali', 'hind_siliguri', Helvetica, Arial, sans-serif; }
         h1 { font-size: 18px; margin: 0 0 2px; color: #065f46; }
         .meta { font-size: 10px; color: #6b7280; margin: 0 0 12px; }
         table { width: 100%; border-collapse: collapse; }
