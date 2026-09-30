@@ -66,6 +66,9 @@ class OrderController extends Controller
 
         $order->update(['status' => $data['status']]);
 
+        // timeline history — customer tracking e kokhon kon status holo dekhay
+        $order->statusHistories()->create(['status' => $data['status']]);
+
         return back()->with('success', 'অর্ডার #' . $order->order_code . ' স্ট্যাটাস আপডেট হয়েছে।');
     }
 

@@ -30,6 +30,35 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function statusHistories()
+    {
+        return $this->hasMany(OrderStatusHistory::class);
+    }
+
+    /**
+     * Delivery status er flow timeline — je status kokhon holo, chronologically.
+     * Purano order er history na thakle current status + order time diye fallback.
+     */
+    public function statusTimeline(): array
+    {
+        $labels = self::statusLabels();
+        $rows = $this->statusHistories()->orderBy('created_at')->get();
+
+        if ($rows->isEmpty()) {
+            $rows = collect();
+            $rows->push((object) ['status' => 'pending', 'created_at' => $this->created_at]);
+            if ($this->status !== 'pending') {
+                $rows->push((object) ['status' => $this->status, 'created_at' => $this->updated_at ?: $this->created_at]);
+            }
+        }
+
+        return $rows->map(fn ($r) => [
+            'status' => $r->status,
+            'label' => $labels[$r->status] ?? $r->status,
+            'time' => $r->created_at ? \Illuminate\Support\Carbon::parse($r->created_at)->format('d M Y, h:i A') : '',
+        ])->all();
+    }
+
     public static function statuses(): array
     {
         return ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];

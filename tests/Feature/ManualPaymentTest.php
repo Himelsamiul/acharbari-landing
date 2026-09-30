@@ -74,6 +74,7 @@ class ManualPaymentTest extends TestCase
         $order = Order::where('phone', '01700000002')->latest('id')->first();
         $this->assertNotNull($order);
         $this->assertSame('manual', $order->payment_method);
+        // manual shuru te pending — admin TrxID verify kore paid kore
         $this->assertSame('pending', $order->payment_status);
         $this->assertSame('TRX123ABC', $order->payment_txn_id);
     }

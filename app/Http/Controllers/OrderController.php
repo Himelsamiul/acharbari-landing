@@ -172,8 +172,9 @@ class OrderController extends Controller
                 'area' => $area,
                 'district' => $districtName !== '' ? $districtName : null,
                 'payment_method' => $data['payment_method'],
+                // manual = pending theke shuru — admin TrxID verify kore show page theke paid kore
                 'payment_status' => in_array($data['payment_method'], ['bkash', 'nagad', 'manual']) ? 'pending' : null,
-                // manual payment e customer-er দেওয়া TrxID/number — admin verification er jonno
+                // manual payment e customer-er deya TrxID/number — admin hisheber jonno
                 'payment_txn_id' => $data['payment_method'] === 'manual'
                     ? (trim((string) ($data['payment_ref'] ?? '')) ?: null)
                     : null,
@@ -185,6 +186,9 @@ class OrderController extends Controller
                 'total' => $total,
                 'status' => 'pending',
             ]);
+
+            // tracking timeline er prothom dhap — pending @ order time
+            \App\Models\OrderStatusHistory::create(['order_id' => $order->id, 'status' => 'pending']);
 
             foreach ($lines as $line) {
                 $order->items()->create($line);
@@ -351,6 +355,11 @@ class OrderController extends Controller
                     'invoice_id' => $o->order_code,
                     'date' => $o->created_at->format('d M Y, h:i A'),
                     'status' => $labels[$o->status] ?? $o->status,
+                    'timeline' => collect($o->statusTimeline())->map(fn ($t) => [
+                        'status' => $t['status'],
+                        'label' => $t['label'],
+                        'time' => $t['time'],
+                    ])->values()->all(),
                     'customer_name' => $o->customer_name,
                     'customer_phone' => $o->phone,
                     'area' => $o->district ?: ($o->area === 'inside' ? 'ঢাকার ভিতরে' : 'ঢাকার বাহিরে'),

@@ -93,6 +93,23 @@
                                     {{ \App\Models\Order::statusLabels()[$order->status] }}
                                 </span>
                             </div>
+                            {{-- status flow: je status kokhon holo, time soho --}}
+                            @php $tl = $order->statusTimeline(); @endphp
+                            <div style="padding:10px 4px;border-bottom:1px solid #eef2f0">
+                                <div style="font-size:11px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">অর্ডার স্ট্যাটাস টাইমলাইন</div>
+                                @foreach ($tl as $i => $step)
+                                    <div style="display:flex;gap:10px;align-items:flex-start;padding:3px 0">
+                                        <div style="display:flex;flex-direction:column;align-items:center">
+                                            <span style="width:12px;height:12px;border-radius:50%;background:{{ $loop->last ? 'var(--ds-primary,#059669)' : '#059669' }};flex-shrink:0"></span>
+                                            @if (! $loop->last)<span style="width:2px;height:14px;background:#a7f3d0"></span>@endif
+                                        </div>
+                                        <div style="font-size:12.5px;line-height:1.4">
+                                            <b style="color:#065f46">{{ $step['label'] }}</b>
+                                            @if ($step['time'])<span style="color:#8b7355;font-size:11px"> — {{ $step['time'] }}</span>@endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                             <div class="order-items">
                                 <div style="font-size:12px;color:#6b7280;margin-bottom:6px">
                                     {{ $order->created_at->format('d M Y, h:i A') }} • {{ $order->customer_name }}

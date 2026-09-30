@@ -756,6 +756,46 @@ function doTrack() {
         });
 }
 
+/* tracking card er status timeline — pending → processing → shipped → delivered flow */
+function trackTimelineHtml(o) {
+    var flow = ['pending', 'processing', 'shipped', 'delivered'];
+    var flowLabels = { pending: 'পেন্ডিং', processing: 'প্রসেসিং', shipped: 'শিপড', delivered: 'ডেলিভার্ড' };
+    var reached = {};
+    (o.timeline || []).forEach(function (t) { reached[t.status] = t.time || ''; });
+
+    if (reached['cancelled']) {
+        return '<div style="padding:12px 18px;border-bottom:1px solid #f1f1f1;">'
+            + '<div style="font-size:12px;font-weight:700;color:#333;border-bottom:2px solid #f1f1f1;padding-bottom:6px;">অর্ডার স্ট্যাটাস</div>'
+            + '<div style="display:flex;gap:8px;align-items:center;font-size:12.5px;color:#dc2626;font-weight:700;padding-top:8px;">'
+            + '<span style="width:10px;height:10px;border-radius:50%;background:#dc2626;display:inline-block;"></span> বাতিল'
+            + (reached['cancelled'] ? ' — ' + reached['cancelled'] : '')
+            + '</div></div>';
+    }
+
+    var html = '<div style="padding:12px 18px;border-bottom:1px solid #f1f1f1;">'
+        + '<div style="font-size:12px;font-weight:700;color:#333;border-bottom:2px solid #f1f1f1;padding-bottom:6px;margin-bottom:10px;">অর্ডার স্ট্যাটাস টাইমলাইন</div>';
+
+    flow.forEach(function (st, i) {
+        var done = reached[st] !== undefined;
+        var time = reached[st] || '';
+        var dot = done ? '#059669' : '#e5e7eb';
+        var txt = done ? '#059669' : '#9ca3af';
+
+        html += '<div style="display:flex;gap:10px;align-items:flex-start;padding:3px 0;">'
+            + '<div style="display:flex;flex-direction:column;align-items:center;">'
+            + '<span style="width:12px;height:12px;border-radius:50%;background:' + dot + ';flex-shrink:0;"></span>'
+            + (i < 3 ? '<span style="width:2px;height:14px;background:' + (done ? '#a7f3d0' : '#e5e7eb') + ';"></span>' : '')
+            + '</div>'
+            + '<div style="font-size:12.5px;line-height:1.4;"><b style="color:' + txt + '">' + flowLabels[st] + '</b>'
+            + (time
+                ? '<span style="color:#8b7355;font-size:11px;"> — ' + time + '</span>'
+                : ' <span style="color:#cbd5e1;font-size:11px;">(বাকি)</span>')
+            + '</div></div>';
+    });
+
+    return html + '</div>';
+}
+
 function renderTrackResult(orders) {
     var body = document.getElementById('trackResultBody');
     body.innerHTML = '';
@@ -789,6 +829,7 @@ function renderTrackResult(orders) {
             + '</div>'
             + '<span style="background:#FACC15;color:#000;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;">' + o.status + '</span>'
             + '</div>'
+            + trackTimelineHtml(o)
             + '<div style="padding:14px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;border-bottom:1px solid #f1f1f1;">'
             + '<div style="display:flex;gap:8px;align-items:flex-start;">'
             + '<div style="width:34px;height:34px;background:var(--ds-primary);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;"><i class="fa-solid fa-user"></i></div>'
