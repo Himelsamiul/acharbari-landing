@@ -13,30 +13,39 @@ class OrderController extends Controller
         $status = $request->query('status');
         $q = trim((string) $request->query('q', ''));
 
-        // month filter: YYYY-MM — khali hole SOB somoy
-        $month = (string) $request->query('month', '');
-        if (! preg_match('/^\d{4}-\d{2}$/', $month)) {
-            $month = '';
-        }
+        // date range filter: from/to (YYYY-MM-DD) — khali hole soB somoy
+        $from = (string) $request->query('from', '');
+        $to = (string) $request->query('to', '');
+        $from = preg_match('/^\d{4}-\d{2}-\d{2}$/', $from) ? $from : '';
+        $to = preg_match('/^\d{4}-\d{2}-\d{2}$/', $to) ? $to : '';
 
-        $applyMonth = fn ($query) => $month !== ''
-            ? $query->whereBetween('created_at', [$month . '-01 00:00:00', \Illuminate\Support\Carbon::parse($month . '-01')->endOfMonth()->endOfDay()])
-            : $query;
+        $applyRange = function ($query) use ($from, $to) {
+            if ($from !== '') {
+                $query->where('created_at', '>=', $from . ' 00:00:00');
+            }
+            if ($to !== '') {
+                $query->where('created_at', '<=', $to . ' 23:59:59');
+            }
+
+            return $query;
+        };
+
+        $searchFilter = fn ($query) => $q === '' ? $query : $query->where(function ($sub) use ($q) {
+            $sub->where('phone', 'like', "%{$q}%")
+                ->orWhere('customer_name', 'like', "%{$q}%")
+                ->orWhere('order_code', 'like', "%{$q}%");
+        });
 
         $orders = Order::when($status && in_array($status, Order::statuses()),
                 fn ($query) => $query->where('status', $status))
-            ->when($q !== '', fn ($query) => $query->where(function ($sub) use ($q) {
-                $sub->where('phone', 'like', "%{$q}%")
-                    ->orWhere('customer_name', 'like', "%{$q}%")
-                    ->orWhere('order_code', 'like', "%{$q}%");
-            }))
-            ->when($month !== '', $applyMonth)
+            ->when($q !== '', $searchFilter)
+            ->when($from !== '' || $to !== '', $applyRange)
             ->latest()
             ->paginate(15)
             ->withQueryString();
 
-        // monthly summary: ei month e koto sell + koyta order
-        $summaryQuery = Order::when($month !== '', $applyMonth);
+        // summary: ei range er biki + order songkha
+        $summaryQuery = Order::when($from !== '' || $to !== '', $applyRange);
         $summary = [
             'total' => (clone $summaryQuery)->where('status', '!=', 'cancelled')->sum('total'),
             'count' => (clone $summaryQuery)->count(),
@@ -44,12 +53,14 @@ class OrderController extends Controller
             'cancelled' => (clone $summaryQuery)->where('status', 'cancelled')->count(),
         ];
 
+        // status tab er count gulo o range+search er moddhei gonona hoy
+        $countsBase = Order::when($q !== '', $searchFilter)->when($from !== '' || $to !== '', $applyRange);
         $counts = [];
         foreach (Order::statuses() as $s) {
-            $counts[$s] = Order::where('status', $s)->count();
+            $counts[$s] = (clone $countsBase)->where('status', $s)->count();
         }
 
-        return view('admin.orders.index', compact('orders', 'status', 'counts', 'month', 'summary', 'q'));
+        return view('admin.orders.index', compact('orders', 'status', 'counts', 'summary', 'q', 'from', 'to'));
     }
 
     public function show(Order $order)
