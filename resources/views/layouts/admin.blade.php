@@ -43,6 +43,7 @@
             padding: 4px 8px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, .12);
             margin-bottom: 16px;
+            color: #fff; {{-- link holeo sidebar-er সাদা রঙ-i thakbe — browser er nile link color asbe na --}}
         }
         .side-brand .logo-box {
             width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
