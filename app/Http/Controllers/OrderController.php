@@ -310,9 +310,14 @@ class OrderController extends Controller
 
         $order = null;
         if ($code !== '' && $phone !== '') {
+            // invoice prefix (AB-) chara shudhu tail dileo match korbe
             $order = Order::with('items')
-                ->where('order_code', $code)
                 ->where('phone', $phone)
+                ->where(function ($q) use ($code) {
+                    $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $code);
+                    $q->where('order_code', $code)
+                        ->orWhere('order_code', 'like', '%' . $escaped);
+                })
                 ->first();
         }
 
@@ -331,7 +336,13 @@ class OrderController extends Controller
 
         $query = Order::with('items')->latest('id');
         if ($code !== '') {
-            $query->where('order_code', $code);
+            // puro code (AB-XXXX) o chole, prefix chara shudhu tail-o chole —
+            // customer onek somoy "AB-" na likhe shudhu number ta dey
+            $query->where(function ($q) use ($code) {
+                $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $code);
+                $q->where('order_code', $code)
+                    ->orWhere('order_code', 'like', '%' . $escaped);
+            });
             if ($phone !== '') {
                 $query->where('phone', $phone);
             }

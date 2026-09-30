@@ -103,7 +103,7 @@
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                                 <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>
                             </span>
-                            <input id="trackInvoice" type="text" placeholder="যেমন: 54321" data-en-ph="e.g. 54321"
+                            <input id="trackInvoice" type="text" placeholder="যেমন: 6ABD8E40BFBF" data-en-ph="e.g. 6ABD8E40BFBF"
                                 class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-green-400">
                         </div>
                     </div>

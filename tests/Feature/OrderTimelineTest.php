@@ -101,4 +101,16 @@ class OrderTimelineTest extends TestCase
             ->assertOk()
             ->assertSee('অর্ডার স্ট্যাটাস টাইমলাইন');
     }
+
+    public function test_invoice_tracking_works_without_ab_prefix(): void
+    {
+        // customer "AB-" prefix na likheo khujte pare — tail match korte hobe
+        $order = $this->makeOrder();
+        $tail = substr($order->order_code, 3);
+
+        $this->get('/order/track-json?invoice_id=' . $tail)
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonStructure(['orders' => [['timeline']]]);
+    }
 }
