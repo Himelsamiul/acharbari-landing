@@ -30,8 +30,15 @@
             @foreach ($info as $label => $value)
                 <div style="background:rgba(5,150,105,.05);border:1px solid rgba(5,150,105,.14);border-radius:10px;padding:9px 12px">
                     <div style="font-size:10.5px;font-indent:0;font-weight:800;color:#8b7355;text-transform:uppercase;letter-spacing:.5px">{{ $label }}</div>
-                    <div style="font-size:13px;font-weight:800;color:#1f2937;margin-top:2px;
-                        {{ $value === 'FAIL' || str_starts_with((string) $value, 'MISSING') ? 'color:#dc2626' : ($value === 'OK' || $value === 'ON' ? 'color:#059669' : '') }}">{{ $value }}</div>
+                    @if ($label === 'Environment')
+                        {{-- live er .env e APP_ENV=production thaka uchit — local dekhale misconfig bujhay --}}
+                        <div style="font-size:13px;font-weight:800;margin-top:2px;color:{{ $value === 'production' ? '#059669' : '#b45309' }}">
+                            {{ $value }}{{ $value === 'production' ? ' (LIVE ✓)' : ' ⚠ .env এ APP_ENV=production করুন' }}
+                        </div>
+                    @else
+                        <div style="font-size:13px;font-weight:800;color:#1f2937;margin-top:2px;
+                            {{ $value === 'FAIL' || str_starts_with((string) $value, 'MISSING') ? 'color:#dc2626' : ($value === 'OK' || $value === 'ON' ? 'color:#059669' : '') }}">{{ $value }}</div>
+                    @endif
                 </div>
             @endforeach
         </div>
