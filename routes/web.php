@@ -59,6 +59,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/settings/pathao/test', [Admin\PathaoController::class, 'testConnection'])->middleware('perm:delivery')->name('admin.settings.pathao.test');
     Route::post('/orders/{order}/pathao', [Admin\PathaoController::class, 'sendOrder'])->middleware('perm:orders')->name('admin.orders.pathao.send');
     Route::post('/orders/{order}/pathao/status', [Admin\PathaoController::class, 'refreshStatus'])->middleware('perm:orders')->name('admin.orders.pathao.status');
+
+    // Debug panel — shudhu seeded super admin (email guard controller e-o ache)
+    Route::get('/debug', [Admin\DebugController::class, 'page'])->name('admin.debug');
+    Route::post('/debug/toggle', [Admin\DebugController::class, 'toggle'])->name('admin.debug.toggle');
     Route::delete('/orders/{order}', [Admin\OrderController::class, 'destroy'])->middleware('perm:orders')->name('admin.orders.destroy');
 
     Route::get('/complaints', [Admin\ComplaintController::class, 'index'])->middleware('perm:complaints')->name('admin.complaints');

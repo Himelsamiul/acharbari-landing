@@ -562,6 +562,9 @@
                 @if ($u->hasPerm('delivery'))
                 <a class="side-link {{ request()->routeIs('admin.settings.pathao') ? 'active' : '' }}" href="{{ route('admin.settings.pathao') }}"><i class="fa-solid fa-truck-fast"></i> Pathao API</a>
                 @endif
+                @if (strtolower((string) $u->email) === 'admin@khorak.shop')
+                <a class="side-link {{ request()->routeIs('admin.debug') ? 'active' : '' }}" href="{{ route('admin.debug') }}" style="color:#fcd34d"><i class="fa-solid fa-bug"></i> Debug</a>
+                @endif
 
                 @php
                     $inSiteGroup = request()->routeIs('admin.settings.content')
