@@ -3,14 +3,16 @@
 <head>
     <meta charset="utf-8">
     <title>Customer Report</title>
-    @font-face {
-        font-family: 'NotoBengali';
-        src: url({{ public_path('assets/fonts/NotoSansBengali.ttf') }}) format('truetype');
-        font-weight: normal;
-        font-style: normal;
-    }
     <style>
-        body { font-family: 'NotoBengali', Helvetica, Arial, sans-serif; color: #1f2937; font-size: 11px; margin: 0; }
+        {{-- @font-face must stay INSIDE the style tag — bairer thakle font load hoy na,
+             ar Bangla lekha (brand/customer/product name) PDF e bhanga dekhay --}}
+        @font-face {
+            font-family: 'NotoBengali';
+            src: url({{ public_path('assets/fonts/NotoSansBengali.ttf') }}) format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body { font-family: 'NotoBengali', 'hind_siliguri', Helvetica, Arial, sans-serif; color: #1f2937; font-size: 11px; margin: 0; }
         h1 { font-size: 18px; margin: 0 0 2px; color: #065f46; }
         .meta { font-size: 10px; color: #6b7280; margin: 0 0 12px; }
         table { width: 100%; border-collapse: collapse; }
