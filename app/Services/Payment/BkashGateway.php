@@ -59,23 +59,48 @@ class BkashGateway
         ];
     }
 
+    /** JSON POST with auth — network exception hole null (checkout 500 na hoy). */
+    private static function post(string $path, string $token, array $body): ?\Illuminate\Http\Client\Response
+    {
+        try {
+            return Http::asJson()
+                ->withHeaders(self::headers() + ['Authorization' => $token])
+                ->timeout(30)
+                ->post(self::baseUrl() . '/' . $path, $body);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return null;
+        }
+    }
+
     /** Grant token (cached ~55 min; bKash tokens live 1 hour). */
     public static function grantToken(): ?string
     {
-        $cacheKey = 'bkash_id_token_' . Setting::get('bkash_mode', 'sandbox');
+        // credentials er hash cache key te — key/secret bodlale purano token ar chole na
+        $cacheKey = 'bkash_id_token_' . Setting::get('bkash_mode', 'sandbox') . '_' . substr(md5(
+            Setting::get('bkash_app_key', '') . '|' . Setting::get('bkash_app_secret', '') . '|' .
+            Setting::get('bkash_username', '') . '|' . Setting::get('bkash_password', '')
+        ), 0, 10);
 
         $cached = Cache::get($cacheKey);
         if (is_string($cached) && $cached !== '') {
             return $cached;
         }
 
-        $response = Http::asJson()
-            ->withHeaders(self::headers())
-            ->timeout(30)
-            ->post(self::baseUrl() . '/tokenized/checkout/token/grant', [
-                'app_key' => trim((string) Setting::get('bkash_app_key', '')),
-                'app_secret' => trim((string) Setting::get('bkash_app_secret', '')),
-            ]);
+        try {
+            $response = Http::asJson()
+                ->withHeaders(self::headers())
+                ->timeout(30)
+                ->post(self::baseUrl() . '/tokenized/checkout/token/grant', [
+                    'app_key' => trim((string) Setting::get('bkash_app_key', '')),
+                    'app_secret' => trim((string) Setting::get('bkash_app_secret', '')),
+                ]);
+        } catch (\Throwable $e) {
+            report($e); // network down / DNS fail — checkout 500 na hoye graceful fail koruk
+
+            return null;
+        }
 
         $data = $response->json() ?? [];
 
@@ -98,18 +123,19 @@ class BkashGateway
             return null;
         }
 
-        $response = Http::asJson()
-            ->withHeaders(self::headers() + ['Authorization' => $token])
-            ->timeout(30)
-            ->post(self::baseUrl() . '/tokenized/checkout/create', [
-                'mode' => '0011',
-                'payerReference' => $order->phone,
-                'callbackURL' => $callbackUrl,
-                'amount' => number_format($order->total, 2, '.', ''),
-                'currency' => 'BDT',
-                'intent' => 'sale',
-                'merchantInvoiceNumber' => $order->order_code,
-            ]);
+        $response = self::post('tokenized/checkout/create', $token, [
+            'mode' => '0011',
+            'payerReference' => $order->phone,
+            'callbackURL' => $callbackUrl,
+            'amount' => number_format($order->total, 2, '.', ''),
+            'currency' => 'BDT',
+            'intent' => 'sale',
+            'merchantInvoiceNumber' => $order->order_code,
+        ]);
+
+        if ($response === null) {
+            return null;
+        }
 
         $data = $response->json() ?? [];
 
@@ -130,12 +156,13 @@ class BkashGateway
             return null;
         }
 
-        $response = Http::asJson()
-            ->withHeaders(self::headers() + ['Authorization' => $token])
-            ->timeout(30)
-            ->post(self::baseUrl() . '/tokenized/checkout/execute', [
-                'paymentID' => $paymentID,
-            ]);
+        $response = self::post('tokenized/checkout/execute', $token, [
+            'paymentID' => $paymentID,
+        ]);
+
+        if ($response === null) {
+            return null;
+        }
 
         $data = $response->json() ?? [];
 
@@ -157,13 +184,10 @@ class BkashGateway
             return null;
         }
 
-        $response = Http::asJson()
-            ->withHeaders(self::headers() + ['Authorization' => $token])
-            ->timeout(30)
-            ->post(self::baseUrl() . '/tokenized/checkout/payment/status', [
-                'paymentID' => $paymentID,
-            ]);
+        $response = self::post('tokenized/checkout/payment/status', $token, [
+            'paymentID' => $paymentID,
+        ]);
 
-        return $response->successful() ? ($response->json() ?? null) : null;
+        return ($response !== null && $response->successful()) ? ($response->json() ?? null) : null;
     }
 }

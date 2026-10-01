@@ -45,7 +45,10 @@ class PaymentController extends Controller
         }
 
         Log::warning('bKash callback not completed', ['order' => $code, 'status' => $status, 'paymentID' => $paymentID]);
-        $order->update(['payment_status' => 'failed']);
+        // already paid hole kokhono failed e namanbe — customer double-hit korleo othbe na
+        if ($order->payment_status !== 'paid') {
+            $order->update(['payment_status' => 'failed']);
+        }
 
         return redirect()->route('order.success', $order->order_code)->with('payment_failed', true);
     }
@@ -70,7 +73,10 @@ class PaymentController extends Controller
         }
 
         Log::warning('Nagad callback not completed', ['order' => $code, 'status' => $status, 'refId' => $refId]);
-        $order->update(['payment_status' => 'failed']);
+        // already paid hole kokhono failed e namanbe
+        if ($order->payment_status !== 'paid') {
+            $order->update(['payment_status' => 'failed']);
+        }
 
         return redirect()->route('order.success', $order->order_code)->with('payment_failed', true);
     }

@@ -135,15 +135,21 @@ class NagadGateway
             return null;
         }
 
-        $response = Http::asJson()->timeout(30)->post(self::baseUrl() . '/api/dfs/check-out/initialize', [
-            'accountMode' => '0011',
-            'merchantId' => $merchantId,
-            'datetime' => $dateTime,
-            'orderId' => $orderId,
-            'sensitiveData' => $sensitiveData,
-            'signature' => $signature,
-            'callbackURL' => $callbackUrl,
-        ]);
+        try {
+            $response = Http::asJson()->timeout(30)->post(self::baseUrl() . '/api/dfs/check-out/initialize', [
+                'accountMode' => '0011',
+                'merchantId' => $merchantId,
+                'datetime' => $dateTime,
+                'orderId' => $orderId,
+                'sensitiveData' => $sensitiveData,
+                'signature' => $signature,
+                'callbackURL' => $callbackUrl,
+            ]);
+        } catch (\Throwable $e) {
+            report($e); // network down — checkout 500 na hoye graceful fail koruk
+
+            return null;
+        }
 
         $data = $response->json() ?? [];
 
@@ -181,11 +187,17 @@ class NagadGateway
             return null;
         }
 
-        $response = Http::asJson()->timeout(30)->post(self::baseUrl() . '/api/dfs/check-out/complete', [
-            'merchantId' => $merchantId,
-            'paymentRefId' => $paymentRefId,
-            'signature' => $signature,
-        ]);
+        try {
+            $response = Http::asJson()->timeout(30)->post(self::baseUrl() . '/api/dfs/check-out/complete', [
+                'merchantId' => $merchantId,
+                'paymentRefId' => $paymentRefId,
+                'signature' => $signature,
+            ]);
+        } catch (\Throwable $e) {
+            report($e); // network down hole callback 500 na hoye retry-able pending thakuk
+
+            return null;
+        }
 
         $data = $response->json() ?? [];
         $decrypted = isset($data['sensitiveData']) ? self::decrypt($data['sensitiveData']) : $data;
