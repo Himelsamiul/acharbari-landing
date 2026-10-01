@@ -151,6 +151,13 @@ class ProductController extends Controller
         }
 
         $product->delete();
+
+        // uploaded image file-o muchhe felo — disk bhore thake na (genre placeholder gulo public/assets e, segulo thakuk)
+        $img = trim((string) $product->image);
+        if ($img !== '' && str_starts_with($img, 'storage/')) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete(str_replace('storage/', '', $img));
+        }
+
         return redirect()->route('admin.products.index')->with('success', 'প্রোডাক্ট মুছে ফেলা হয়েছে।');
     }
 
@@ -296,6 +303,10 @@ class ProductController extends Controller
     private function handleUpload(Request $request, array $data, string $industry, ?Product $product = null): array
     {
         if ($request->hasFile('image')) {
+            // notun image upload hole purano uploaded file muchhe felo — disk leak bondho
+            if ($product && str_starts_with(trim((string) $product->image), 'storage/')) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete(str_replace('storage/', '', $product->image));
+            }
             $path = $request->file('image')->store('products', 'public');
             $data['image'] = 'storage/' . $path;
         } elseif (!isset($data['image']) || trim((string) $data['image']) === '') {
@@ -315,7 +326,13 @@ class ProductController extends Controller
 
     private function nextBarcode(): string
     {
-        $last = Product::max('id');
-        return 'ABP-' . str_pad((string) ($last + 1), 4, '0', STR_PAD_LEFT);
+        // admin nije kono ABP-0050 barcode bosiye rakhte pare — colliding candidate
+        // ekdom unique na howa porjonto agabe, nahole product create 500 hoto
+        $last = (int) Product::max('id');
+        do {
+            $candidate = 'ABP-' . str_pad((string) (++$last), 4, '0', STR_PAD_LEFT);
+        } while (Product::where('barcode', $candidate)->exists());
+
+        return $candidate;
     }
 }
