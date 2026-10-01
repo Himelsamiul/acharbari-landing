@@ -29,6 +29,16 @@
     @include('partials.theme-vars')
     @include('partials.pixels')
 
+    <script>
+        /* language boot — deferred brand.js er agei saved lang set hoy,
+           nahole load er somoy ek-ta text flash dekha jay (user-reported) */
+        try {
+            if ((localStorage.getItem('ab_lang') || 'bn') === 'en') {
+                document.documentElement.setAttribute('lang', 'en');
+            }
+        } catch (e) { }
+    </script>
+
     <style>
         html[lang="en"] [data-lang="bn"] { display: none; }
         html[lang="bn"] [data-lang="en"] { display: none; }
