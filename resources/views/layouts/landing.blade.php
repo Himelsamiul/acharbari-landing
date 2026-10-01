@@ -270,7 +270,7 @@
 
                             {{-- ভ্যারিয়েন্ট (সাইজ) সিলেক্টর — variant thakle modal e dekhabe --}}
                             <div id="qvVariantBox" class="hidden" style="margin-bottom:16px">
-                                <div style="font-size:12.5px;font-weight:800;color:#1f4234;margin-bottom:8px">সাইজ বাছুন:</div>
+                                <div style="font-size:12.5px;font-weight:800;color:#1f4234;margin-bottom:8px" data-en="Choose size:">সাইজ বাছুন:</div>
                                 <div id="qvVariantGrid" style="display:flex;flex-wrap:wrap;gap:8px"></div>
                             </div>
                         </div>

@@ -405,7 +405,7 @@
                                                         <b style="color:#e2136e;font-size:11px;text-transform:uppercase;letter-spacing:.5px">bKash — Send Money</b>
                                                         <div style="font-weight:800;font-size:15px;letter-spacing:.5px">{{ $manualNums['bkash'] }}</div>
                                                     </div>
-                                                    <button type="button" onclick="abCopyText('{{ $manualNums['bkash'] }}')" style="border:1.5px solid #e2136e;background:#fff;color:#e2136e;font-weight:800;font-size:11.5px;border-radius:999px;padding:5px 12px;cursor:pointer">কপি</button>
+                                                    <button type="button" onclick="abCopyText('{{ $manualNums['bkash'] }}')" style="border:1.5px solid #e2136e;background:#fff;color:#e2136e;font-weight:800;font-size:11.5px;border-radius:999px;padding:5px 12px;cursor:pointer" data-en="Copy">কপি</button>
                                                 </div>
                                                 @endif
                                                 @if ($manualNums['nagad'] !== '')
@@ -414,7 +414,7 @@
                                                         <b style="color:#d97706;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Nagad — Send Money</b>
                                                         <div style="font-weight:800;font-size:15px;letter-spacing:.5px">{{ $manualNums['nagad'] }}</div>
                                                     </div>
-                                                    <button type="button" onclick="abCopyText('{{ $manualNums['nagad'] }}')" style="border:1.5px solid #d97706;background:#fff;color:#d97706;font-weight:800;font-size:11.5px;border-radius:999px;padding:5px 12px;cursor:pointer">কপি</button>
+                                                    <button type="button" onclick="abCopyText('{{ $manualNums['nagad'] }}')" style="border:1.5px solid #d97706;background:#fff;color:#d97706;font-weight:800;font-size:11.5px;border-radius:999px;padding:5px 12px;cursor:pointer" data-en="Copy">কপি</button>
                                                 </div>
                                                 @endif
                                                 @if ($manualNote !== '')
