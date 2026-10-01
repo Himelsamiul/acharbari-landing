@@ -7,6 +7,13 @@
         $theme = $festive['theme'];
     }
 
+    // SHURAKKHA: sarthok theme na hole (bhanga JSON / key missing) default herbal
+    // theme-e ferot jan — nahole CSS variable gulo khali hoye PURO UI bhenge jay
+    $themeKeysNeeded = ['primary', 'hover', 'dark', 'xdark', 'accent', 'accentLight', 'lime', 'limeNeon', 'limeDeep', 'teal', 'tealLight'];
+    if (! is_array($theme) || array_diff($themeKeysNeeded, array_keys($theme))) {
+        $theme = \App\Http\Controllers\Admin\ThemeLibrary::get('herbal');
+    }
+
     // fonts picked in admin (body font stack falls back to Hind Siliguri for Bengali glyphs)
     $fontBody = \App\Http\Controllers\Admin\ThemeLibrary::font(\App\Models\Setting::get('font_body', 'jakarta'));
     $fontHeadingId = \App\Models\Setting::get('font_heading', '');

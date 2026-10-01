@@ -145,6 +145,14 @@ class SettingController extends Controller
             'theme_json' => 'required|json',
         ]);
 
+        // JSON valid hoteo pare theme NA — bhanga theme save hole puro site er
+        // color vars fanka jay. Required key na thakle reject kori.
+        $decoded = json_decode($data['theme_json'], true);
+        $needed = ['primary', 'hover', 'dark', 'xdark', 'accent', 'accentLight', 'lime', 'limeNeon', 'limeDeep', 'teal', 'tealLight'];
+        if (! is_array($decoded) || array_diff($needed, array_keys($decoded))) {
+            return back()->with('error', 'থিমের ফরম্যাট ভাঙা — সেভ হয়নি (সব color key লাগবে)।');
+        }
+
         \App\Http\Controllers\Admin\ThemeLibrary::pushHistory();
 
         Setting::setMany([
@@ -557,13 +565,24 @@ class SettingController extends Controller
             $pairs[$key . '_en'] = trim((string) ($data[$key . '_en'] ?? ''));
         }
 
-        // repeater groups — empty/invalid JSON clears the override so blade defaults return
+        // repeater groups — khali string dile default ferot ashe; kintu BHANGA JSON
+        // dile silent-wipe na kore error dekhano (admin-er lekha harano bondho)
         foreach (['marquee' => 'marquee_items', 'faq' => 'faq_items', 'reviews' => 'reviews_items', 'rating' => 'rating_items'] as $field => $setting) {
             if (! array_key_exists($field . '_json', $data)) {
                 continue; // onno tab er repeater untouched thakbe
             }
-            $rows = json_decode((string) ($data[$field . '_json'] ?? ''), true);
-            $pairs[$setting] = (is_array($rows) && count($rows))
+            $raw = (string) ($data[$field . '_json'] ?? '');
+            if (trim($raw) === '') {
+                $pairs[$setting] = '';
+                continue;
+            }
+            $rows = json_decode($raw, true);
+            if (! is_array($rows)) {
+                return back()->withInput()->withErrors([
+                    'repeater' => ucfirst($field) . ' এর ডেটার ফরম্যাট ভাঙা — কিছুই সেভ হয়নি, আগের লেখা অক্ষত আছে। JSON ঠিক করে আবার সেভ করুন।',
+                ]);
+            }
+            $pairs[$setting] = count($rows)
                 ? json_encode($rows, JSON_UNESCAPED_UNICODE)
                 : '';
         }
@@ -591,8 +610,18 @@ class SettingController extends Controller
         // hero images follow the logo upload pattern (removal restores the bundled default)
         foreach (['hero_img1', 'hero_img2', 'hero_img3', 'hero_img4'] as $img) {
             if ($request->boolean($img . '_remove')) {
+                // purano uploaded file-o muchhe jay — disk bhore thake na
+                $old = trim((string) Setting::get($img, ''));
+                if ($old !== '' && str_starts_with($old, 'storage/')) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete(str_replace('storage/', '', $old));
+                }
                 $pairs[$img] = '';
             } elseif ($request->hasFile($img)) {
+                // replace korle purano file muchhe felo (products er motoi disk-leak chhilo)
+                $old = trim((string) Setting::get($img, ''));
+                if ($old !== '' && str_starts_with($old, 'storage/')) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete(str_replace('storage/', '', $old));
+                }
                 $path = $request->file($img)->store('content', 'public');
                 $pairs[$img] = 'storage/' . $path;
             }
