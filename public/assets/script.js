@@ -2004,9 +2004,21 @@ document.addEventListener('keydown', function (e) {
     // keep cart labels in sync when the language is switched
     document.addEventListener('ab:lang', function () { render(); });
 
+    /* cart qty er uppor cap — stock kom hole server nijei komiye fele, tai
+       client-eo same cap: dekhano total = bill hobe */
+    function qtyCap(key) {
+        var k = parseKey(key);
+        var p = prodData(k.pid);
+        if (!p) return 10;
+        var v = variantOf(p, k.vid);
+        var s = (v && v.stock != null) ? v.stock : (p.stock != null ? p.stock : null);
+        if (s == null || isNaN(s) || s <= 0) return 10;
+        return Math.max(1, Math.min(10, parseInt(s, 10)));
+    }
+
     window.landingCartQty = function (key, delta) {
         if (!cart[key]) return;
-        cart[key].qty = Math.max(1, Math.min(10, cart[key].qty + delta));
+        cart[key].qty = Math.max(1, Math.min(qtyCap(key), cart[key].qty + delta));
         render();
     };
 
@@ -2024,8 +2036,8 @@ document.addEventListener('keydown', function (e) {
         // variant thakle default (prothom active) variant e add hoy
         var p = prodData(productId);
         var key = (p && p.variants && p.variants.length) ? makeKey(productId, p.variants[0].id) : String(productId);
-        // already in the cart → bump the quantity instead of doing nothing
-        if (cart[key] && cart[key].qty < 10) {
+        // already in the cart → bump the quantity instead of doing nothing (stock cap soho)
+        if (cart[key] && cart[key].qty < qtyCap(key)) {
             cart[key].qty++;
             render();
         } else {
@@ -2038,7 +2050,7 @@ document.addEventListener('keydown', function (e) {
         pid = parseInt(pid, 10);
         vid = vid ? parseInt(vid, 10) : null;
         var key = makeKey(pid, vid);
-        if (cart[key] && cart[key].qty < 10) {
+        if (cart[key] && cart[key].qty < qtyCap(key)) {
             cart[key].qty++;
             render();
         } else {

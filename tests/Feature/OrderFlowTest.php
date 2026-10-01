@@ -154,4 +154,27 @@ class OrderFlowTest extends TestCase
             ->assertOk()
             ->assertDontSee($order->customer_name);
     }
+
+    public function test_order_totals_use_variant_price_and_vat(): void
+    {
+        $p = $this->makeProduct(['price' => 400, 'vat_percent' => 5, 'stock' => 10]);
+        $p->variants()->create([
+            'size' => '৫০০ গ্রাম', 'price' => 450, 'old_price' => 500,
+            'vat_percent' => 10, 'stock' => 5, 'is_active' => true,
+        ]);
+        $variant = $p->variants->first();
+
+        $this->post(route('order.store'), $this->validPayload($p, [
+            'items' => json_encode([['id' => $p->id, 'variant_id' => $variant->id, 'qty' => 2]]),
+        ]))->assertRedirect();
+
+        $order = Order::latest('id')->first();
+        $this->assertEquals(900, $order->subtotal);   // variant price 450 × 2 — product er 400 na
+        $item = $order->items->first();
+        $this->assertEquals(450, $item->price);
+        $this->assertNotNull($item->variant_id);
+        $this->assertEquals(90, $order->vat_total);   // variant er 10% VAT
+        $this->assertEquals(80, $order->shipping_cost);
+        $this->assertEquals(1070, $order->total);     // 900 + 90 + 80
+    }
 }
