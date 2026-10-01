@@ -245,6 +245,10 @@
     </div>
 
     <style>
+        /* hidden attribute SOB somoy kaj koruk — nahole .confirm-bar er display:flex
+           override kore bar-ta sompurno hidden thakar kotha, sarada dekha jay */
+        [hidden] { display: none !important; }
+
         .festive-banner { background: linear-gradient(135deg, rgba(124, 58, 237, .12), rgba(219, 39, 119, .1)); }
 
         /* section jump chips */
