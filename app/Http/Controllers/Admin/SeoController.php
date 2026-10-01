@@ -83,6 +83,7 @@ class SeoController extends Controller
     {
         $request->validate(['robots_txt' => 'required|string|max:3000']);
         Setting::set('robots_txt', $request->robots_txt);
+        self::syncRobotsFile();
 
         return back()->with('success', 'robots.txt সেভ হয়েছে — ' . url('/robots.txt') . ' এ লাইভ।');
     }
@@ -97,5 +98,23 @@ class SeoController extends Controller
         $base = rtrim(config('app.url') ?: url('/'), '/');
 
         return "User-agent: *\nAllow: /\nDisallow: /admin\n\nSitemap: {$base}/sitemap.xml";
+    }
+
+    /**
+     * robots.txt er content ta physical public/robots.txt file-eo lekhi —
+     * karon kono jaygay static file thakle sheita route ke hashiye fele,
+     * ar FTP deploy kokhono server theke file delete kore na.
+     */
+    public static function syncRobotsFile(): void
+    {
+        try {
+            $content = (string) Setting::get('robots_txt', '');
+            if (trim($content) === '') {
+                $content = self::defaultRobots();
+            }
+            file_put_contents(public_path('robots.txt'), $content);
+        } catch (\Throwable $e) {
+            report($e); // unwritable public/ hole route-i serve korbe
+        }
     }
 }
