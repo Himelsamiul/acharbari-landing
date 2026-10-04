@@ -3,53 +3,32 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Super\SuperAdminController;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+/**
+ * Legacy admin-management endpoints (/admin/admin-management).
+ * The real panel now lives at /super/admins — these routes stay registered
+ * (URIs + names unchanged) but are super-admin-only and forward there.
+ */
 class AdminManagerController extends Controller
 {
-    /** List all admin logins. */
+    /** List page → the Super Admin panel. */
     public function index()
     {
-        $admins = User::orderBy('name')->get();
-
-        return view('admin.admins', [
-            'admins' => $admins,
-            'currentId' => auth()->id(),
-        ]);
+        return redirect()->route('super.admins.index');
     }
 
-    /** Create a new admin login. */
+    /** Delegate creation to the Super Admin panel logic. */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:60',
-            'email' => 'required|email|max:120|unique:users,email',
-            'password' => 'required|string|min:6|max:100',
-        ]);
-
-        User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => $data['password'], // hashed automatically by the model cast
-        ]);
-
-        return back()->with('success', 'অ্যাডমিন "' . $data['name'] . '" তৈরি হয়েছে — এখন এই ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করতে পারবে।');
+        return app(SuperAdminController::class)->store($request);
     }
 
-    /** Remove an admin login (never your own, never the last one). */
+    /** Delegate deletion (guards included) to the Super Admin panel logic. */
     public function destroy(User $user)
     {
-        if ($user->id === auth()->id()) {
-            return back()->withErrors(['admin' => 'আপনি নিজের অ্যাকাউন্ট মুছতে পারবেন না।']);
-        }
-
-        if (User::count() <= 1) {
-            return back()->withErrors(['admin' => 'শেষ অ্যাডমিন মুছে ফেলা যাবে না।']);
-        }
-
-        $user->delete();
-
-        return back()->with('success', 'অ্যাডমিন "' . $user->name . '" মুছে ফেলা হয়েছে।');
+        return app(SuperAdminController::class)->destroy($user);
     }
 }

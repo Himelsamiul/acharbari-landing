@@ -10,16 +10,20 @@
         <span>Pixel/ID দিয়ে <b>চালু</b> করলে ল্যান্ডিং পেজে স্বয়ংক্রিয়ভাবে ট্র্যাকিং স্ক্রিপ্ট যুক্ত হয়ে যাবে।</span>
     </div>
 
+    @php $anyPixel = collect(array_keys($trackers))->contains(fn ($key) => auth()->user()->hasPermission('tracking.' . $key)); @endphp
+
+    @if (! $anyPixel)
+        <div class="note-banner">
+            <i class="fa-solid fa-eye"></i>
+            <span>আপনার ট্র্যাকিং পিক্সেল <b>দেখার</b> অনুমতি আছে — কোনো পিক্সেল বদলানোর অনুমতি এখনো দেওয়া হয়নি।</span>
+        </div>
+    @endif
+
     <div class="track-grid">
-        @php
-            $trackers = [
-                'fb' => ['Facebook Pixel', 'fa-brands fa-facebook', '#1877F2', 'Pixel ID — যেমন 123456789012345'],
-                'ga' => ['Google Analytics 4', 'fa-solid fa-chart-line', '#F9AB00', 'Measurement ID — G-XXXXXXXXXX'],
-                'gtm' => ['Google Tag Manager', 'fa-solid fa-tags', '#246FDB', 'Container ID — GTM-XXXXXXX'],
-                'tiktok' => ['TikTok Pixel', 'fa-brands fa-tiktok', '#000000', 'Pixel Code ID'],
-            ];
-        @endphp
+        {{-- one grantable feature per pixel (tracking.<key>) — cards for
+             non-granted pixels stay hidden so there are no dead forms --}}
         @foreach ($trackers as $key => $t)
+            @continue(!auth()->user()->hasPermission('tracking.' . $key))
             <div class="track-card" style="--tc: {{ $t[2] }}">
                 <div class="track-head">
                     <span class="track-ic"><i class="{{ $t[1] }}"></i></span>

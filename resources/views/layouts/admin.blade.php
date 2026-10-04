@@ -486,91 +486,130 @@
             </div>
 
             @php
+                $u = auth()->user();
+                $isSuper = $u->isSuperAdmin();
+                $canModule = fn (string $m) => $u->hasAnyModulePermission($m);
                 $sideIndustryKey = ab_industry_active();
                 $sideIndustryName = \App\Http\Controllers\Admin\IndustryPack::all()[$sideIndustryKey]['name_bn'] ?? $sideIndustryKey;
             @endphp
-            <a class="side-industry" href="{{ route('admin.settings.theme') }}" title="ইন্ডাস্ট্রি প্রিসেট বদলাতে ক্লিক করুন">
-                <i class="fa-solid fa-industry"></i>
-                <span><small>চালু ইন্ডাস্ট্রি</small><b>{{ $sideIndustryName }}</b></span>
-            </a>
+
+            @if ($isSuper || $u->hasPermission('theme.industry_preset'))
+                <a class="side-industry" href="{{ route('admin.settings.theme') }}" title="ইন্ডাস্ট্রি প্রিসেট বদলাতে ক্লিক করুন">
+                    <i class="fa-solid fa-industry"></i>
+                    <span><small>চালু ইন্ডাস্ট্রি</small><b>{{ $sideIndustryName }}</b></span>
+                </a>
+            @endif
 
             <nav class="side-nav">
                 <div class="side-group-label">সাধারণ</div>
                 <a class="side-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-gauge-high"></i> ড্যাশবোর্ড</a>
-                <a class="side-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}"><i class="fa-solid fa-boxes-stacked"></i> অর্ডারসমূহ
-                    @php $pendingOrders = \App\Models\Order::where('status', 'pending')->count(); @endphp
-                    @if ($pendingOrders > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $pendingOrders }} নতুন</span>@endif
-                </a>
-                <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন
-                    @php $openComplaints = \App\Models\Complaint::where('is_resolved', false)->count(); @endphp
-                    @if ($openComplaints > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $openComplaints }} নতুন</span>@endif
-                </a>
+                @if ($canModule('orders'))
+                    <a class="side-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}"><i class="fa-solid fa-boxes-stacked"></i> অর্ডারসমূহ
+                        @php $pendingOrders = \App\Models\Order::where('status', 'pending')->count(); @endphp
+                        @if ($pendingOrders > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $pendingOrders }} নতুন</span>@endif
+                    </a>
+                @endif
+                @if ($canModule('complaints'))
+                    <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন
+                        @php $openComplaints = \App\Models\Complaint::where('is_resolved', false)->count(); @endphp
+                        @if ($openComplaints > 0)<span class="draft-tag" style="background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4)">{{ $openComplaints }} নতুন</span>@endif
+                    </a>
+                @endif
 
                 @php
-                    $inProductGroup = request()->routeIs('admin.products.*')
-                        || request()->routeIs('admin.suppliers*')
-                        || request()->routeIs('admin.customers*')
-                        || request()->routeIs('admin.taxonomy')
-                        || request()->routeIs('admin.coupons*')
-                        || request()->routeIs('admin.settings.delivery');
+                    $productGroupItems = [
+                        'products' => ['link' => 'admin.products.index', 'label' => 'সব প্রোডাক্ট', 'active' => request()->routeIs('admin.products.*')],
+                        'suppliers' => ['link' => 'admin.suppliers', 'label' => 'সাপ্লায়ার', 'active' => request()->routeIs('admin.suppliers*')],
+                        'customers' => ['link' => 'admin.customers', 'label' => 'গ্রাহক', 'active' => request()->routeIs('admin.customers*')],
+                        'taxonomy' => ['link' => 'admin.taxonomy', 'label' => 'ক্যাটাগরি ও ব্র্যান্ড', 'active' => request()->routeIs('admin.taxonomy')],
+                        'coupons' => ['link' => 'admin.coupons', 'label' => 'কুপন', 'active' => request()->routeIs('admin.coupons*')],
+                        'delivery' => ['link' => 'admin.settings.delivery', 'label' => 'ডেলিভারি এরিয়া', 'active' => request()->routeIs('admin.settings.delivery')],
+                    ];
+                    $productGroupVisible = collect($productGroupItems)->filter(fn ($item, $m) => $canModule($m))->isNotEmpty();
+                    $inProductGroup = $productGroupItems && collect($productGroupItems)->contains(fn ($item) => $item['active']);
                 @endphp
-                <button type="button" class="side-link side-toggle {{ $inProductGroup ? 'active' : '' }}"
-                    onclick="toggleProductSub()">
-                    <i class="fa-solid fa-jar"></i> প্রোডাক্ট
-                    <i class="fa-solid fa-chevron-down side-chevron {{ $inProductGroup ? 'open' : '' }}"></i>
-                </button>
-                <div class="side-sub {{ $inProductGroup ? 'open' : '' }}" id="productSub">
-                    <a class="side-sub-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">সব প্রোডাক্ট</a>
-                    <a class="side-sub-link {{ request()->routeIs('admin.suppliers*') ? 'active' : '' }}" href="{{ route('admin.suppliers') }}">সাপ্লায়ার</a>
-                    <a class="side-sub-link {{ request()->routeIs('admin.customers*') ? 'active' : '' }}" href="{{ route('admin.customers') }}">গ্রাহক</a>
-                    <a class="side-sub-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}">ক্যাটাগরি ও ব্র্যান্ড</a>
-                    <a class="side-sub-link {{ request()->routeIs('admin.coupons*') ? 'active' : '' }}" href="{{ route('admin.coupons') }}">কুপন</a>
-                    <a class="side-sub-link {{ request()->routeIs('admin.settings.delivery') ? 'active' : '' }}" href="{{ route('admin.settings.delivery') }}">ডেলিভারি এরিয়া</a>
-                </div>
-                <a class="side-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}" href="{{ route('admin.reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ</a>
+                @if ($productGroupVisible)
+                    <button type="button" class="side-link side-toggle {{ $inProductGroup ? 'active' : '' }}"
+                        onclick="toggleProductSub()">
+                        <i class="fa-solid fa-jar"></i> প্রোডাক্ট
+                        <i class="fa-solid fa-chevron-down side-chevron {{ $inProductGroup ? 'open' : '' }}"></i>
+                    </button>
+                    <div class="side-sub {{ $inProductGroup ? 'open' : '' }}" id="productSub">
+                        @foreach ($productGroupItems as $module => $item)
+                            @if ($canModule($module))
+                                <a class="side-sub-link {{ $item['active'] ? 'active' : '' }}" href="{{ route($item['link']) }}">{{ $item['label'] }}</a>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
 
-                <a class="side-link {{ request()->routeIs('admin.settings.payment') ? 'active' : '' }}" href="{{ route('admin.settings.payment') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে</a>
-                <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
+                @if ($canModule('reviews'))
+                    <a class="side-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}" href="{{ route('admin.reviews') }}"><i class="fa-solid fa-star"></i> রিভিউ</a>
+                @endif
 
-                @php
-                    $inSiteGroup = request()->routeIs('admin.settings.content')
-                        || request()->routeIs('admin.settings.brand')
-                        || request()->routeIs('admin.settings.theme')
-                        || request()->routeIs('admin.settings.sections');
-                @endphp
-                <button type="button" class="side-link side-toggle {{ $inSiteGroup ? 'active' : '' }}"
-                    onclick="toggleSideSub('siteSub')">
-                    <i class="fa-solid fa-pen-to-square"></i> ল্যান্ডিং কনটেন্ট
-                    <i class="fa-solid fa-chevron-down side-chevron {{ $inSiteGroup ? 'open' : '' }}"></i>
-                </button>
-                <div class="side-sub {{ $inSiteGroup ? 'open' : '' }}" id="siteSub">
-                    <a class="side-sub-link {{ request()->routeIs('admin.settings.content') ? 'active' : '' }}" href="{{ route('admin.settings.content') }}">ল্যান্ডিং কনটেন্ট</a>
-                    <a class="side-sub-link {{ request()->routeIs('admin.settings.sections') ? 'active' : '' }}" href="{{ route('admin.settings.sections') }}">সেকশন ডিজাইন</a>
-                    <a class="side-sub-link {{ request()->routeIs('admin.settings.brand') ? 'active' : '' }}" href="{{ route('admin.settings.brand') }}">লোগো ও ব্র্যান্ড</a>
-                    <a class="side-sub-link {{ request()->routeIs('admin.settings.theme') ? 'active' : '' }}" href="{{ route('admin.settings.theme') }}">থিম কালার</a>
-                </div>
+                @if ($canModule('payment'))
+                    <a class="side-link {{ request()->routeIs('admin.settings.payment') ? 'active' : '' }}" href="{{ route('admin.settings.payment') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট গেটওয়ে</a>
+                @endif
+
+                @if ($canModule('tracking'))
+                    <a class="side-link {{ request()->routeIs('admin.settings.tracking') ? 'active' : '' }}" href="{{ route('admin.settings.tracking') }}"><i class="fa-solid fa-bullhorn"></i> ট্র্যাকিং ও পিক্সেল</a>
+                @endif
 
                 @php
-                    $inSeoGroup = request()->routeIs('admin.seo')
-                        || request()->routeIs('admin.robots')
-                        || request()->routeIs('admin.redirects.*')
-                        || request()->routeIs('admin.sitemap');
+                    $siteGroupItems = [
+                        'content' => ['link' => 'admin.settings.content', 'label' => 'ল্যান্ডিং কনটেন্ট', 'active' => request()->routeIs('admin.settings.content')],
+                        'sections' => ['link' => 'admin.settings.sections', 'label' => 'সেকশন ডিজাইন', 'active' => request()->routeIs('admin.settings.sections')],
+                        'brand_settings' => ['link' => 'admin.settings.brand', 'label' => 'লোগো ও ব্র্যান্ড', 'active' => request()->routeIs('admin.settings.brand')],
+                        'theme' => ['link' => 'admin.settings.theme', 'label' => 'থিম কালার', 'active' => request()->routeIs('admin.settings.theme')],
+                    ];
+                    $siteGroupVisible = collect($siteGroupItems)->filter(fn ($item, $m) => $canModule($m))->isNotEmpty();
+                    $inSiteGroup = collect($siteGroupItems)->contains(fn ($item) => $item['active']);
                 @endphp
-                <button type="button" class="side-link side-toggle {{ $inSeoGroup ? 'active' : '' }}"
-                    onclick="toggleSideSub('seoSub')">
-                    <i class="fa-solid fa-magnifying-glass-chart"></i> SEO Settings
-                    <i class="fa-solid fa-chevron-down side-chevron {{ $inSeoGroup ? 'open' : '' }}"></i>
-                </button>
-                <div class="side-sub {{ $inSeoGroup ? 'open' : '' }}" id="seoSub">
-                    <a class="side-sub-link {{ request()->routeIs('admin.seo') ? 'active' : '' }}" href="{{ route('admin.seo') }}">SEO Settings</a>
-                    <a class="side-sub-link {{ request()->routeIs('admin.robots') ? 'active' : '' }}" href="{{ route('admin.robots') }}">robots.txt</a>
-                    <a class="side-sub-link {{ request()->routeIs('admin.redirects.*') ? 'active' : '' }}" href="{{ route('admin.redirects.index') }}">301 Redirects</a>
-                    <a class="side-sub-link {{ request()->routeIs('admin.sitemap') ? 'active' : '' }}" href="{{ route('admin.sitemap') }}">Sitemap</a>
-                </div>
+                @if ($siteGroupVisible)
+                    <button type="button" class="side-link side-toggle {{ $inSiteGroup ? 'active' : '' }}"
+                        onclick="toggleSideSub('siteSub')">
+                        <i class="fa-solid fa-pen-to-square"></i> ল্যান্ডিং কনটেন্ট
+                        <i class="fa-solid fa-chevron-down side-chevron {{ $inSiteGroup ? 'open' : '' }}"></i>
+                    </button>
+                    <div class="side-sub {{ $inSiteGroup ? 'open' : '' }}" id="siteSub">
+                        @foreach ($siteGroupItems as $module => $item)
+                            @if ($canModule($module))
+                                <a class="side-sub-link {{ $item['active'] ? 'active' : '' }}" href="{{ route($item['link']) }}">{{ $item['label'] }}</a>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
+
+                @php
+                    $seoGroupItems = [
+                        'seo' => ['link' => 'admin.seo', 'label' => 'SEO Settings', 'active' => request()->routeIs('admin.seo')],
+                        'robots' => ['link' => 'admin.robots', 'label' => 'robots.txt', 'active' => request()->routeIs('admin.robots')],
+                        'redirects' => ['link' => 'admin.redirects.index', 'label' => '301 Redirects', 'active' => request()->routeIs('admin.redirects.*')],
+                        'sitemap' => ['link' => 'admin.sitemap', 'label' => 'Sitemap', 'active' => request()->routeIs('admin.sitemap')],
+                    ];
+                    $seoGroupVisible = collect($seoGroupItems)->filter(fn ($item, $m) => $canModule($m))->isNotEmpty();
+                    $inSeoGroup = collect($seoGroupItems)->contains(fn ($item) => $item['active']);
+                @endphp
+                @if ($seoGroupVisible)
+                    <button type="button" class="side-link side-toggle {{ $inSeoGroup ? 'active' : '' }}"
+                        onclick="toggleSideSub('seoSub')">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i> SEO Settings
+                        <i class="fa-solid fa-chevron-down side-chevron {{ $inSeoGroup ? 'open' : '' }}"></i>
+                    </button>
+                    <div class="side-sub {{ $inSeoGroup ? 'open' : '' }}" id="seoSub">
+                        @foreach ($seoGroupItems as $module => $item)
+                            @if ($canModule($module))
+                                <a class="side-sub-link {{ $item['active'] ? 'active' : '' }}" href="{{ route($item['link']) }}">{{ $item['label'] }}</a>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
 
                 <div class="side-group-label">অ্যাকাউন্ট</div>
 
-                <a class="side-link {{ request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন ম্যানেজমেন্ট</a>
+                @if ($isSuper)
+                    <a class="side-link {{ request()->routeIs('super.*') || request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('super.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন ম্যানেজমেন্ট</a>
+                @endif
             </nav>
 
             <div class="side-foot">
@@ -612,7 +651,9 @@
                                 @endif
                             </div>
                             @forelse ($notifItems as $n)
-                                <a href="{{ $n->order ? route('admin.orders.show', $n->order) : route('admin.orders.index') }}"
+                                <a href="{{ $u->hasPermission('orders.view')
+                                    ? ($n->order ? route('admin.orders.show', $n->order) : route('admin.orders.index'))
+                                    : route('admin.dashboard') }}"
                                     class="notif-item {{ $n->is_read ? '' : 'unread' }}">
                                     <b>নতুন অর্ডার #{{ $n->order?->order_code ?? '—' }}</b>
                                     <span>{{ $n->order?->customer_name }} — ৳{{ number_format($n->order?->total ?? 0) }}</span>
@@ -623,20 +664,33 @@
                             @endforelse
                         </div>
                     </div>
-                    <div class="avatar-chip"><span class="av">AD</span> {{ auth()->user()->name ?? 'Admin' }} <i class="fa-solid fa-circle" style="font-size:7px;color:#16a34a"></i></div>
+                    <div class="avatar-chip"><span class="av">{{ $isSuper ? 'SA' : 'AD' }}</span> {{ $u->name ?? 'Admin' }} <i class="fa-solid fa-circle" style="font-size:7px;color:#16a34a"></i></div>
                 </div>
             </div>
 
             <nav class="mobile-nav">
                 <a class="side-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-gauge-high"></i> ড্যাশবোর্ড</a>
-                <a class="side-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}"><i class="fa-solid fa-boxes-stacked"></i> অর্ডার</a>
-                <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন</a>
-                <a class="side-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}"><i class="fa-solid fa-layer-group"></i> ক্যাটাগরি</a>
-                <a class="side-link {{ request()->routeIs('admin.products') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
-                <a class="side-link" href="{{ route('admin.customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>
-                <a class="side-link" href="{{ route('admin.module', 'seo') }}"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO</a>
-                <a class="side-link {{ request()->routeIs('admin.settings.payment') ? 'active' : '' }}" href="{{ route('admin.settings.payment') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট</a>
-                <a class="side-link {{ request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন</a>
+                @if ($canModule('orders'))
+                    <a class="side-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}"><i class="fa-solid fa-boxes-stacked"></i> অর্ডার</a>
+                @endif
+                @if ($canModule('complaints'))
+                    <a class="side-link {{ request()->routeIs('admin.complaints') ? 'active' : '' }}" href="{{ route('admin.complaints') }}"><i class="fa-solid fa-triangle-exclamation"></i> কমপ্লেইন</a>
+                @endif
+                @if ($canModule('taxonomy'))
+                    <a class="side-link {{ request()->routeIs('admin.taxonomy') ? 'active' : '' }}" href="{{ route('admin.taxonomy') }}"><i class="fa-solid fa-layer-group"></i> ক্যাটাগরি</a>
+                @endif
+                @if ($canModule('products'))
+                    <a class="side-link {{ request()->routeIs('admin.products') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="fa-solid fa-jar"></i> প্রোডাক্ট</a>
+                @endif
+                @if ($canModule('customers'))
+                    <a class="side-link" href="{{ route('admin.customers') }}"><i class="fa-solid fa-users"></i> গ্রাহক</a>
+                @endif
+                @if ($canModule('payment'))
+                    <a class="side-link {{ request()->routeIs('admin.settings.payment') ? 'active' : '' }}" href="{{ route('admin.settings.payment') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট</a>
+                @endif
+                @if ($isSuper)
+                    <a class="side-link {{ request()->routeIs('super.*') ? 'active' : '' }}" href="{{ route('super.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন</a>
+                @endif
             </nav>
 
             @if (session('success'))

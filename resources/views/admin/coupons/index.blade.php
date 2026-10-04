@@ -5,6 +5,13 @@
 @section('page_sub', 'ডিসকাউন্ট কুপন তৈরি, এডিট ও ম্যানেজ করুন — ল্যান্ডিং চেকআউটে সাথে সাথে কাজ করে')
 
 @section('content')
+    @php
+        $canCreate = auth()->user()->hasPermission('coupons.create');
+        $canEdit = auth()->user()->hasPermission('coupons.edit');
+        $canDelete = auth()->user()->hasPermission('coupons.delete');
+    @endphp
+
+    @if ($canCreate)
     <div class="card">
         <h3>নতুন কুপন</h3>
         <p class="desc">কোড কেস-ইনসেনসিটিভ — কাস্টমার ছোট বা বড় হাতের যেকোনোটা লিখলেই কাজ করবে</p>
@@ -27,6 +34,7 @@
             </div>
         </form>
     </div>
+    @endif
 
     <div class="card">
         <h3>সব কুপন <span style="color:#8b7355;font-weight:400">({{ $coupons->total() }}টি)</span></h3>
@@ -59,6 +67,7 @@
                                 @endif
                             </td>
                             <td style="white-space:nowrap">
+                                @if ($canEdit)
                                 <button type="button" class="btn" style="padding:6px 12px;font-size:12px"
                                     data-id="{{ $coupon->id }}" data-code="{{ $coupon->code }}"
                                     data-percent="{{ $coupon->percent }}" data-expires="{{ $coupon->expires_at ? $coupon->expires_at->format('Y-m-d\TH:i') : '' }}"
@@ -68,12 +77,15 @@
                                     @csrf
                                     <button type="submit" class="btn" style="padding:6px 12px;font-size:12px">{{ $coupon->is_active ? 'বন্ধ করুন' : 'চালু করুন' }}</button>
                                 </form>
+                                @endif
+                                @if ($canDelete)
                                 <form method="POST" action="{{ route('admin.coupons.destroy', $coupon) }}" style="display:inline"
                                     onsubmit="return swConfirmSubmit(event, 'কুপনটি মুছে ফেলবেন?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn" style="padding:6px 12px;font-size:12px;background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.3);color:#dc2626">মুছুন</button>
                                 </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -86,7 +98,8 @@
         </div>
     </div>
 
-    {{-- ===== EDIT MODAL ===== --}}
+    {{-- ===== EDIT MODAL (coupons.edit holders only) ===== --}}
+    @if ($canEdit)
     <div id="couponEditModal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:16px"
         onclick="if(event.target===this)closeCouponEdit()">
         <div style="background:#fff;border-radius:16px;max-width:430px;width:100%;padding:24px;box-shadow:0 30px 60px -20px rgba(0,0,0,.4)">
@@ -114,6 +127,7 @@
             </form>
         </div>
     </div>
+    @endif
 @endsection
 
 @push('scripts')

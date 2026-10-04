@@ -5,6 +5,10 @@
 @section('page_sub', 'অর্ডার থেকে স্বয়ংক্রিয়ভাবে তৈরি গ্রাহক তালিকা — সার্চ, নাম ঠিক করা বা মুছে ফেলা')
 
 @section('content')
+    @php
+        $canRename = auth()->user()->hasPermission('customers.rename');
+        $canDelete = auth()->user()->hasPermission('customers.delete');
+    @endphp
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
             <div>
@@ -26,7 +30,11 @@
             <tbody>
                 @forelse ($customers as $c)
                     <tr>
-                        <td><b>{{ $c->name }}</b></td>
+                        <td><b>{{ $c->name }}</b>
+                            @if (isset($registeredPhones[$c->phone]))
+                                <span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:700;background:rgba(22,163,74,.12);color:#16a34a;margin-left:6px">রেজিস্টার্ড</span>
+                            @endif
+                        </td>
                         <td><code style="font-size:12px">{{ $c->phone }}</code></td>
                         <td>{{ $c->orders_count }} টি</td>
                         <td><b>৳{{ number_format($c->total_spent) }}</b></td>
@@ -35,14 +43,18 @@
                             <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
                                 <a class="side-link" style="background:rgba(5,150,105,.08);color:#1f4234;border-radius:10px;padding:7px 12px;width:auto;text-decoration:none"
                                     href="{{ route('admin.orders.index') }}?q={{ $c->phone }}"><i class="fa-solid fa-box"></i> অর্ডার</a>
+                                @if ($canRename)
                                 <button type="button" class="side-link" style="background:rgba(37,99,235,.08);color:#1e40af;border-radius:10px;padding:7px 12px;width:auto;border:0;cursor:pointer"
                                     onclick="renameCustomer(@js($c->phone), @js($c->name))"><i class="fa-solid fa-pen"></i></button>
+                                @endif
+                                @if ($canDelete)
                                 <form method="POST" action="{{ route('admin.customers.destroy', $c->phone) }}"
                                     onsubmit="return swConfirmSubmit(event, 'গ্রাহক ({{ $c->phone }}) এর {{ $c->orders_count }} টি অর্ডার সহ সব ডেটা মুছে যাবে — নিশ্চিত?')">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -53,6 +65,7 @@
         </table>
     </div>
 
+    @if ($canRename)
     <form method="POST" action="{{ route('admin.customers.rename') }}" id="renameForm" style="display:none">
         @csrf
         <input type="hidden" name="phone" id="renamePhone">
@@ -71,4 +84,5 @@
             document.getElementById('renameForm').submit();
         }
     </script>
+    @endif
 @endsection

@@ -10,8 +10,10 @@
         <span>লাইভ ফাইল: <a href="{{ url('/robots.txt') }}" target="_blank" style="color:#047857;font-weight:700">{{ url('/robots.txt') }}</a> — সেভ করলেই সাথে সাথে প্রয়োগ হবে। <b>Disallow</b> মানে ওই পাথ গুগল ইনডেক্স করবে না।</span>
     </div>
 
+    @php $canEdit = auth()->user()->hasPermission('robots.edit'); @endphp
     <div class="card" style="max-width:820px">
         <h3><i class="fa-solid fa-file-code"></i> robots.txt এডিটর</h3>
+        @if ($canEdit)
         <p class="desc">ডিফল্ট: সব পেজ Allow, /admin Disallow, sitemap লিংক</p>
         <form method="POST" action="{{ route('admin.robots.save') }}">
             @csrf
@@ -21,5 +23,10 @@
                 <a class="a-btn ghost" href="{{ url('/robots.txt') }}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> লাইভ দেখুন</a>
             </div>
         </form>
+        @else
+        <p class="desc">আপনার <b>দেখার</b> অনুমতি আছে — বদলানোর অনুমতি নেই।</p>
+        <pre class="a-input mono" style="font-family:Consolas,Monaco,monospace;font-size:13px;line-height:1.7;white-space:pre-wrap">{{ $robots }}</pre>
+        <a class="a-btn ghost" href="{{ url('/robots.txt') }}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> লাইভ দেখুন</a>
+        @endif
     </div>
 @endsection

@@ -24,6 +24,9 @@
         <span>লোগো, ব্র্যান্ডের নাম বা যোগাযোগের তথ্য বদলালে <b>সাথে সাথে</b> ল্যান্ডিং পেজে দেখা যাবে। যোগাযোগের ঘর <b>খালি রাখলে</b> সাইটের ডিফল্ট নম্বর ব্যবহার হবে।</span>
     </div>
 
+    @php $canBrandEdit = auth()->user()->hasPermission('brand_settings.edit'); @endphp
+
+    @if ($canBrandEdit)
     <div class="brand-grid-top">
         {{-- ===== LOGO ===== --}}
         <div class="card brand-card">
@@ -189,6 +192,33 @@
             <span class="brand-savehint">উপরের দুই কার্ড একসাথে সেভ হয় • পেজ স্ক্রল করলেও বাটন চোখের সামনে থাকবে</span>
         </div>
     </form>
+    @else
+    {{-- view-only: current values, no editable inputs --}}
+    <div class="note-banner">
+        <i class="fa-solid fa-eye"></i>
+        <span>আপনার লোগো ও ব্র্যান্ড <b>দেখার</b> অনুমতি আছে — বদলানোর অনুমতি নেই।</span>
+    </div>
+    <div class="card brand-card">
+        <h3><span class="brand-ic" style="--bc:#059669"><i class="fa-solid fa-image"></i></span> বর্তমান ব্র্যান্ড</h3>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0">
+            <span style="width:44px;height:44px;border-radius:12px;background:#fff;border:1px solid rgba(5,150,105,.2);display:grid;place-items:center;overflow:hidden">
+                @if (!empty($settings['logo_path']))
+                    <img src="{{ asset($settings['logo_path']) }}" alt="logo" style="width:100%;height:100%;object-fit:cover">
+                @else
+                    <i class="fa-solid fa-jar"></i>
+                @endif
+            </span>
+            <b style="font-size:16px">{{ $settings['brand_bn1'] ?? '' }} <span style="color:#059669">{{ $settings['brand_bn2'] ?? '' }}</span></b>
+            <small style="color:#8b7355">{{ $settings['brand_en1'] ?? '' }} {{ $settings['brand_en2'] ?? '' }}</small>
+        </div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:#5f7a6d;padding-top:6px">
+            @if (!empty($settings['contact_phone']))<span><i class="fa-solid fa-phone"></i> {{ $settings['contact_phone'] }}</span>@endif
+            @if (!empty($settings['contact_whatsapp']))<span><i class="fa-brands fa-whatsapp"></i> {{ $settings['contact_whatsapp'] }}</span>@endif
+            @if (!empty($settings['contact_messenger']))<span><i class="fa-brands fa-facebook-messenger"></i> {{ $settings['contact_messenger'] }}</span>@endif
+            @if (!empty($settings['contact_facebook']))<span><i class="fa-brands fa-facebook"></i> {{ $settings['contact_facebook'] }}</span>@endif
+        </div>
+    </div>
+    @endif
 
     <style>
         .brand-card { margin-bottom: 18px; }

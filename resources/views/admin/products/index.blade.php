@@ -5,6 +5,11 @@
 @section('page_sub', 'সব প্রোডাক্ট ম্যানেজ করুন — CRUD, স্টক, বারকোড')
 
 @section('content')
+    @php
+        $canCreate = auth()->user()->hasPermission('products.create');
+        $canEdit = auth()->user()->hasPermission('products.edit');
+        $canDelete = auth()->user()->hasPermission('products.delete');
+    @endphp
     @if ($errors->any())
         <div class="alert-success" style="background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.3);color:#dc2626">
             <i class="fa-solid fa-circle-exclamation"></i> {{ $errors->first() }}
@@ -20,7 +25,9 @@
                 <span class="pill info" title="ইন্ডাস্ট্রি প্রিসেট বদলান ‘থিম কালার’ পেজে">
                     <i class="fa-solid fa-industry"></i> চালু ইন্ডাস্ট্রি: {{ $industries[$currentIndustry]['name_bn'] ?? $currentIndustry }}
                 </span>
-                <a class="a-btn" href="{{ route('admin.products.create') }}"><i class="fa-solid fa-plus"></i> নতুন প্রোডাক্ট</a>
+                @if ($canCreate)
+                    <a class="a-btn" href="{{ route('admin.products.create') }}"><i class="fa-solid fa-plus"></i> নতুন প্রোডাক্ট</a>
+                @endif
             </div>
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
@@ -69,17 +76,22 @@
                             <div style="display:flex;align-items:center;gap:6px">
                                 @if ($p->is_active)<span class="pill ok">লাইভ</span>
                                 @else<span class="pill red">বন্ধ</span>@endif
+                                @if ($canEdit)
                                 <form method="POST" action="{{ route('admin.products.toggle', $p) }}">
                                     @csrf
                                     <button class="btn-icon" type="submit" title="{{ $p->is_active ? 'বন্ধ করুন' : 'লাইভ করুন' }}">
                                         <i class="fa-solid {{ $p->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i></button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                         <td>
                             <div style="display:flex;gap:6px">
+                                @if ($canEdit)
                                 <a class="side-link" style="background:rgba(5,150,105,.08);color:#1f4234;border-radius:10px;padding:7px 12px;width:auto;text-decoration:none"
                                     href="{{ route('admin.products.edit', $p) }}"><i class="fa-solid fa-pen"></i></a>
+                                @endif
+                                @if ($canDelete)
                                 @if ($deleteBlocked)
                                     <button class="btn-icon" type="button" disabled
                                         title="অর্ডার/পারচেজে ব্যবহৃত — মোছা যাবে না (বদলে বন্ধ করুন)"
@@ -93,6 +105,7 @@
                                         @method('DELETE')
                                         <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
                                     </form>
+                                @endif
                                 @endif
                             </div>
                         </td>

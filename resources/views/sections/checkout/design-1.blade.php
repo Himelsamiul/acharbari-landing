@@ -191,7 +191,7 @@
                                     <label class="block text-xs font-bold text-gray-700 mb-1" for="name">
                                         <span data-en="Your Full Name">আপনার সম্পূর্ণ নাম</span> <span class="text-red-500">*</span>
                                     </label>
-                                    <input id="name" type="text" name="customer_name" required="" value=""
+                                    <input id="name" type="text" name="customer_name" required="" value="{{ old('customer_name', auth()->user()?->isCustomer() ? auth()->user()->name : '') }}"
                                         class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none"
                                         placeholder="{{ $phName['bn'] }}" data-en-ph="{{ $phName['en'] }}">
                                 </div>
@@ -200,7 +200,7 @@
                                     <label class="block text-xs font-bold text-gray-700 mb-1" for="phone">
                                         <span data-en="Mobile Number">মোবাইল নাম্বার</span> <span class="text-red-500">*</span>
                                     </label>
-                                    <input id="phone" type="tel" inputmode="numeric" maxlength="15" name="phone" required="" value=""
+                                    <input id="phone" type="tel" inputmode="numeric" maxlength="15" name="phone" required="" value="{{ old('phone', auth()->user()?->isCustomer() ? auth()->user()->phone : '') }}"
                                         class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none"
                                         placeholder="{{ $phPhone['bn'] }}" data-en-ph="{{ $phPhone['en'] }}">
                                 </div>
@@ -209,7 +209,7 @@
                                     <label class="block text-xs font-bold text-gray-700 mb-1" for="address">
                                         <span data-en="Full Delivery Address">সম্পূর্ণ ডেলিভারি ঠিকানা</span> <span class="text-red-500">*</span>
                                     </label>
-                                    <input id="address" type="text" name="address" required="" value=""
+                                    <input id="address" type="text" name="address" required="" value="{{ old('address', auth()->user()?->isCustomer() ? (auth()->user()->address ?? '') : '') }}"
                                         class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none"
                                         placeholder="{{ $phAddr['bn'] }}" data-en-ph="{{ $phAddr['en'] }}">
                                 </div>

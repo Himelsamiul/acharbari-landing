@@ -5,7 +5,11 @@
 @section('page_sub', 'সব অর্ডারের তালিকা ও স্ট্যাটাস')
 
 @section('content')
-    @php $labels = \App\Models\Order::statusLabels(); @endphp
+    @php
+        $labels = \App\Models\Order::statusLabels();
+        $canStatus = auth()->user()->hasPermission('orders.status_update');
+        $canDelete = auth()->user()->hasPermission('orders.delete');
+    @endphp
 
     <div class="filter-tabs">
         <a class="filter-tab {{ is_null($status) ? 'active' : '' }}" href="{{ route('admin.orders.index', request('q') ? ['q' => request('q')] : []) }}">সব <b>({{ array_sum($counts) }})</b></a>
@@ -30,7 +34,7 @@
         @else
             <table class="tbl">
                 <thead>
-                    <tr><th>ইনভয়েস</th><th>কাস্টমার</th><th>মোবাইল</th><th>এরিয়া</th><th>মোট</th><th>পেমেন্ট</th><th>স্ট্যাটাস</th><th></th></tr>
+                    <tr><th>ইনভয়েস</th><th>কাস্টমার</th><th>মোবাইল</th><th>এরিয়া</th><th>মোট</th><th>পেমেন্ট</th><th>স্ট্যাটাস</th>@if ($canDelete)<th></th>@endif</tr>
                 </thead>
                 <tbody>
                     @foreach ($orders as $o)
@@ -42,6 +46,7 @@
                             <td><b>৳{{ number_format($o->total) }}</b></td>
                             <td><span class="pill mut">{{ strtoupper($o->payment_method) }}</span></td>
                             <td>
+                                @if ($canStatus)
                                 <form method="POST" action="{{ route('admin.orders.status', $o) }}" style="display:flex;gap:6px;align-items:center">
                                     @csrf
                                     <select name="status" class="status-select" onchange="this.form.submit()">
@@ -50,7 +55,11 @@
                                         @endforeach
                                     </select>
                                 </form>
+                                @else
+                                <span class="pill mut">{{ $labels[$o->status] ?? $o->status }}</span>
+                                @endif
                             </td>
+                            @if ($canDelete)
                             <td>
                                 <form method="POST" action="{{ route('admin.orders.destroy', $o) }}" onsubmit="return swConfirmSubmit(event, 'অর্ডারটি মুছে ফেলবেন?')">
                                     @csrf
@@ -58,6 +67,7 @@
                                     <button type="submit" class="btn-icon" title="মুছুন"><i class="fa-solid fa-trash"></i></button>
                                 </form>
                             </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>

@@ -17,6 +17,17 @@ class OrderController extends Controller
 {
     public function store(Request $request)
     {
+        // logged-in customer: profile prefills name/phone/address so the fields
+        // can come back empty from the checkout form — guests stay required
+        $user = $request->user();
+        if ($user && $user->isCustomer()) {
+            $request->merge([
+                'customer_name' => trim((string) $request->input('customer_name')) ?: $user->name,
+                'phone' => trim((string) $request->input('phone')) ?: (string) $user->phone,
+                'address' => trim((string) $request->input('address')) ?: (string) ($user->address ?? ''),
+            ]);
+        }
+
         // online methods follow the admin gateways — COD is always allowed (universal)
         $payMethods = ['cod'];
         if (BkashGateway::enabled()) {
@@ -116,9 +127,12 @@ class OrderController extends Controller
 
         $total = max(0, $subtotal - $discount) + $vatTotal + $shipping;
 
-        $order = DB::transaction(function () use ($data, $lines, $subtotal, $discount, $couponCode, $vatTotal, $shipping, $total, $area, $districtName) {
+        $userId = ($user && $user->isCustomer()) ? $user->id : null;
+
+        $order = DB::transaction(function () use ($data, $lines, $subtotal, $discount, $couponCode, $vatTotal, $shipping, $total, $area, $districtName, $userId) {
             $order = Order::create([
                 'order_code' => 'AB-' . strtoupper(uniqid()),
+                'user_id' => $userId,
                 'customer_name' => $data['customer_name'],
                 'phone' => $data['phone'],
                 'address' => $data['address'],

@@ -24,6 +24,7 @@
         </div>
     </div>
 
+    @if (auth()->user()->hasPermission('reviews.edit'))
     <div class="card" style="margin-top:16px">
         <h3><i class="fa-solid fa-comments"></i> গ্রাহক রিভিউ কার্ড</h3>
         <p class="desc">ছবির ঘরে পাথ লিখুন (যেমন: assets/img/rev1.jpg) • Source: Google দিলে ল্যান্ডিং পেজে Google ব্যাজ দেখাবে</p>
@@ -62,6 +63,7 @@
             <button class="a-btn" style="margin-top:14px"><i class="fa-solid fa-floppy-disk"></i> রিভিউ সেভ করুন</button>
         </form>
     </div>
+    @endif
 
     <style>
         .rv-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; }
@@ -96,6 +98,7 @@
 
         (function () {
             var wrap = document.querySelector('.rep[data-json="reviews_json"]');
+            if (!wrap) return; /* reviews.edit not granted — page is read-only */
             var form = wrap.closest('form');
 
             function bindDel(row) {

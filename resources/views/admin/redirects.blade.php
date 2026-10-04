@@ -10,6 +10,9 @@
         <span>পুরনো লিংক বদলালে বা প্রোডাক্ট সরালে SEO জুস হারাতে না চাইলে এখানে 301 রিডাইরেক্ট যোগ করুন। <b>From</b> হবে সাইটের ভেতরের পাথ (যেমন <code>/old-page</code>), <b>To</b> পাথ বা পুরো URL দুটোই চলবে।</span>
     </div>
 
+    @php $canManage = auth()->user()->hasPermission('redirects.manage'); @endphp
+
+    @if ($canManage)
     <div class="card">
         <h3><i class="fa-solid fa-plus"></i> নতুন রিডাইরেক্ট</h3>
         <form method="POST" action="{{ route('admin.redirects.store') }}">
@@ -36,6 +39,7 @@
             </div>
         </form>
     </div>
+    @endif
 
     <div class="card">
         <h3><i class="fa-solid fa-list"></i> রিডাইরেক্ট তালিকা ({{ $redirects->count() }})</h3>
@@ -45,7 +49,7 @@
         @else
             <table class="tbl">
                 <thead>
-                    <tr><th>From</th><th>To</th><th>কোড</th><th>স্ট্যাটাস</th><th></th></tr>
+                    <tr><th>From</th><th>To</th><th>কোড</th><th>স্ট্যাটাস</th>@if ($canManage)<th></th>@endif</tr>
                 </thead>
                 <tbody>
                     @foreach ($redirects as $r)
@@ -54,13 +58,18 @@
                             <td><b>{{ $r->to_url }}</b></td>
                             <td><span class="pill {{ $r->status_code === 301 ? 'ok' : 'info' }}">{{ $r->status_code }}</span></td>
                             <td>
+                                @if ($canManage)
                                 <form method="POST" action="{{ route('admin.redirects.toggle', $r) }}">
                                     @csrf
                                     <button type="submit" class="pill {{ $r->is_active ? 'ok' : 'mut' }}" style="border:none;cursor:pointer;font-family:inherit">
                                         {{ $r->is_active ? 'চালু' : 'বন্ধ' }}
                                     </button>
                                 </form>
+                                @else
+                                <span class="pill {{ $r->is_active ? 'ok' : 'mut' }}">{{ $r->is_active ? 'চালু' : 'বন্ধ' }}</span>
+                                @endif
                             </td>
+                            @if ($canManage)
                             <td>
                                 <form method="POST" action="{{ route('admin.redirects.destroy', $r) }}" onsubmit="return swConfirmSubmit(event, 'রিডাইরেক্টটি মুছে ফেলবেন?')">
                                     @csrf
@@ -68,6 +77,7 @@
                                     <button type="submit" class="btn-icon" title="মুছুন"><i class="fa-solid fa-trash"></i></button>
                                 </form>
                             </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>

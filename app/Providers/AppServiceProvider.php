@@ -19,6 +19,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // super_admin (platform owner) keeps 100% of the panel — every Gate
+        // check passes for them; plain admins go through the permission matrix
+        \Illuminate\Support\Facades\Gate::before(function ($user) {
+            return $user->isSuperAdmin() ? true : null;
+        });
+
         // share site settings + pending order count with every view
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
             $view->with('settings', \App\Models\Setting::allCached());

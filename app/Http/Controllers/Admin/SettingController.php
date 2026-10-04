@@ -513,24 +513,53 @@ class SettingController extends Controller
         return back()->with('success', 'ল্যান্ডিং কনটেন্ট সেভ হয়েছে — ল্যান্ডিং পেজে দেখুন।');
     }
 
-    /** Payment: online payment (bKash / Nagad) on/off + send-money numbers. */
-    public function payment()
+    /** Payment: online payment (bKash / Nagad) on/off + send-money numbers.
+     *
+     * Saved through three permission-scoped routes — one per independently
+     * grantable feature (payment.online_toggle / bkash_edit / nagad_edit) —
+     * so each method only touches its own setting keys.
+     */
+
+    /** Master online-payment toggle (payment.online_toggle). */
+    public function savePaymentToggle(Request $request)
     {
-        return view('admin.payment', [
-            'settings' => Setting::allCached(),
+        $request->validate([
+            'online_payment_enabled' => 'nullable|boolean',
         ]);
+
+        Setting::set('online_payment_enabled', $request->boolean('online_payment_enabled') ? '1' : '');
+
+        return back()->with('success', 'পেমেন্ট সেটিংস সেভ হয়েছে — চেকআউটে দেখুন।');
     }
 
-    public function savePayment(Request $request)
+    /** bKash Tokenized Checkout credentials (payment.bkash_edit). */
+    public function savePaymentBkash(Request $request)
     {
         $data = $request->validate([
-            'online_payment_enabled' => 'nullable|boolean',
             'bkash_enabled' => 'nullable|boolean',
             'bkash_mode' => 'nullable|in:sandbox,live',
             'bkash_app_key' => 'nullable|string|max:120',
             'bkash_app_secret' => 'nullable|string|max:120',
             'bkash_username' => 'nullable|string|max:120',
             'bkash_password' => 'nullable|string|max:120',
+        ]);
+
+        Setting::setMany([
+            'bkash_enabled' => $request->boolean('bkash_enabled') ? '1' : '',
+            'bkash_mode' => $data['bkash_mode'] ?? 'sandbox',
+            'bkash_app_key' => trim($data['bkash_app_key'] ?? ''),
+            'bkash_app_secret' => trim($data['bkash_app_secret'] ?? ''),
+            'bkash_username' => trim($data['bkash_username'] ?? ''),
+            'bkash_password' => trim($data['bkash_password'] ?? ''),
+        ]);
+
+        return back()->with('success', 'পেমেন্ট সেটিংস সেভ হয়েছে — চেকআউটে দেখুন।');
+    }
+
+    /** Nagad PGW credentials (payment.nagad_edit). */
+    public function savePaymentNagad(Request $request)
+    {
+        $data = $request->validate([
             'nagad_enabled' => 'nullable|boolean',
             'nagad_mode' => 'nullable|in:sandbox,live',
             'nagad_merchant_id' => 'nullable|string|max:120',
@@ -539,15 +568,6 @@ class SettingController extends Controller
         ]);
 
         Setting::setMany([
-            'online_payment_enabled' => $request->boolean('online_payment_enabled') ? '1' : '',
-            // bKash (Tokenized Checkout)
-            'bkash_enabled' => $request->boolean('bkash_enabled') ? '1' : '',
-            'bkash_mode' => $data['bkash_mode'] ?? 'sandbox',
-            'bkash_app_key' => trim($data['bkash_app_key'] ?? ''),
-            'bkash_app_secret' => trim($data['bkash_app_secret'] ?? ''),
-            'bkash_username' => trim($data['bkash_username'] ?? ''),
-            'bkash_password' => trim($data['bkash_password'] ?? ''),
-            // Nagad (PGW)
             'nagad_enabled' => $request->boolean('nagad_enabled') ? '1' : '',
             'nagad_mode' => $data['nagad_mode'] ?? 'sandbox',
             'nagad_merchant_id' => trim($data['nagad_merchant_id'] ?? ''),
@@ -558,16 +578,40 @@ class SettingController extends Controller
         return back()->with('success', 'পেমেন্ট সেটিংস সেভ হয়েছে — চেকআউটে দেখুন।');
     }
 
-    /** Tracking pixels: FB / GA4 / GTM / TikTok. */
+    /** Tracking pixels: FB / GA4 / GTM / TikTok — one grantable feature per pixel. */
+    public const TRACKERS = [
+        'fb' => ['Facebook Pixel', 'fa-brands fa-facebook', '#1877F2', 'Pixel ID — যেমন 123456789012345'],
+        'ga' => ['Google Analytics 4', 'fa-solid fa-chart-line', '#F9AB00', 'Measurement ID — G-XXXXXXXXXX'],
+        'gtm' => ['Google Tag Manager', 'fa-solid fa-tags', '#246FDB', 'Container ID — GTM-XXXXXXX'],
+        'tiktok' => ['TikTok Pixel', 'fa-brands fa-tiktok', '#000000', 'Pixel Code ID'],
+    ];
+
+    public function payment()
+    {
+        return view('admin.payment', [
+            'settings' => Setting::allCached(),
+        ]);
+    }
     public function tracking()
     {
         return view('admin.tracking', [
+            'trackers' => self::TRACKERS,
             'pixels' => json_decode(Setting::get('pixels_json', ''), true) ?: [],
         ]);
     }
 
+    /**
+     * Save one pixel. The permission is per-pixel (`tracking.<key>`) and is
+     * checked here because route params can't be interpolated into the `perm:`
+     * middleware (same pattern as ModuleController). The key whitelist keeps
+     * unknown keys out of pixels_json.
+     */
     public function saveTracking(Request $request, string $key)
     {
+        if (! isset(self::TRACKERS[$key]) || ! auth()->user()?->hasPermission('tracking.' . $key)) {
+            abort(403, 'এই পেজ বা অ্যাকশনের অনুমতি আপনার নেই।');
+        }
+
         $data = $request->validate([
             'value' => 'nullable|string|max:80',
             'enabled' => 'nullable|boolean',

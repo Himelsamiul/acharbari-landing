@@ -51,6 +51,13 @@ class ModuleController extends Controller
     {
         abort_unless(isset(self::$modules[$module]), 404);
 
+        // draft pages ride on the module they belong to (coupons page → coupons.view,
+        // pixels/analytics → tracking.view) so a scoped admin can't see others' tools
+        $permission = $module === 'coupons' ? 'coupons.view' : 'tracking.view';
+        if (! auth()->user()?->hasPermission($permission)) {
+            abort(403, 'এই পেজ বা অ্যাকশনের অনুমতি আপনার নেই।');
+        }
+
         return view('admin.module', [
             'module' => $module,
             'info' => self::$modules[$module],

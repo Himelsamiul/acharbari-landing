@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     protected $fillable = [
-        'order_code', 'customer_name', 'phone', 'address', 'area', 'district',
+        'order_code', 'user_id', 'customer_name', 'phone', 'address', 'area', 'district',
         'payment_method', 'payment_status', 'payment_txn_id', 'subtotal', 'discount', 'coupon_code',
         'vat_total', 'shipping_cost', 'total', 'status',
     ];
@@ -19,6 +19,11 @@ class Order extends Model
         'shipping_cost' => 'float',
         'total' => 'float',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function notifications()
     {

@@ -39,6 +39,7 @@
                 <button type="button" class="ds-lang-btn on" data-lang-btn="bn" onclick="AB.setLang('bn')">বাং</button>
                 <button type="button" class="ds-lang-btn" data-lang-btn="en" onclick="AB.setLang('en')">EN</button>
             </div>
+            @include('partials.account-chip')
             <button class="nv-v3__cta" onclick="document.getElementById('order-form').scrollIntoView({behavior:'smooth'})" data-en="{{ $n3Order['en'] }}">{{ $n3Order['bn'] }}</button>
             <button class="ds-mobile-nav-toggle nv-v3__burger" id="mobileNavToggle" onclick="toggleMobileNav()" aria-label="মেনু">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
@@ -70,6 +71,7 @@
                 </div>
             </div>
             <div class="ds-mob-actions">
+                @include('partials.account-chip', ['mobile' => true])
                 <button class="ds-btn ds-btn-block" onclick="toggleMobileNav(); document.getElementById('order-form').scrollIntoView({behavior:'smooth'});">
                     <span data-en="{{ $n3Order['en'] }} (COD)">{{ $n3Order['bn'] }} (COD)</span>
                 </button>

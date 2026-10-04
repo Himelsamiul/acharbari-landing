@@ -11,7 +11,7 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route(Auth::user()->isSuperAdmin() ? 'super.overview' : 'admin.dashboard');
         }
         return view('admin.login');
     }
@@ -26,8 +26,29 @@ class AuthController extends Controller
         $remember = $request->boolean('remember');
 
         if (Auth::attempt($credentials, $remember)) {
+            $user = Auth::user();
+
+            // the admin panel is not for storefront customers
+            if ($user->isCustomer()) {
+                Auth::guard('web')->logout();
+                return back()->withErrors([
+                    'email' => 'এই পেজটি শুধু অ্যাডমিনদের জন্য।',
+                ])->onlyInput('email');
+            }
+
+            if (! $user->is_active) {
+                Auth::guard('web')->logout();
+                return back()->withErrors([
+                    'email' => 'আপনার অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে — সুপার অ্যাডমিনের সাথে যোগাযোগ করুন।',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
-            return redirect()->intended(route('admin.dashboard'));
+
+            // the platform owner lands in their own panel
+            return redirect()->intended(
+                $user->isSuperAdmin() ? route('super.overview') : route('admin.dashboard')
+            );
         }
 
         return back()->withErrors([
