@@ -5,6 +5,10 @@
 @section('page_sub', 'প্রোডাক্টের ক্যাটাগরি ও ব্র্যান্ড ম্যানেজমেন্ট')
 
 @section('content')
+    @php
+        $canCategories = auth()->user()->hasPermission('taxonomy.manage_categories');
+        $canBrands = auth()->user()->hasPermission('taxonomy.manage_brands');
+    @endphp
     @if ($errors->any())
         <div class="alert-success" style="background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.3);color:#dc2626">
             <i class="fa-solid fa-circle-exclamation"></i> {{ $errors->first() }}
@@ -32,6 +36,7 @@
                                 <div style="display:flex;gap:6px;align-items:center">
                                     @if ($cat->is_active)<span class="pill ok">চালু</span>
                                     @else<span class="pill red">বন্ধ</span>@endif
+                                    @if ($canCategories)
                                     <form method="POST" action="{{ route('admin.taxonomy.category.toggle', $cat) }}">
                                         @csrf
                                         <button class="btn-icon" type="submit" title="{{ $cat->is_active ? 'বন্ধ করুন' : 'চালু করুন' }}">
@@ -43,12 +48,14 @@
                                         @method('DELETE')
                                         <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
                                     </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            @if ($canCategories)
             <form method="POST" action="{{ route('admin.taxonomy.category.store') }}" style="margin-top:16px">
                 @csrf
                 <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -58,6 +65,7 @@
                     <button class="a-btn"><i class="fa-solid fa-plus"></i> যোগ</button>
                 </div>
             </form>
+            @endif
         </div>
 
         <div class="card">
@@ -75,6 +83,7 @@
                                 <div style="display:flex;gap:6px;align-items:center">
                                     @if ($brand->is_active)<span class="pill ok">চালু</span>
                                     @else<span class="pill red">বন্ধ</span>@endif
+                                    @if ($canBrands)
                                     <form method="POST" action="{{ route('admin.taxonomy.brand.toggle', $brand) }}">
                                         @csrf
                                         <button class="btn-icon" type="submit" title="{{ $brand->is_active ? 'বন্ধ করুন' : 'চালু করুন' }}">
@@ -86,12 +95,14 @@
                                         @method('DELETE')
                                         <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
                                     </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            @if ($canBrands)
             <form method="POST" action="{{ route('admin.taxonomy.brand.store') }}" style="margin-top:16px">
                 @csrf
                 <div style="display:flex;gap:8px">
@@ -99,6 +110,7 @@
                     <button class="a-btn"><i class="fa-solid fa-plus"></i> যোগ</button>
                 </div>
             </form>
+            @endif
         </div>
     </div>
 

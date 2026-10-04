@@ -27,7 +27,7 @@ class AdminSidebarSmokeTest extends TestCase
             [
                 'name' => 'Super Admin',
                 'password' => bcrypt('secret123'),
-                'permissions' => array_keys(User::PERMISSIONS),
+                'role' => User::ROLE_SUPER_ADMIN,
             ]
         );
 
@@ -106,7 +106,8 @@ class AdminSidebarSmokeTest extends TestCase
             route('admin.reviews'),
             route('admin.complaints'),
             route('admin.module', 'coupons'),
-            route('admin.admins.index'),
+            // admin-management now forwards to the super panel — smoke the real page
+            route('super.admins.index'),
             route('admin.account'),
             // debug — super admin email e 200
             route('admin.debug'),

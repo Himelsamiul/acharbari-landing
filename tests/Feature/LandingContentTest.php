@@ -29,7 +29,7 @@ class LandingContentTest extends TestCase
     public function test_text_keys_save_and_render(): void
     {
         $this->actingAsAdmin()
-            ->post(route('admin.settings.content.save'), [
+            ->post(route('admin.settings.content.hero'), [
                 'hero_lead_bn' => 'নতুন হিরো লিড', 'hero_lead_en' => 'New hero lead',
             ])
             ->assertRedirect();
@@ -45,7 +45,7 @@ class LandingContentTest extends TestCase
         Setting::set('hero_img1', 'storage/content/old-hero.jpg');
 
         $this->actingAsAdmin()
-            ->post(route('admin.settings.content.save'), [
+            ->post(route('admin.settings.content.hero'), [
                 'hero_img1' => \Illuminate\Http\Testing\File::fake()->image('new.jpg'),
             ])
             ->assertRedirect();
@@ -60,7 +60,7 @@ class LandingContentTest extends TestCase
         Setting::set('faq_items', json_encode([['q' => 'প্রশ্ন?', 'a' => 'উত্তর']]));
 
         $this->actingAsAdmin()
-            ->post(route('admin.settings.content.save'), [
+            ->post(route('admin.settings.content.hero'), [
                 'faq_json' => '{"broken json,,,',
             ])
             ->assertSessionHasErrors('repeater');
@@ -77,7 +77,7 @@ class LandingContentTest extends TestCase
         Setting::set('faq_items', json_encode([['q' => 'পুরনো', 'a' => 'উত্তর']]));
 
         $this->actingAsAdmin()
-            ->post(route('admin.settings.content.save'), [
+            ->post(route('admin.settings.content.hero'), [
                 'faq_json' => '',
             ])
             ->assertRedirect();

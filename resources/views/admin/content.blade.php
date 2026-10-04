@@ -5,6 +5,7 @@
 @section('page_sub', 'ল্যান্ডিং পেজের সব লেখা ও ছবি — কোড ছাড়াই বদলান')
 
 @section('content')
+    @php $can = fn (string $feature) => auth()->user()->hasPermission('content.' . $feature); @endphp
     @php
         $s = $settings;
         // DB value, else the default text from the active landing template —
@@ -120,15 +121,16 @@
     </div>
 
     <div class="filter-tabs" id="contentTabs">
-        <a class="filter-tab active" href="#" data-tab="hero"><i class="fa-solid fa-rocket"></i> হিরো</a>
-        <a class="filter-tab" href="#" data-tab="sections"><i class="fa-solid fa-heading"></i> সেকশন লেখা</a>
-        <a class="filter-tab" href="#" data-tab="order"><i class="fa-solid fa-cart-shopping"></i> অর্ডার ফর্ম</a>
-        <a class="filter-tab" href="#" data-tab="footer"><i class="fa-solid fa-window-maximize"></i> নেভিগেশন ও ফুটার</a>
+        @if ($can('hero'))<a class="filter-tab active" href="#" data-tab="hero"><i class="fa-solid fa-rocket"></i> হিরো</a>@endif
+        @if ($can('sections'))<a class="filter-tab {{ $can('hero') ? '' : 'active' }}" href="#" data-tab="sections"><i class="fa-solid fa-heading"></i> সেকশন লেখা</a>@endif
+        @if ($can('order_form'))<a class="filter-tab" href="#" data-tab="order"><i class="fa-solid fa-cart-shopping"></i> অর্ডার ফর্ম</a>@endif
+        @if ($can('footer'))<a class="filter-tab" href="#" data-tab="footer"><i class="fa-solid fa-window-maximize"></i> নেভিগেশন ও ফুটার</a>@endif
     </div>
 
-    {{-- ================= ট্যাব ১: হিরো ================= --}}
+    {{-- ================= ট্যাব ১: হিরো (content.hero) ================= --}}
+    @if ($can('hero'))
     <div class="tab-panel" id="tab-hero">
-        <form method="POST" action="{{ route('admin.settings.content.save') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.settings.content.hero') }}" enctype="multipart/form-data">
             @csrf
             <div class="ct-sec">
                 <div class="ct-sec-head">
@@ -237,10 +239,12 @@
             </div>
         </form>
     </div>
+    @endif
 
-    {{-- ================= ট্যাব ২: সেকশন লেখা ================= --}}
+    {{-- ================= ট্যাব ২: সেকশন লেখা (content.sections) ================= --}}
+    @if ($can('sections'))
     <div class="tab-panel" id="tab-sections" hidden>
-        <form method="POST" action="{{ route('admin.settings.content.save') }}" class="rep-form">
+        <form method="POST" action="{{ route('admin.settings.content.sections') }}" class="rep-form">
             @csrf
             <div class="ct-sec">
                 <div class="ct-sec-head">
@@ -392,10 +396,12 @@
             </div>
         </form>
     </div>
+    @endif
 
-    {{-- ================= ট্যাব ৩: অর্ডার ফর্ম ও রিভিউ ================= --}}
+    {{-- ================= ট্যাব ৩: অর্ডার ফর্ম ও রিভিউ (content.order_form) ================= --}}
+    @if ($can('order_form'))
     <div class="tab-panel" id="tab-order" hidden>
-        <form method="POST" action="{{ route('admin.settings.content.save') }}">
+        <form method="POST" action="{{ route('admin.settings.content.order') }}">
             @csrf
             <div class="ct-sec">
                 <div class="ct-sec-head">
@@ -512,10 +518,12 @@
             </div>
         </form>
     </div>
+    @endif
 
-    {{-- ================= ট্যাব ৪: নেভিগেশন ও ফুটার ================= --}}
+    {{-- ================= ট্যাব ৪: নেভিগেশন ও ফুটার (content.footer) ================= --}}
+    @if ($can('footer'))
     <div class="tab-panel" id="tab-footer" hidden>
-        <form method="POST" action="{{ route('admin.settings.content.save') }}">
+        <form method="POST" action="{{ route('admin.settings.content.footer') }}">
             @csrf
             <div class="ct-sec">
                 <div class="ct-sec-head">
@@ -612,6 +620,14 @@
             </div>
         </form>
     </div>
+    @endif
+
+    @if (! $can('hero') && ! $can('sections') && ! $can('order_form') && ! $can('footer'))
+        <div class="note-banner">
+            <i class="fa-solid fa-eye"></i>
+            <span>আপনার ল্যান্ডিং কনটেন্ট <b>দেখার</b> অনুমতি আছে — কোনো অংশ বদলানোর অনুমতি এখনো দেওয়া হয়নি।</span>
+        </div>
+    @endif
 @endsection
 
 @section('styles')
@@ -743,13 +759,14 @@
             });
         });
 
-        /* restore last tab after reload/save */
+        /* restore last tab after reload/save; fall back to the first tab the
+           admin is actually granted (hero may be missing for view-only grants) */
         (function () {
             var saved = localStorage.getItem(TAB_KEY);
-            if (saved) {
-                var tab = document.querySelector('#contentTabs .filter-tab[data-tab="' + saved + '"]');
-                if (tab) showTab(saved);
-            }
+            var tab = saved ? document.querySelector('#contentTabs .filter-tab[data-tab="' + saved + '"]') : null;
+            if (tab) { showTab(saved); return; }
+            var first = document.querySelector('#contentTabs .filter-tab');
+            if (first) showTab(first.dataset.tab);
         })();
 
         /* unsaved-changes guard: any input in any panel marks dirty */

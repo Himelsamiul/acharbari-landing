@@ -7,6 +7,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
+/**
+ * Permission system tests — 3-role architecture (daief's system):
+ * super_admin / admin (module.feature map) / customer.
+ * Legacy flat-permission creation (permissions array, no role) is bridged in
+ * the User model — staff() here exercises that path on purpose.
+ */
 class AdminPermissionTest extends TestCase
 {
     use RefreshDatabase;
@@ -17,7 +23,7 @@ class AdminPermissionTest extends TestCase
             'name' => 'Boss',
             'email' => 'boss@test.bd',
             'password' => 'secret123',
-            'permissions' => array_keys(User::PERMISSIONS),
+            'role' => User::ROLE_SUPER_ADMIN,
         ]);
     }
 
@@ -60,49 +66,50 @@ class AdminPermissionTest extends TestCase
         $this->assertStringNotContainsString('অ্যাডমিন ম্যানেজমেন্ট', $html);
     }
 
-    public function test_emails_are_visible_but_first_admin_hidden(): void
+    public function test_plain_admin_cannot_open_super_panel(): void
     {
-        // first admin (sob theke puran, seed type) — list e THAKBE NA
-        $first = User::create([
-            'name' => 'First', 'email' => 'first@test.bd', 'password' => 'secret123',
-            'permissions' => array_keys(User::PERMISSIONS),
-        ]);
-        $boss = User::create([
-            'name' => 'Boss', 'email' => 'boss@test.bd', 'password' => 'secret123',
-            'permissions' => array_keys(User::PERMISSIONS),
-        ]);
+        $staff = $this->staff(['orders']);
+        $this->actingAs($staff)
+            ->get(route('super.admins.index'))
+            ->assertForbidden();
+    }
+
+    public function test_super_panel_lists_admins_with_visible_emails(): void
+    {
+        $boss = $this->superAdmin();
+        $staff = $this->staff(['orders']);
 
         $html = $this->actingAs($boss)
-            ->get(route('admin.admins.index'))
+            ->get(route('super.admins.index'))
             ->assertOk()
             ->getContent();
 
-        // email visible (mask na)
+        // email visible (mask na) — duijon e list e
         $this->assertStringContainsString('boss@test.bd', $html);
-        // first admin er kono chinh nei (name o email) — shudhu boss dekhabe
-        $this->assertStringNotContainsString('first@test.bd', $html);
-        $this->assertStringNotContainsString('>First<', $html);
-        $this->assertSame(1, substr_count($html, 'boss@test.bd'));
+        $this->assertStringContainsString('staff@test.bd', $html);
     }
 
-    public function test_cannot_edit_own_permissions(): void
-    {
-        $boss = $this->superAdmin();
-        $this->actingAs($boss)
-            ->put(route('admin.admins.update', $boss), ['permissions' => ['orders']])
-            ->assertSessionHasErrors('admin');
-    }
-
-    public function test_super_can_update_other_admin_permissions(): void
+    public function test_super_can_update_other_admin_permission_matrix(): void
     {
         $boss = $this->superAdmin();
         $staff = $this->staff(['orders']);
 
         $this->actingAs($boss)
-            ->put(route('admin.admins.update', $staff), ['permissions' => ['orders', 'products']])
+            ->put(route('super.admins.update', $staff), [
+                'name' => 'Staff',
+                'email' => 'staff@test.bd',
+                'permissions' => [
+                    'orders' => ['view', 'status_update'],
+                    'products' => ['view', 'edit'],
+                ],
+            ])
             ->assertRedirect();
 
-        $this->assertSame(['orders', 'products'], $staff->fresh()->permissions);
+        $fresh = $staff->fresh();
+        $this->assertTrue($fresh->hasPermission('orders.view'));
+        $this->assertTrue($fresh->hasPermission('products.edit'));
+        $this->assertFalse($fresh->hasPermission('products.delete'));
+        $this->assertFalse($fresh->hasPermission('complaints.view'));
     }
 
     public function test_super_can_reset_other_admin_password(): void
@@ -111,34 +118,56 @@ class AdminPermissionTest extends TestCase
         $staff = $this->staff(['orders']);
 
         $this->actingAs($boss)
-            ->put(route('admin.admins.update', $staff), ['permissions' => ['orders'], 'password' => 'newpass99'])
+            ->post(route('super.admins.password', $staff), ['password' => 'newpass99'])
             ->assertRedirect();
 
         $this->assertTrue(Hash::check('newpass99', $staff->fresh()->password));
     }
 
-    public function test_self_delete_allowed_when_other_admins_exist(): void
-    {
-        $boss = $this->superAdmin();
-        $this->staff(['orders']);
-
-        $this->actingAs($boss)
-            ->delete(route('admin.admins.destroy', $boss))
-            ->assertRedirect(route('admin.login'));
-
-        $this->assertDatabaseMissing('users', ['id' => $boss->id]);
-        $this->assertGuest();
-    }
-
-    public function test_last_admin_cannot_be_deleted(): void
+    public function test_super_cannot_deactivate_or_delete_self(): void
     {
         $boss = $this->superAdmin();
 
         $this->actingAs($boss)
-            ->delete(route('admin.admins.destroy', $boss))
+            ->post(route('super.admins.toggle', $boss))
+            ->assertSessionHasErrors('admin');
+
+        $this->actingAs($boss)
+            ->delete(route('super.admins.destroy', $boss))
             ->assertSessionHasErrors('admin');
 
         $this->assertDatabaseHas('users', ['id' => $boss->id]);
+        $this->assertTrue($boss->fresh()->is_active);
+    }
+
+    public function test_super_can_delete_another_admin(): void
+    {
+        $boss = $this->superAdmin();
+        $staff = $this->staff(['orders']);
+
+        $this->actingAs($boss)
+            ->delete(route('super.admins.destroy', $staff))
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('users', ['id' => $staff->id]);
+    }
+
+    public function test_deactivated_admin_cannot_log_in(): void
+    {
+        $boss = $this->superAdmin();
+        $staff = $this->staff(['orders']);
+
+        $this->actingAs($boss)
+            ->post(route('super.admins.toggle', $staff))
+            ->assertRedirect();
+        $this->assertFalse($staff->fresh()->is_active);
+
+        $this->post(route('admin.login.attempt'), [
+            'email' => 'staff@test.bd',
+            'password' => 'secret123',
+        ])->assertSessionHasErrors('email');
+
+        $this->assertGuest();
     }
 
     public function test_own_password_change_works(): void

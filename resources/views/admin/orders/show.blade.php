@@ -85,6 +85,7 @@
             <div class="card">
                 <h3><i class="fa-solid fa-pen-to-square"></i> স্ট্যাটাস আপডেট</h3>
                 <p class="desc">বর্তমান: <span class="pill {{ ['pending' => 'red', 'processing' => 'wait', 'shipped' => 'info', 'delivered' => 'ok', 'cancelled' => 'mut'][$order->status] }}">{{ $labels[$order->status] }}</span></p>
+                @if (auth()->user()->hasPermission('orders.status_update'))
                 <form method="POST" action="{{ route('admin.orders.status', $order) }}">
                     @csrf
                     <select name="status" class="status-select" style="width:100%;padding:11px;font-size:13.5px" required>
@@ -96,8 +97,10 @@
                         <i class="fa-solid fa-floppy-disk"></i> আপডেট করুন
                     </button>
                 </form>
+                @endif
 
                 {{-- payment mark — COD e taka hate pele paid koren, gateway/manual er bhul thakle thik koren --}}
+                @if (auth()->user()->hasPermission('orders.payment'))
                 <form method="POST" action="{{ route('admin.orders.payment', $order) }}" style="margin-top:14px">
                     @csrf
                     @php $isPaid = $order->payment_status === 'paid'; @endphp
@@ -111,7 +114,9 @@
                         {{ $isPaid ? 'পেমেন্ট আন-মার্ক করুন' : 'টাকা পেয়েছি — PAID করুন' }}
                     </button>
                 </form>
+                @endif
 
+                @if (auth()->user()->hasPermission('orders.delete'))
                 <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return swConfirmSubmit(event, 'অর্ডারটি মুছে ফেলবেন? এটি ফিরে আসবে না।')" style="margin-top:10px">
                     @csrf
                     @method('DELETE')
@@ -119,6 +124,7 @@
                         <i class="fa-solid fa-trash"></i> অর্ডার মুছুন
                     </button>
                 </form>
+                @endif
             </div>
 
             <div class="card">

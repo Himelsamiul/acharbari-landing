@@ -37,13 +37,30 @@ class DatabaseSeeder extends Seeder
             ['percent' => 10, 'is_active' => true, 'expires_at' => null]
         );
 
-        // Admin user (full permission — seed e sudhu prothom bar cholbe)
+        // Platform owner (super admin) — full access to /admin + /super
         \App\Models\User::updateOrCreate(
             ['email' => 'admin@khorak.shop'],
             [
                 'name' => 'Admin',
                 'password' => Hash::make('admin123'),
-                'permissions' => array_keys(\App\Models\User::PERMISSIONS),
+                'role' => \App\Models\User::ROLE_SUPER_ADMIN,
+                'permissions' => null,
+                'is_active' => true,
+            ]
+        );
+
+        // Demo client admin (a sellable package example) — only orders + products.
+        \App\Models\User::updateOrCreate(
+            ['email' => 'manager@khorak.shop'],
+            [
+                'name' => 'Store Manager',
+                'password' => Hash::make('manager123'),
+                'role' => \App\Models\User::ROLE_ADMIN,
+                'permissions' => [
+                    'orders' => ['view', 'status_update'],
+                    'products' => ['view', 'edit'],
+                ],
+                'is_active' => true,
             ]
         );
 

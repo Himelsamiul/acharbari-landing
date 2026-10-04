@@ -5,6 +5,7 @@
 @section('page_sub', ($supplier->company ? $supplier->company . ' • ' : '') . ($supplier->phone ?: 'মোবাইল নেই'))
 
 @section('content')
+    @php $canPurchases = auth()->user()->hasPermission('suppliers.purchases'); @endphp
     <div style="display:flex;gap:10px;margin-bottom:12px">
         <a class="a-btn ghost" href="{{ route('admin.suppliers') }}"><i class="fa-solid fa-arrow-left"></i> সব সাপ্লায়ার</a>
     </div>
@@ -24,6 +25,7 @@
         </div>
     </div>
 
+    @if ($canPurchases)
     <div class="card">
         <h3><i class="fa-solid fa-cart-flatbed"></i> নতুন পারচেজ এন্ট্রি</h3>
         <p class="desc">কোন প্রোডাক্ট, কত পরিমাণ, কত দামে নিয়েছেন — এন্ট্রি দিলে প্রোডাক্টের স্টক অটো বাড়বে।</p>
@@ -65,6 +67,7 @@
             <button class="a-btn" type="submit" style="margin-top:10px"><i class="fa-solid fa-floppy-disk"></i> পারচেজ সেভ করুন</button>
         </form>
     </div>
+    @endif
 
     @php
         $variantMapJs = $allProducts->mapWithKeys(fn ($p) => [
@@ -95,7 +98,7 @@
         <p class="desc">এই সাপ্লায়ারের কাছ থেকে কী কী নিয়েছেন, কত টাকায় — মোট: ৳{{ number_format($totalSpent) }}</p>
         <table class="tbl">
             <thead>
-                <tr><th>তারিখ</th><th>প্রোডাক্ট</th><th>পরিমাণ</th><th>একক দাম</th><th>মোট</th><th>নোট</th><th></th></tr>
+                <tr><th>তারিখ</th><th>প্রোডাক্ট</th><th>পরিমাণ</th><th>একক দাম</th><th>মোট</th><th>নোট</th>@if ($canPurchases)<th></th>@endif</tr>
             </thead>
             <tbody>
                 @forelse ($purchases as $pu)
@@ -111,6 +114,7 @@
                         <td>৳{{ number_format($pu->unit_cost) }}</td>
                         <td><b>৳{{ number_format($pu->total) }}</b></td>
                         <td><small style="color:#8b7355">{{ $pu->note }}</small></td>
+                        @if ($canPurchases)
                         <td>
                             <form method="POST" action="{{ route('admin.purchases.destroy', $pu) }}"
                                 onsubmit="return swConfirmSubmit(event, 'রেকর্ড মুছলে স্টক থেকেও পরিমাণটা কমে যাবে — নিশ্চিত?')">
@@ -119,6 +123,7 @@
                                 <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
                             </form>
                         </td>
+                        @endif
                     </tr>
                 @empty
                     <tr><td colspan="7" style="text-align:center;color:#8b7355;padding:20px">এখনো কোনো পারচেজ নেই — উপরে থেকে এন্ট্রি দিন।</td></tr>

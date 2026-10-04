@@ -87,18 +87,22 @@
                         </div>
 
                         <div class="cmp-actions">
+                            @if (auth()->user()->hasPermission('complaints.resolve'))
                             <form method="POST" action="{{ route('admin.complaints.toggle', $complaint) }}">
                                 @csrf
                                 <button type="submit" class="cmp-act resolve" title="{{ $complaint->is_resolved ? 'পুনরায় খুলুন' : 'সমাধান হয়েছে চিহ্নিত করুন' }}">
                                     <i class="fa-solid {{ $complaint->is_resolved ? 'fa-rotate-left' : 'fa-check' }}"></i>
                                 </button>
                             </form>
+                            @endif
+                            @if (auth()->user()->hasPermission('complaints.delete'))
                             <form method="POST" action="{{ route('admin.complaints.destroy', $complaint) }}"
                                 onsubmit="return swConfirmSubmit(event, 'কমপ্লেইনটি মুছে ফেলবেন?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="cmp-act del" title="মুছুন"><i class="fa-solid fa-trash-can"></i></button>
                             </form>
+                            @endif
                         </div>
                     </div>
                 @endforeach

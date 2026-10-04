@@ -5,15 +5,26 @@
 @section('page_sub', 'অনলাইন পেমেন্ট চালু/বন্ধ — বিকাশ ও নগদ API')
 
 @section('content')
+    @php
+        $u = auth()->user();
+        $canToggle = $u->hasPermission('payment.online_toggle');
+        $canBkash = $u->hasPermission('payment.bkash_edit');
+        $canNagad = $u->hasPermission('payment.nagad_edit');
+    @endphp
+
     <div class="note-banner">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
         <span>মাস্টার টগল <b>বন্ধ</b> থাকলে কাস্টমার শুধু <b>ক্যাশ অন ডেলিভারি</b> দেখবে। চালু করলে নিচে যে গেটওয়ে চালু ও কনফিগার করা আছে শুধু সেটাই চেকআউটে দেখাবে — কাস্টমার সরাসরি বিকাশ/নগদের পেজে গিয়ে পেমেন্ট করবে।</span>
     </div>
 
+    @if ($canToggle || $canBkash || $canNagad)
     <div class="card">
-        <h3>অনলাইন পেমেন্ট (মাস্টার টগল)</h3>
-        <p class="desc">ক্যাশ অন ডেলিভারি সবসময় চালু থাকে — এই টগল পুরো অনলাইন পেমেন্ট নিয়ন্ত্রণ করে</p>
-        <form method="POST" action="{{ route('admin.settings.payment.save') }}">
+        <h3>পেমেন্ট সেটিংস</h3>
+        <p class="desc">প্রতিটি অংশের নিজের সেভ বাটন আছে — যে অংশের অনুমতি আছে শুধু সেটাই দেখা যাচ্ছে</p>
+
+        {{-- ===== master online toggle (payment.online_toggle) ===== --}}
+        @if ($canToggle)
+        <form method="POST" action="{{ route('admin.settings.payment.toggle') }}">
             @csrf
             <div class="pay-toggle-row">
                 <div class="pay-toggle-info">
@@ -21,10 +32,18 @@
                     <span>চালু থাকলে চেকআউটে অনলাইন পেমেন্ট অপশন দেখাবে (কনফিগার করা গেটওয়ে অনুযায়ী)</span>
                 </div>
                 <label class="pay-switch">
-                    <input type="checkbox" name="online_payment_enabled" value="1" id="payToggle" {{ ($settings['online_payment_enabled'] ?? '') === '1' ? 'checked' : '' }}>
+                    <input type="checkbox" name="online_payment_enabled" value="1" {{ ($settings['online_payment_enabled'] ?? '') === '1' ? 'checked' : '' }}>
                     <span class="pay-slider"></span>
                 </label>
             </div>
+            <button class="a-btn" style="margin-top:12px"><i class="fa-solid fa-floppy-disk"></i> টগল সেভ করুন</button>
+        </form>
+        @endif
+
+        {{-- ===== bKash credentials (payment.bkash_edit) ===== --}}
+        @if ($canBkash)
+        <form method="POST" action="{{ route('admin.settings.payment.bkash') }}">
+            @csrf
             <div class="pay-gw-head">
                 <span class="gw-logo"><img src="{{ asset('assets/img/pay/bkash.svg') }}" alt="bKash"></span>
                 <div class="pay-toggle-info">
@@ -64,7 +83,15 @@
                 </div>
                 <p class="pay-hint">বিকাশ মার্চেন্ট পোর্টালে এই Callback URL রেজিস্টার করুন: <code>{{ route('payment.callback.bkash', 'ORDER_CODE') }}</code></p>
             </div>
-            <div class="pay-gw-head" style="margin-top:18px">
+            <button class="a-btn" style="margin-top:12px"><i class="fa-solid fa-floppy-disk"></i> বিকাশ সেটিংস সেভ করুন</button>
+        </form>
+        @endif
+
+        {{-- ===== Nagad credentials (payment.nagad_edit) ===== --}}
+        @if ($canNagad)
+        <form method="POST" action="{{ route('admin.settings.payment.nagad') }}">
+            @csrf
+            <div class="pay-gw-head">
                 <span class="gw-logo gw-nagad"><i class="fa-solid fa-bolt"></i></span>
                 <div class="pay-toggle-info">
                     <b>নগদ (Nagad) — Payment Gateway</b>
@@ -129,9 +156,16 @@
                 <p class="pay-hint">দুই নম্বরই খালি রাখলে কাস্টমার এই অপশন দেখবে না। চেকআউটে নম্বর + কপি বাটন সহ দেখাবে — কাস্টমার চাইলে TrxID লিখে দিতে পারবে, অর্ডারের সাথেই সেভ থাকবে।</p>
             </div>
 
-            <button class="a-btn" style="margin-top:18px"><i class="fa-solid fa-floppy-disk"></i> সব সেটিংস সেভ করুন</button>
+            <button class="a-btn" style="margin-top:18px"><i class="fa-solid fa-floppy-disk"></i> নগদ ও ম্যানুয়াল পেমেন্ট সেভ করুন</button>
         </form>
+        @endif
     </div>
+    @else
+    <div class="note-banner">
+        <i class="fa-solid fa-eye"></i>
+        <span>আপনার পেমেন্ট সেটিংস <b>দেখার</b> অনুমতি আছে — বদলানোর অনুমতি নেই।</span>
+    </div>
+    @endif
 
     <div class="card">
         <h3>পেমেন্ট মেথড ওভারভিউ</h3>
@@ -189,7 +223,7 @@
         input:checked + .pay-slider { background: #059669; }
         input:checked + .pay-slider:before { transform: translateX(24px); }
         .pay-gw-head {
-            display: flex; align-items: center; gap: 12px; margin-top: 16px;
+            display: flex; align-items: center; gap: 12px; margin-top: 18px;
             border-top: 1px dashed rgba(5, 150, 105, .18); padding-top: 16px; flex-wrap: wrap;
         }
         .pay-gw-head .pay-toggle-info { flex: 1; min-width: 200px; }
@@ -221,7 +255,7 @@
 
 @push('scripts')
     <script>
-        // dim a gateway's fields when its switch is off
+        // dim a gateway's fields when its switch is off (switches only exist for granted gateways)
         (function () {
             [['bkashToggle', 'bkashFields'], ['nagadToggle', 'nagadFields']].forEach(function (pair) {
                 var t = document.getElementById(pair[0]);

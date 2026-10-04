@@ -5,6 +5,7 @@
 @section('page_sub', 'Meta, Open Graph, Canonical ও Search Console')
 
 @section('content')
+    @if (auth()->user()->hasPermission('seo.edit'))
     <form method="POST" action="{{ route('admin.seo.save') }}" enctype="multipart/form-data">
         @csrf
 
@@ -92,6 +93,21 @@
             </div>
         </div>
     </form>
+    @else
+    {{-- view-only: the current SEO values, no editable inputs --}}
+    <div class="note-banner">
+        <i class="fa-solid fa-eye"></i>
+        <span>আপনার SEO সেটিংস <b>দেখার</b> অনুমতি আছে — বদলানোর অনুমতি নেই।</span>
+    </div>
+    <div class="card">
+        <h3><i class="fa-solid fa-heading"></i> বর্তমান SEO</h3>
+        <p class="desc"><b>Meta Title:</b> {{ $title ?: '—' }}</p>
+        <p class="desc">{{ $desc ?: '' }}</p>
+        <p class="desc"><b>Keywords:</b> {{ $keywords ?: '—' }}</p>
+        @if ($canonical)<p class="desc"><b>Canonical:</b> {{ $canonical }}</p>@endif
+        @if ($ogTitle || $ogDesc)<p class="desc"><b>OG:</b> {{ $ogTitle }} — {{ $ogDesc }}</p>@endif
+    </div>
+    @endif
 
     <style>
         .char-counter { font-size: 11.5px; font-weight: 700; margin-top: 7px; color: #8b7355; }
@@ -126,7 +142,9 @@
         var DEF_DESC = @json($defDesc);
 
         function updateSeoCounters() {
-            var t = document.getElementById('seoTitle').value.length;
+            var tEl = document.getElementById('seoTitle');
+            if (!tEl) return; /* seo.edit not granted — read-only page */
+            var t = tEl.value.length;
             var d = document.getElementById('seoDesc').value.length;
             var k = document.getElementById('seoKeywords').value;
             var kw = k.split(',').filter(function (x) { return x.trim(); }).length;

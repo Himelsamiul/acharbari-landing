@@ -5,6 +5,13 @@
 @section('page_sub', 'সরবরাহকারী ম্যানেজ করুন — পারচেজ হিস্ট্রি সহ')
 
 @section('content')
+    @php
+        $canCreate = auth()->user()->hasPermission('suppliers.create');
+        $canEdit = auth()->user()->hasPermission('suppliers.edit');
+        $canDelete = auth()->user()->hasPermission('suppliers.delete');
+    @endphp
+
+    @if ($canCreate)
     <div class="card" style="max-width:920px">
         <h3><i class="fa-solid fa-plus"></i> নতুন সাপ্লায়ার যোগ করুন</h3>
         <p class="desc">সাপ্লায়ার যোগ করার পরে তার প্রোফাইলে গিয়ে পারচেজ এন্ট্রি দিতে পারবেন — কোন প্রোডাক্ট, কত পরিমাণ, কত ক্রয়মূল্যে নিয়েছেন সব সেভ থাকবে।</p>
@@ -35,6 +42,7 @@
             <button class="a-btn" type="submit" style="margin-top:10px"><i class="fa-solid fa-floppy-disk"></i> সেভ করুন</button>
         </form>
     </div>
+    @endif
 
     <div class="card" style="margin-top:16px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
@@ -68,6 +76,7 @@
                             <div style="display:flex;gap:6px;flex-wrap:wrap">
                                 <a class="side-link" style="background:rgba(5,150,105,.08);color:#1f4234;border-radius:10px;padding:7px 12px;width:auto;text-decoration:none"
                                     href="{{ route('admin.suppliers.show', $s) }}"><i class="fa-solid fa-cart-flatbed"></i> পারচেজ</a>
+                                @if ($canEdit)
                                 <a class="side-link" style="background:rgba(37,99,235,.08);color:#1e40af;border-radius:10px;padding:7px 12px;width:auto;text-decoration:none"
                                     href="{{ route('admin.suppliers.edit', $s) }}"><i class="fa-solid fa-pen"></i></a>
                                 <form method="POST" action="{{ route('admin.suppliers.toggle', $s) }}">
@@ -75,12 +84,15 @@
                                     <button class="btn-icon" type="submit" title="{{ $s->is_active ? 'বন্ধ করুন' : 'চালু করুন' }}">
                                         <i class="fa-solid {{ $s->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i></button>
                                 </form>
+                                @endif
+                                @if ($canDelete)
                                 <form method="POST" action="{{ route('admin.suppliers.destroy', $s) }}"
                                     onsubmit="return swConfirmSubmit(event, 'সাপ্লায়ার ও তার পারচেজ হিস্ট্রি মুছে ফেলবেন?')">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

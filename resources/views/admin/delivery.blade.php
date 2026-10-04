@@ -14,6 +14,7 @@
         <h3><i class="fa-solid fa-map-location-dot"></i> জেলা-ভিত্তিক ডেলিভারি চার্জ</h3>
         <p class="desc">চেকবক্স = ডেলিভারি চালু, ঘরের সংখ্যা = ডেলিভারি চার্জ (৳)</p>
 
+        @if (auth()->user()->hasPermission('delivery.edit'))
         <form method="POST" action="{{ route('admin.settings.delivery.save') }}" id="deliveryForm">
             @csrf
             <input type="text" class="a-input" id="districtSearch" placeholder="🔍 জেলা খুঁজুন…" style="max-width:280px;margin-bottom:12px">
@@ -62,6 +63,17 @@
                 <span style="align-self:center;color:#6b7280;font-size:13px">চালু আছে: <b id="districtCount">{{ count($districts) }}</b> টি জেলা</span>
             </div>
         </form>
+        @else
+        {{-- view-only: the current config without editable inputs --}}
+        <p class="desc">আপনার <b>দেখার</b> অনুমতি আছে — বদলানোর অনুমতি নেই। বর্তমানে {{ count($districts) }} টি জেলায় ডেলিভারি চালু:</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;padding:6px 0">
+            @forelse ($districts as $c)
+                <span class="pill ok">{{ $c['bn'] }} — ৳{{ number_format($c['charge']) }}</span>
+            @empty
+                <span style="color:#8b7355;font-size:13px">কোনো জেলায় ডেলিভারি চালু নেই।</span>
+            @endforelse
+        </div>
+        @endif
     </div>
 
     <script>
@@ -75,7 +87,8 @@
         });
 
         // before submit: disable unchecked rows, mirror charges into submitted fields
-        document.getElementById('deliveryForm').addEventListener('submit', function () {
+        var deliveryForm = document.getElementById('deliveryForm');
+        if (deliveryForm) deliveryForm.addEventListener('submit', function () {
             document.querySelectorAll('.district-check').forEach(function (cb) {
                 var row = cb.getAttribute('data-row');
                 var on = cb.checked;
@@ -93,8 +106,9 @@
                 document.querySelectorAll('.district-check:checked').length;
         }
 
-        // simple search filter
-        document.getElementById('districtSearch').addEventListener('input', function () {
+        // simple search filter (search box only exists on the editable form)
+        var districtSearch = document.getElementById('districtSearch');
+        if (districtSearch) districtSearch.addEventListener('input', function () {
             var q = this.value.trim().toLowerCase();
             document.querySelectorAll('.district-row').forEach(function (tr) {
                 tr.style.display = tr.getAttribute('data-name').toLowerCase().indexOf(q) !== -1 ? '' : 'none';

@@ -32,6 +32,9 @@
         </div>
     </div>
 
+    @php $canManage = auth()->user()->hasPermission('sitemap.manage'); @endphp
+
+    @if ($canManage)
     <div class="card">
         <h3><i class="fa-solid fa-plus"></i> নতুন URL যোগ করুন</h3>
         <p class="desc">পাথ দিন (যেমন <code>/track</code>) — একই পাথ আবার দিলে আপডেট হবে</p>
@@ -64,6 +67,7 @@
             </div>
         </form>
     </div>
+    @endif
 
     <div class="card">
         <h3><i class="fa-solid fa-list"></i> কাস্টম URL তালিকা</h3>
@@ -73,7 +77,7 @@
         @else
             <table class="tbl">
                 <thead>
-                    <tr><th>URL</th><th>Priority</th><th>Frequency</th><th>স্ট্যাটাস</th><th></th></tr>
+                    <tr><th>URL</th><th>Priority</th><th>Frequency</th><th>স্ট্যাটাস</th>@if ($canManage)<th></th>@endif</tr>
                 </thead>
                 <tbody>
                     @foreach ($urls as $u)
@@ -82,13 +86,18 @@
                             <td><span class="pill {{ $u->priority >= 0.8 ? 'ok' : 'mut' }}">{{ number_format($u->priority, 1) }}</span></td>
                             <td><span class="pill info">{{ $u->changefreq }}</span></td>
                             <td>
+                                @if ($canManage)
                                 <form method="POST" action="{{ route('admin.sitemap.toggle', $u) }}">
                                     @csrf
                                     <button type="submit" class="pill {{ $u->is_active ? 'ok' : 'mut' }}" style="border:none;cursor:pointer;font-family:inherit">
                                         {{ $u->is_active ? 'চালু' : 'বন্ধ' }}
                                     </button>
                                 </form>
+                                @else
+                                <span class="pill {{ $u->is_active ? 'ok' : 'mut' }}">{{ $u->is_active ? 'চালু' : 'বন্ধ' }}</span>
+                                @endif
                             </td>
+                            @if ($canManage)
                             <td>
                                 <form method="POST" action="{{ route('admin.sitemap.destroy', $u) }}" onsubmit="return swConfirmSubmit(event, 'URL-টি মুছে ফেলবেন?')">
                                     @csrf
@@ -96,6 +105,7 @@
                                     <button type="submit" class="btn-icon" title="মুছুন"><i class="fa-solid fa-trash"></i></button>
                                 </form>
                             </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>

@@ -54,6 +54,12 @@ class CustomerController extends Controller
             'from' => $from,
             'to' => $to,
             'uniqueCount' => Order::distinct('phone')->count('phone'),
+            // registered storefront accounts (badge when the phone matches)
+            'registeredPhones' => \App\Models\User::where('role', \App\Models\User::ROLE_CUSTOMER)
+                ->whereNotNull('phone')
+                ->pluck('phone')
+                ->flip()
+                ->all(),
         ]);
     }
 

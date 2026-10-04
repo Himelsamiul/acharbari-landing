@@ -5,6 +5,8 @@
 @section('page_sub', 'পুরো ওয়েবসাইটের ডিজাইন থিম, ফন্ট ও স্টাইল পরিবর্তন')
 
 @section('content')
+    @php $can = fn (string $feature) => auth()->user()->hasPermission('theme.' . $feature); @endphp
+
     <div class="note-banner">
         <i class="fa-solid fa-palette"></i>
         <span>থিম সেভ করলে পুরো ওয়েবসাইটের রঙ বদলে যাবে — ল্যান্ডিং পেজে সাথে সাথেই প্রয়োগ হবে।</span>
@@ -17,7 +19,8 @@
         </div>
     @endif
 
-    {{-- ===== INDUSTRY PRESETS (10 genres) ===== --}}
+    {{-- ===== INDUSTRY PRESETS (10 genres) — grantable via theme.industry_preset, super admin always has it ===== --}}
+    @if ($can('industry_preset'))
     <div class="card">
         <h3><i class="fa-solid fa-store"></i> ইন্ডাস্ট্রি প্রিসেট</h3>
         <p class="desc">এক ক্লিকে পুরো ওয়েবসাইট ওই ব্যবসার লুকে বদলে যাবে — থিমের রঙ, সব ছবি আর ডেমো কনটেন্টসহ। নিজে কাস্টমাইজ করা টেক্সট/ছবি থাকলে সিস্টেম আপনাকে জিজ্ঞেস করবে।</p>
@@ -58,8 +61,10 @@
             </button>
         @endif
     </div>
+    @endif
 
-    {{-- ===== LIVE LANDING PREVIEW ===== --}}
+    {{-- ===== LIVE LANDING PREVIEW (UI-only feature — no server route to protect) ===== --}}
+    @if ($can('live_preview'))
     <div class="card">
         <div class="lp-prev-head">
             <h3>লাইভ প্রিভিউ</h3>
@@ -83,19 +88,25 @@
             <iframe id="landingPreview" src="{{ url('/') }}" title="ল্যান্ডিং প্রিভিউ" loading="lazy"></iframe>
         </div>
     </div>
+    @endif
 
+    @if ($can('ready_made'))
     <div class="card">
         <h3>রেডিমেড থিম</h3>
         <p class="desc">ক্লিক করলে প্রিভিউ দেখাবে — পছন্দ হলে নিচের <b>প্রয়োগ করুন</b> বার থেকে সেভ করুন</p>
         <div class="preset-grid" id="presetGrid"></div>
     </div>
+    @endif
 
+    @if ($can('saved_themes'))
     <div class="card">
         <h3>আমার সেভ করা থিম</h3>
         <p class="desc">নিজের বানানো থিম লাইব্রেরিতে জমিয়ে রাখুন — যেকোনো সময় এক ক্লিকে ফিরে আসুন (নিচের কাস্টম কালার থেকে সেভ করা যায়)</p>
         <div class="preset-grid" id="myThemeGrid"></div>
     </div>
+    @endif
 
+    @if ($can('custom_colors'))
     <div class="card">
         <h3>কাস্টম কালার</h3>
         <p class="desc">নিজের পছন্দমতো ব্র্যান্ড রঙ সেট করুন — সাদা লেখা পড়া যাবে কিনা সাথে সাথে চেক হয়</p>
@@ -139,16 +150,21 @@
 
         <div class="custom-actions">
             <button class="a-btn" onclick="applyCustomTheme()"><i class="fa-solid fa-check"></i> কাস্টম থিম প্রয়োগ করুন</button>
-            <button class="a-btn warn" onclick="resetTheme()"><i class="fa-solid fa-rotate-left"></i> ডিফল্টে ফিরুন (Herbal Green)</button>
+            @if ($can('reset'))
+                <button class="a-btn warn" onclick="resetTheme()"><i class="fa-solid fa-rotate-left"></i> ডিফল্টে ফিরুন (Herbal Green)</button>
+            @endif
         </div>
 
+        @if ($can('saved_themes'))
         <div class="save-my-row">
             <input class="a-input" id="myThemeName" maxlength="30" placeholder="থিমের নাম দিন (যেমন: ঈদ গ্রিন)">
             <button class="a-btn ghost" onclick="saveMyTheme()"><i class="fa-solid fa-bookmark"></i> লাইব্রেরিতে সেভ করুন</button>
         </div>
+        @endif
     </div>
+    @endif
 
-    @if (!empty($history))
+    @if ($can('recent_themes') && !empty($history))
     <div class="card">
         <h3>সাম্প্রতিক থিম</h3>
         <p class="desc">শেষ বদলের আগের থিমগুলো — এক ক্লিকে ফিরে যান</p>
@@ -171,6 +187,7 @@
     </div>
     @endif
 
+    @if ($can('fonts'))
     <div class="card">
         <h3>ফন্ট</h3>
         <p class="desc">হেডিং ও বডির ফন্ট আলাদা করে বাছতে পারেন — পরিবর্তন আগে প্রিভিউতে দেখে নিন</p>
@@ -196,7 +213,9 @@
         </div>
         <button class="a-btn" onclick="saveFonts()"><i class="fa-solid fa-check"></i> ফন্ট প্রয়োগ করুন</button>
     </div>
+    @endif
 
+    @if ($can('style_tokens'))
     <div class="card">
         <h3>স্টাইল টোকেন</h3>
         <p class="desc">রঙ ছাড়াও পুরো সাইটের কোণার ভঙ্গি আর ছায়ার ধরন বদলান</p>
@@ -220,7 +239,9 @@
         </div>
         <button class="a-btn" onclick="saveStyle()"><i class="fa-solid fa-check"></i> স্টাইল প্রয়োগ করুন</button>
     </div>
+    @endif
 
+    @if ($can('festive'))
     <div class="card">
         <h3>উৎসব অটো-শিডিউল</h3>
         <p class="desc">নির্দিষ্ট তারিখে নির্দিষ্ট থিম অটো চালু হবে — ঈদ, পহেলা বৈশাখ, বিজয় দিবস ইত্যাদিতে সাইট নিজেই সাজবে</p>
@@ -236,13 +257,16 @@
             <button class="a-btn" onclick="saveFestive()"><i class="fa-solid fa-calendar-check"></i> শিডিউল সেভ করুন</button>
         </div>
     </div>
+    @endif
 
-    {{-- ===== STICKY CONFIRM BAR ===== --}}
+    {{-- ===== STICKY CONFIRM BAR (apply path = theme.ready_made) ===== --}}
+    @if ($can('ready_made'))
     <div class="confirm-bar" id="confirmBar" hidden>
         <span class="confirm-text"><i class="fa-solid fa-palette"></i> <b id="confirmName"></b> থিম নির্বাচিত — প্রিভিউ দেখে নিয়েছেন?</span>
         <button type="button" class="a-btn" onclick="applyPending()"><i class="fa-solid fa-check"></i> প্রয়োগ করুন</button>
         <button type="button" class="a-btn ghost confirm-cancel" onclick="cancelPending()">বাতিল</button>
     </div>
+    @endif
 
     <style>
         /* hidden attribute SOB somoy kaj koruk — nahole .confirm-bar er display:flex
@@ -367,6 +391,8 @@
             padding: 12px 16px; border-radius: 16px; box-shadow: 0 24px 50px -12px rgba(2, 44, 34, .65);
             max-width: min(94vw, 640px);
         }
+        /* display:flex above defeats the hidden attribute — re-hide explicitly */
+        .confirm-bar[hidden] { display: none; }
         .confirm-text { font-size: 13px; display: flex; align-items: center; gap: 8px; }
         .confirm-text i { color: #6ee7b7; }
         .confirm-cancel { border-color: rgba(255,255,255,.3) !important; color: #d1fae5 !important; }
@@ -429,6 +455,9 @@
         var FESTIVE_ROWS = @json($festive);
         var LOGO_URL = @js($logoUrl);
         var currentTheme = @json($themeId);
+        /* only theme.ready_made holders may apply a theme to the live site —
+           cards without it stay hover-preview-only (no dead apply buttons) */
+        var CAN_APPLY = @json(auth()->user()->hasPermission('theme.ready_made'));
         var grid = document.getElementById('presetGrid');
         var myGrid = document.getElementById('myThemeGrid');
         var confirmBar = document.getElementById('confirmBar');
@@ -586,12 +615,16 @@
             ADMIN_VAR_KEYS.forEach(function (k) { s.removeProperty(k); });
         }
 
-        /* re-apply pending preview when the iframe finishes (re)loading */
-        document.getElementById('landingPreview').addEventListener('load', function () {
-            if (lastPreview) previewVars(lastPreview);
-            previewStyleTokens();
-            previewFonts();
-        });
+        /* re-apply pending preview when the iframe finishes (re)loading —
+           only wired when the live preview panel is rendered at all */
+        var landingPreview = document.getElementById('landingPreview');
+        if (landingPreview) {
+            landingPreview.addEventListener('load', function () {
+                if (lastPreview) previewVars(lastPreview);
+                previewStyleTokens();
+                previewFonts();
+            });
+        }
 
         function setPrevWidth(btn) {
             document.querySelectorAll('.lp-dev-btn').forEach(function (b) { b.classList.remove('active'); });
@@ -636,41 +669,45 @@
             btn.dataset.themeId = id;
             btn.addEventListener('mouseenter', function () { previewVars(t); });
             btn.addEventListener('mouseleave', function () { if (!pending) restorePreview(); else previewVars(pending.theme); });
-            btn.onclick = function () { selectTheme(id, t, bn, btn); };
+            if (CAN_APPLY) btn.onclick = function () { selectTheme(id, t, bn, btn); };
         }
 
-        Object.keys(THEMES).forEach(function (id) {
-            var t = THEMES[id];
-            var btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'preset-card';
-            btn.innerHTML = cardHtml(t, t.bn, t.en);
-            bindCard(btn, id, t, t.bn);
-            grid.appendChild(btn);
-        });
-
-        MY_THEMES.forEach(function (m) {
-            var btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'preset-card';
-            btn.innerHTML = cardHtml(m.theme, m.name, 'আমার থিম') +
-                '<span class="my-del" role="button" title="মুছে ফেলুন">×</span>';
-            btn.querySelector('.my-del').addEventListener('click', function (e) {
-                e.stopPropagation();
-                swConfirm({ title: '"' + m.name + '" থিমটি মুছে ফেলবেন?', icon: 'warning' }).then(function (ok) {
-                    if (!ok) return;
-                    var fd = new FormData();
-                    fd.append('_token', TOKEN);
-                    fd.append('id', m.id);
-                    postForm(MY_DEL_URL, fd).then(function () { btn.remove(); }).catch(showErr);
-                });
+        if (grid) {
+            Object.keys(THEMES).forEach(function (id) {
+                var t = THEMES[id];
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'preset-card';
+                btn.innerHTML = cardHtml(t, t.bn, t.en);
+                bindCard(btn, id, t, t.bn);
+                grid.appendChild(btn);
             });
-            bindCard(btn, m.id, m.theme, m.name);
-            myGrid.appendChild(btn);
-        });
+        }
 
-        if (!MY_THEMES.length) {
-            myGrid.innerHTML = '<p class="desc" style="grid-column:1/-1;margin:0">এখনো কোনো সেভ করা থিম নেই — নিচের কাস্টম কালার বানিয়ে "লাইব্রেরিতে সেভ করুন" চাপুন।</p>';
+        if (myGrid) {
+            MY_THEMES.forEach(function (m) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'preset-card';
+                btn.innerHTML = cardHtml(m.theme, m.name, 'আমার থিম') +
+                    '<span class="my-del" role="button" title="মুছে ফেলুন">×</span>';
+                btn.querySelector('.my-del').addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    swConfirm({ title: '"' + m.name + '" থিমটি মুছে ফেলবেন?', icon: 'warning' }).then(function (ok) {
+                        if (!ok) return;
+                        var fd = new FormData();
+                        fd.append('_token', TOKEN);
+                        fd.append('id', m.id);
+                        postForm(MY_DEL_URL, fd).then(function () { btn.remove(); }).catch(showErr);
+                    });
+                });
+                bindCard(btn, m.id, m.theme, m.name);
+                myGrid.appendChild(btn);
+            });
+
+            if (!MY_THEMES.length) {
+                myGrid.innerHTML = '<p class="desc" style="grid-column:1/-1;margin:0">এখনো কোনো সেভ করা থিম নেই — নিচের কাস্টম কালার বানিয়ে "লাইব্রেরিতে সেভ করুন" চাপুন।</p>';
+            }
         }
 
         markCurrentTheme();
@@ -752,26 +789,29 @@
             showToast('রঙ একটু গাঢ় করা হয়েছে — এখন সাদা লেখা স্পষ্ট পড়া যাবে');
         }
 
-        function syncCustom() {
+        function syncCustom(preview) {
             document.getElementById('hexPrimary').textContent = cpP.value;
             document.getElementById('hexDark').textContent = cpD.value;
             document.getElementById('hexAccent').textContent = cpA.value;
-            previewVars(deriveTheme(cpP.value, cpD.value, cpA.value));
+            /* startup call passes false so the iframe keeps showing the SAVED theme
+               instead of the picker defaults — preview only after a user action */
+            if (preview !== false) previewVars(deriveTheme(cpP.value, cpD.value, cpA.value));
             updateContrast();
         }
 
-        cpP.addEventListener('input', syncCustom);
-        cpD.addEventListener('input', syncCustom);
-        cpA.addEventListener('input', syncCustom);
+        cpP && cpP.addEventListener('input', syncCustom);
+        cpD && cpD.addEventListener('input', syncCustom);
+        cpA && cpA.addEventListener('input', syncCustom);
 
-        /* initial picker values: continue from the saved custom theme, if any */
+        /* initial picker values: continue from the saved custom theme, if any
+           (the whole block only runs when the custom-colors card is rendered) */
         @if ($themeId === 'custom')
-            (function () {
+            if (cpP) (function () {
                 var saved = @json(json_decode($themeJson, true));
                 if (saved && saved.primary) { cpP.value = saved.primary; cpD.value = saved.dark; cpA.value = saved.accent; }
             })();
         @endif
-        syncCustom();
+        if (cpP) syncCustom(false);
 
         /* ---------- logo -> theme (color extraction) ---------- */
 
@@ -937,6 +977,7 @@
         }
 
         function previewFonts() {
+            if (!selBody) return; /* fonts card not rendered for this admin */
             var bf = FONTS[selBody.value], hf = selHead.value ? FONTS[selHead.value] : null;
             if (!bf) return;
             var google = [bf.google, hf ? hf.google : ''].filter(Boolean);
@@ -979,7 +1020,9 @@
         );
 
         function segVal(id) {
-            var on = document.getElementById(id).querySelector('button.on');
+            var seg = document.getElementById(id);
+            if (!seg) return 'default'; /* style tokens card not rendered */
+            var on = seg.querySelector('button.on');
             return on ? on.dataset.v : 'default';
         }
 
@@ -1052,7 +1095,9 @@
             addFestRow({ label: label, theme_id: themeId, start: new Date().getFullYear() + '-' + start, end: new Date().getFullYear() + '-' + end, enabled: 1 });
         }
 
-        FESTIVE_ROWS.forEach(function (r) { addFestRow(r); });
+        if (document.getElementById('festRows')) {
+            FESTIVE_ROWS.forEach(function (r) { addFestRow(r); });
+        }
 
         function saveFestive() {
             var rows = [];
@@ -1141,10 +1186,11 @@
                     method: 'POST',
                     headers: { 'Accept': 'application/json' },
                     body: fd
-            })
-                .then(function (r) { return r.json(); })
-                .then(function (j) { showToast(j.message); setTimeout(function () { window.location.reload(); }, 700); })
-                .catch(function () { showToast('ব্যর্থ'); });
+                })
+                    .then(function (r) { return r.json(); })
+                    .then(function (j) { showToast(j.message); setTimeout(function () { window.location.reload(); }, 700); })
+                    .catch(function () { showToast('ব্যর্থ'); });
+            });
         }
     </script>
 @endpush

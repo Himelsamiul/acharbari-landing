@@ -55,6 +55,8 @@
         </div>
     </div>
 
+    @php $canOrders = auth()->user()->hasAnyModulePermission('orders'); @endphp
+    @if ($canOrders)
     <div class="card">
         <h3><i class="fa-solid fa-clock-rotate-left"></i> সাম্প্রতিক অর্ডার</h3>
         <p class="desc">সর্বশেষ ৬টি অর্ডার</p>
@@ -84,10 +86,19 @@
             </table>
         @endif
     </div>
+    @endif
     @php
         $seoDone = collect($seoChecks)->where('ok', true)->count();
         $seoTotal = count($seoChecks);
         $seoPct = round($seoDone / max(1, $seoTotal) * 100);
+        // quick links respect the viewer's permissions — no link, no leak
+        $seoPermByRoute = [
+            route('admin.seo', [], false) => 'seo',
+            route('admin.robots', [], false) => 'robots',
+            route('admin.redirects.index', [], false) => 'redirects',
+            route('admin.products.index', [], false) => 'products',
+        ];
+        $seoCanFollow = fn (string $url) => auth()->user()->hasAnyModulePermission($seoPermByRoute[$url] ?? 'dashboard');
     @endphp
     <div class="card">
         <h3><i class="fa-solid fa-magnifying-glass-chart"></i> SEO চেকলিস্ট</h3>
@@ -99,10 +110,17 @@
         </p>
         <div class="seo-checks">
             @foreach ($seoChecks as $c)
-                <a href="{{ $c['url'] }}" class="seo-check {{ $c['ok'] ? 'ok' : '' }}">
-                    <i class="fa-solid {{ $c['ok'] ? 'fa-circle-check' : 'fa-circle-xmark' }}"></i>
-                    <span>{{ $c['label'] }}</span>
-                </a>
+                @if ($seoCanFollow($c['url']))
+                    <a href="{{ $c['url'] }}" class="seo-check {{ $c['ok'] ? 'ok' : '' }}">
+                        <i class="fa-solid {{ $c['ok'] ? 'fa-circle-check' : 'fa-circle-xmark' }}"></i>
+                        <span>{{ $c['label'] }}</span>
+                    </a>
+                @else
+                    <span class="seo-check {{ $c['ok'] ? 'ok' : '' }}" style="cursor:default;opacity:.75">
+                        <i class="fa-solid {{ $c['ok'] ? 'fa-circle-check' : 'fa-circle-xmark' }}"></i>
+                        <span>{{ $c['label'] }}</span>
+                    </span>
+                @endif
             @endforeach
         </div>
     </div>
