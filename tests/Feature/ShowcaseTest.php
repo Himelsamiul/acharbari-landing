@@ -59,11 +59,35 @@ class ShowcaseTest extends TestCase
         foreach (IndustryPack::all() as $key => $pack) {
             $res->assertSee($pack['name_bn'])->assertSee($pack['name_en']);
             $res->assertSee('/showcase/' . $key); // live-demo link
+            // oi design er demo admin credential card e dekhabe
+            $res->assertSee(\App\Services\ShowcaseSync::demoAdminEmail($key));
         }
 
         // pack price (৯,৯৯০ via bn_num) + the landing-design product row price
         $res->assertSee('৳ ' . bn_num(number_format(9990)));
         $this->assertSame(10, substr_count($res->getContent(), 'sc-card-cover'));
+    }
+
+    public function test_sync_creates_a_full_access_demo_admin_per_genre(): void
+    {
+        (new ShowcaseSync)->run();
+
+        foreach (IndustryPack::keys() as $genre) {
+            $u = User::where('email', \App\Services\ShowcaseSync::demoAdminEmail($genre))->first();
+            $this->assertNotNull($u, "demo admin for {$genre}");
+            $this->assertSame(User::ROLE_ADMIN, $u->role);
+            $this->assertTrue((bool) $u->is_active);
+            // full module access — demo visitor can see/try everything
+            $this->assertContains('*', $u->permissions['orders'] ?? []);
+            $this->assertTrue(\Illuminate\Support\Facades\Hash::check(\App\Services\ShowcaseSync::DEMO_ADMIN_PASSWORD, $u->password));
+
+            // credential diye asol admin panel e login o kaj kore
+            $this->post(route('admin.login.attempt'), [
+                'email' => $u->email,
+                'password' => \App\Services\ShowcaseSync::DEMO_ADMIN_PASSWORD,
+            ])->assertRedirect(route('admin.dashboard'));
+            $this->post(route('admin.logout'));
+        }
     }
 
     /* ================= Genre demo pages ================= */

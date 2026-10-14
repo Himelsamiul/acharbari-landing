@@ -171,6 +171,24 @@
         render();
     };
 
+    /* ---------- clipboard (credential copy buttons) ---------- */
+    window.scCopyText = function (text, btn) {
+        var done = function () {
+            if (!btn) return;
+            btn.classList.add('copied');
+            setTimeout(function () { btn.classList.remove('copied'); }, 1400);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, done);
+        } else {
+            var ta = document.createElement('textarea');
+            ta.value = text; document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); } catch (e) { }
+            document.body.removeChild(ta);
+            done();
+        }
+    };
+
     /* ---------- coupon (same codes as the store checkout) ---------- */
     function couponMsg(text, ok) {
         var el = document.getElementById('sc-coupon-msg');

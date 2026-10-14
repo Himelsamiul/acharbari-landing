@@ -84,6 +84,29 @@
                                 <span data-lang="en">Order</span>
                             </button>
                         </div>
+
+                        {{-- oi design er admin demo credential — user log in kore puro panel ghure theme optimize kore dekhte pare --}}
+                        @if ($d['demo_admin']['exists'])
+                            <div class="sc-creds">
+                                <span class="sc-creds-h">
+                                    <i class="fa-solid fa-user-shield"></i>
+                                    <span data-lang="bn">অ্যাডমিন ডেমো লগইন</span>
+                                    <span data-lang="en">Admin Demo Login</span>
+                                </span>
+                                <span class="sc-creds-row">
+                                    <i class="fa-regular fa-envelope"></i><code>{{ $d['demo_admin']['email'] }}</code>
+                                    <button type="button" onclick="scCopyText('{{ $d['demo_admin']['email'] }}', this)"><span data-lang="bn">কপি</span><span data-lang="en">Copy</span></button>
+                                </span>
+                                <span class="sc-creds-row">
+                                    <i class="fa-solid fa-key"></i><code>{{ $d['demo_admin']['password'] }}</code>
+                                    <button type="button" onclick="scCopyText('{{ $d['demo_admin']['password'] }}', this)"><span data-lang="bn">কপি</span><span data-lang="en">Copy</span></button>
+                                </span>
+                                <a class="sc-creds-login" href="{{ route('admin.login') }}" target="_blank" rel="noopener">
+                                    <span data-lang="bn">প্যানেলে লগইন করে দেখুন →</span>
+                                    <span data-lang="en">Log in to the panel →</span>
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </article>
             @endforeach

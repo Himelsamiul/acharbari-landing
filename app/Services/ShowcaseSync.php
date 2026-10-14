@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Controllers\Admin\IndustryPack;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -13,15 +14,29 @@ use Illuminate\Support\Facades\DB;
  *  - every genre's 6 demo products (slugs demo-<genre>-<n>; organic reuses
  *    its real product slugs) — created only when MISSING, so admin edits,
  *    stock changes and the active industry's data are never overwritten
+ *    (a clearIndustry()-deactivated demo row gets re-activated: the demo
+ *    pages sell exactly those, storefront hiding is the industry scope's job)
  *  - one lp-<genre> row per design (industry='showcase') — the sellable
  *    "landing page design" item on the showcase cart, price synced from
  *    the pack, stock pinned to 0 (= unlimited per the order clamp logic)
+ *  - one demo ADMIN account per genre (demo.<genre>@khorak.shop) so a
+ *    showcase visitor can log into the panel and explore the design —
+ *    full module access, public demo password, created only when missing
  *
  * Unlike applyIndustry() this NEVER deactivates another genre's demos and
  * never touches managed/real products.
  */
 class ShowcaseSync
 {
+    /** Public demo password for every genre's showcase admin (shown on the cards). */
+    public const DEMO_ADMIN_PASSWORD = 'demo1234';
+
+    /** Login email pattern of a genre's showcase demo admin. */
+    public static function demoAdminEmail(string $genre): string
+    {
+        return 'demo.' . $genre . '@khorak.shop';
+    }
+
     public function run(): void
     {
         DB::transaction(function () {
@@ -72,6 +87,20 @@ class ShowcaseSync
                     'is_active' => true, 'is_featured' => false,
                     'image' => 'assets/img/genres/' . $key . '/hero-1.jpg', 'image_alt' => $pack['name_bn'] . ' Landing Page',
                 ]);
+
+                // the genre's showcase demo admin — created only when missing
+                // (password/email stay public on the showcase card by design;
+                // a changed password is NOT reset here, delete the user to re-issue)
+                User::firstOrCreate(
+                    ['email' => self::demoAdminEmail($key)],
+                    [
+                        'name' => $pack['name_bn'] . ' ডেমো অ্যাডমিন',
+                        'password' => self::DEMO_ADMIN_PASSWORD, // hashed by the model cast
+                        'role' => User::ROLE_ADMIN,
+                        'permissions' => array_fill_keys(array_keys(config('permissions.modules', [])), ['*']),
+                        'is_active' => true,
+                    ]
+                );
             }
         });
     }

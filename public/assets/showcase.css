@@ -121,6 +121,42 @@ html[lang="bn"] [data-lang="en"] { display: none; }
 
 .sc-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; padding-top: 6px; }
 
+/* ---------- per-design admin demo credentials ---------- */
+.sc-creds {
+    margin-top: 12px; padding: 11px 12px 12px;
+    border: 1.5px dashed #c7d2fe; border-radius: 12px; background: #f5f6ff;
+}
+.sc-creds-h {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11.5px; font-weight: 800; letter-spacing: .3px;
+    color: var(--sc-primary-deep); margin-bottom: 8px;
+}
+.sc-creds-h i { font-size: 12px; }
+.sc-creds-row {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; padding: 3px 0; color: var(--sc-ink-soft);
+}
+.sc-creds-row i { width: 14px; text-align: center; color: var(--sc-mut); flex-shrink: 0; }
+.sc-creds-row code {
+    flex: 1; min-width: 0; font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 11.5px; color: var(--sc-ink); background: #fff;
+    border: 1px solid var(--sc-line); border-radius: 7px; padding: 3px 8px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sc-creds-row button {
+    border: 1.5px solid var(--sc-line); background: #fff; color: var(--sc-ink-soft);
+    font-family: inherit; font-size: 11px; font-weight: 800;
+    padding: 4px 10px; border-radius: 999px; cursor: pointer; flex-shrink: 0;
+    transition: border-color .15s, color .15s;
+}
+.sc-creds-row button:hover { border-color: var(--sc-primary); color: var(--sc-primary); }
+.sc-creds-row button.copied { border-color: var(--sc-ok); color: var(--sc-ok); }
+.sc-creds-login {
+    display: inline-flex; align-items: center; gap: 5px; margin-top: 9px;
+    font-size: 12px; font-weight: 800; color: var(--sc-primary); text-decoration: none;
+}
+.sc-creds-login:hover { text-decoration: underline; }
+
 .sc-btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     border: none; cursor: pointer; font-family: inherit; text-decoration: none;

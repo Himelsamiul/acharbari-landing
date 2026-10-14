@@ -26,6 +26,13 @@ class ShowcaseController extends Controller
             $pack['key'] = $key;
             $pack['product'] = Product::where('slug', 'lp-' . $key)->first();
             $pack['cover'] = 'assets/img/genres/' . $key . '/hero-1.jpg';
+            // oi design er demo admin credential — card e dekhano (public demo)
+            $pack['demo_admin'] = [
+                'email' => ShowcaseSync::demoAdminEmail($key),
+                'password' => ShowcaseSync::DEMO_ADMIN_PASSWORD,
+                'exists' => \App\Models\User::where('email', ShowcaseSync::demoAdminEmail($key))
+                    ->where('is_active', true)->exists(),
+            ];
 
             return $pack;
         });
