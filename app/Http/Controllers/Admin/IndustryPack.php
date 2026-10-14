@@ -48,9 +48,9 @@ class IndustryPack
     public static function managedSlugs(): array
     {
         $slugs = [];
-        foreach (self::all() as $key => $pack) {
-            foreach ($pack['products'] as $i => $p) {
-                $slugs[] = 'demo-' . $key . '-' . ($i + 1);
+        foreach (self::keys() as $key) {
+            foreach (self::products($key) as $p) {
+                $slugs[] = $p['slug'];
             }
         }
         return $slugs;
@@ -63,6 +63,7 @@ class IndustryPack
             'organic' => [
                 'name_bn' => 'খাঁটি খাবার ও অর্গানিক', 'name_en' => 'Organic & Pure Food',
                 'icon' => 'fa-leaf', 'theme' => 'herbal',
+                'price' => 9990, 'brand_bn' => 'খাঁটি ঘর', 'brand_en' => 'Khati Ghor',
                 'swatch' => ['#059669', '#10b981', '#a3e635', '#064e3b'],
                 'desc' => 'আচার-মধু-ঘি, দেশি খাবার ও অর্গানিক পণ্য',
                 'content' => [
@@ -80,6 +81,7 @@ class IndustryPack
             'restaurant' => [
                 'name_bn' => 'রেস্টুরেন্ট ও ক্যাটারিং', 'name_en' => 'Restaurant & Catering',
                 'icon' => 'fa-utensils', 'theme' => 'restaurant',
+                'price' => 9990, 'brand_bn' => 'ঘরোয়া কড়াই', 'brand_en' => 'Ghorowa Korai',
                 'swatch' => ['#c2410c', '#ea580c', '#fbbf24', '#7c2d12'],
                 'desc' => 'রেস্টুরেন্ট, হোম কিচেন, ক্যাটারিং ও ফুড ডেলিভারি',
                 'content' => [
@@ -97,6 +99,7 @@ class IndustryPack
             'fashion' => [
                 'name_bn' => 'ফ্যাশন ও পোশাক', 'name_en' => 'Fashion & Clothing',
                 'icon' => 'fa-shirt', 'theme' => 'fashion',
+                'price' => 9990, 'brand_bn' => 'থ্রেড বেঙ্গল', 'brand_en' => 'Thread Bengal',
                 'swatch' => ['#1f2937', '#9d174d', '#d4a437', '#e5e7eb'],
                 'desc' => 'পাঞ্জাবি, শাড়ি, থ্রি-পিস, কুর্তি ও অ্যাক্সেসরিজ',
                 'content' => [
@@ -114,6 +117,7 @@ class IndustryPack
             'beauty' => [
                 'name_bn' => 'বিউটি ও কসমেটিকস', 'name_en' => 'Beauty & Cosmetics',
                 'icon' => 'fa-spray-can-sparkles', 'theme' => 'beauty',
+                'price' => 9990, 'brand_bn' => 'গ্লো বাংলা', 'brand_en' => 'Glow Bangla',
                 'swatch' => ['#db2777', '#c026d3', '#fbcfe8', '#500724'],
                 'desc' => 'স্কিনকেয়ার, মেকআপ, হেয়ার কেয়ার ও পারফিউম',
                 'content' => [
@@ -131,6 +135,7 @@ class IndustryPack
             'electronics' => [
                 'name_bn' => 'ইলেকট্রনিক্স ও গ্যাজেট', 'name_en' => 'Electronics & Gadgets',
                 'icon' => 'fa-headphones', 'theme' => 'electronics',
+                'price' => 9990, 'brand_bn' => 'গ্যাজেট বাজার', 'brand_en' => 'Gadget Bazar',
                 'swatch' => ['#1d4ed8', '#06b6d4', '#7dd3fc', '#172554'],
                 'desc' => 'মোবাইল অ্যাক্সেসরিজ, হেডফোন, স্মার্ট ডিভাইস',
                 'content' => [
@@ -148,6 +153,7 @@ class IndustryPack
             'jewelry' => [
                 'name_bn' => 'জুয়েলারি', 'name_en' => 'Jewelry',
                 'icon' => 'fa-gem', 'theme' => 'jewelry',
+                'price' => 9990, 'brand_bn' => 'সোনালী কারুকাজ', 'brand_en' => 'Shonali Karukaj',
                 'swatch' => ['#a16207', '#d4a437', '#fcd34d', '#292524'],
                 'desc' => 'সোনা-রুপা ও ফ্যাশন জুয়েলারি',
                 'content' => [
@@ -165,6 +171,7 @@ class IndustryPack
             'furniture' => [
                 'name_bn' => 'ফার্নিচার ও হোম ডেকর', 'name_en' => 'Furniture & Home Decor',
                 'icon' => 'fa-couch', 'theme' => 'furniture',
+                'price' => 9990, 'brand_bn' => 'কাঠের ঘর', 'brand_en' => 'Kather Ghor',
                 'swatch' => ['#8b5e34', '#b08968', '#a3b18a', '#4a3421'],
                 'desc' => 'কাঠের ফার্নিচার, ইন্টেরিয়র ডেকর ও শোপিস',
                 'content' => [
@@ -182,6 +189,7 @@ class IndustryPack
             'healthcare' => [
                 'name_bn' => 'হেলথকেয়ার ও ফার্মেসি', 'name_en' => 'Healthcare & Pharmacy',
                 'icon' => 'fa-briefcase-medical', 'theme' => 'healthcare',
+                'price' => 9990, 'brand_bn' => 'সুস্থ ফার্মেসি', 'brand_en' => 'Sustho Pharmacy',
                 'swatch' => ['#0284c7', '#0ea5e9', '#5eead4', '#075985'],
                 'desc' => 'ফার্মেসি, ভিটামিন ও ব্যক্তিগত যত্ন',
                 'content' => [
@@ -199,6 +207,7 @@ class IndustryPack
             'education' => [
                 'name_bn' => 'শিক্ষা ও কোচিং', 'name_en' => 'Education & Coaching',
                 'icon' => 'fa-graduation-cap', 'theme' => 'education',
+                'price' => 9990, 'brand_bn' => 'উজ্জ্বল একাডেমি', 'brand_en' => 'Ujjol Academy',
                 'swatch' => ['#4f46e5', '#7c3aed', '#7dd3fc', '#3730a3'],
                 'desc' => 'কোচিং সেন্টার, অনলাইন কোর্স ও স্কিল ট্রেনিং',
                 'content' => [
@@ -216,6 +225,7 @@ class IndustryPack
             'travel' => [
                 'name_bn' => 'ট্রাভেল ও ট্যুর এজেন্সি', 'name_en' => 'Travel & Tour Agency',
                 'icon' => 'fa-plane', 'theme' => 'travel',
+                'price' => 9990, 'brand_bn' => 'ঘুরে বেড়াও', 'brand_en' => 'Ghure Bedao',
                 'swatch' => ['#0e7490', '#f97316', '#5eead4', '#164e63'],
                 'desc' => 'দেশ-বিদেশ ট্যুর, হানিমুন ও গ্রুপ প্যাকেজ',
                 'content' => [
@@ -440,4 +450,174 @@ class IndustryPack
         }
         return $out;
     }
+
+    /**
+     * Demo FAQ items for a genre (q/a bn-en) — used only by /showcase/{genre}
+     * pages, never pulled from the store's global settings.
+     */
+    public static function demoFaqs(string $key): array
+    {
+        $pack = self::all()[$key] ?? null;
+        $what = $pack['name_bn'] ?? 'প্রোডাক্ট';
+
+        return [
+            ['q_bn' => 'প্রোডাক্ট হাতে পেয়ে কি টাকা দেওয়া যাবে?', 'q_en' => 'Can I pay cash after receiving the product?', 'a_bn' => 'হ্যাঁ, ১০০% ক্যাশ অন ডেলিভারি সুবিধা রয়েছে — পার্সেল চেক করে তারপর টাকা পরিশোধ করতে পারবেন। কোনো অগ্রিম টাকা লাগবে না।', 'a_en' => 'Yes, 100% Cash on Delivery — check the parcel first and then pay. No advance payment needed.'],
+            ['q_bn' => $what . ' অর্ডার করতে কী কী তথ্য দিতে হয়?', 'q_en' => 'What information do I need to order ' . ($pack['name_en'] ?? 'products') . '?', 'a_bn' => 'শুধু আপনার নাম, মোবাইল নম্বর আর সম্পূর্ণ ঠিকানা দিলেই অর্ডার হয়ে যাবে — আমাদের প্রতিনিধি ফোন করে অর্ডারটি কনফার্ম করবেন।', 'a_en' => 'Just your name, mobile number and full address — our agent will call you to confirm the order.'],
+            ['q_bn' => 'ডেলিভারি চার্জ কত টাকা?', 'q_en' => 'What is the delivery charge?', 'a_bn' => 'ঢাকার ভেতরে ও বাইরে জেলাভিত্তিক চার্জ প্রযোজ্য — অর্ডার ফর্মে এলাকা নির্বাচন করলেই সঠিক চার্জ দেখাবে।', 'a_en' => 'District-wise charges apply inside and outside Dhaka — the order form shows the exact charge once you pick your area.'],
+            ['q_bn' => 'পার্সেল ভাঙা বা ভুল এলে কী করব?', 'q_en' => 'What if the parcel arrives broken or wrong?', 'a_bn' => 'পার্সেল পাওয়ার ২৪ ঘণ্টার মধ্যে ছবি দিয়ে জানালেই আমরা সম্পূর্ণ ফ্রি রিপ্লেসমেন্ট করে দেব।', 'a_en' => 'Inform us with a photo within 24 hours of receiving the parcel — we will replace it completely free.'],
+        ];
+    }
+
+    /**
+     * Bilingual demo copy for the /showcase/{genre} live-demo page: pack content
+     * first (hero/product/cta keys), then hero slides, then this genre-neutral
+     * commerce fallback — NEVER the store's global settings.
+     */
+    public static function demoText(string $key, string $genre): ?array
+    {
+        $pack = self::all()[$genre] ?? null;
+        if (!$pack) return null;
+
+        foreach (self::heroSlides($genre) as $sk => $sv) {
+            if ($sk === $key && $sv !== null) return $sv;
+        }
+        if (isset($pack['content'][$key])) return $pack['content'][$key];
+
+        return self::GENERIC_DEMO_TEXT[$key] ?? null;
+    }
+
+    /** Genre-neutral bilingual fallback for keys the packs don't carry. */
+    const GENERIC_DEMO_TEXT = [
+        // navbar
+        'nav_home' => ['হোম', 'Home'],
+        'nav_products' => ['সব প্রোডাক্ট', 'All Products'],
+        'nav_why' => ['কেন আমরা', 'Why Us'],
+        'nav_reviews' => ['রিভিউ', 'Reviews'],
+        'nav_faq' => ['প্রশ্ন-উত্তর', 'FAQ'],
+        'nav_order' => ['অর্ডার করুন', 'Order Now'],
+        'logo_pill' => ['অনলাইন শপ', 'Online Shop'],
+        // hero extras
+        'hero_flash' => ['লাইভ', 'LIVE'],
+        'hero_cta1' => ['অর্ডার করুন', 'Order Now'],
+        'hero_cta2' => ['মেনু দেখুন', 'View Collection'],
+        'hero_badge1_s' => ['ক্যাশ অন', 'Cash on'],
+        'hero_badge1_t' => ['ডেলিভারি', 'Delivery'],
+        'hero_badge2_s' => ['সারা দেশে', 'Across'],
+        'hero_badge2_t' => ['ডেলিভারি', 'Bangladesh'],
+        'hero_stat1_n' => ['৫,০০০+', '5,000+'],
+        'hero_stat1' => ['সন্তুষ্ট ক্রেতা', 'Happy Customers'],
+        'hero_stat2_n' => ['৪.৯', '4.9'],
+        'hero_stat2' => ['গড় রেটিং', 'Average Rating'],
+        'hero_stat3_n' => ['৬৪', '64'],
+        'hero_stat3' => ['জেলায় ডেলিভারি', 'Districts Covered'],
+        'hero_stat4_n' => ['২৪/৭', '24/7'],
+        'hero_stat4' => ['সাপোর্ট', 'Support'],
+        // products section extras
+        'filter_all' => ['সব', 'All'],
+        'prod_sub' => ['পছন্দের পণ্য বাছাই করে সরাসরি অর্ডার করুন — ক্যাশ অন ডেলিভারিতে।', 'Pick what you love and order directly — on Cash on Delivery.'],
+        // promises
+        'promise_eyebrow' => ['আমাদের অঙ্গীকার', 'Our Promise'],
+        'promise_h2a' => ['কেন ', 'Why '],
+        'promise_h2b' => ['আমাদের থেকে নেবেন', 'buy from us'],
+        'promise_sub' => ['প্রতিটি অর্ডারে আমরা একই যত্ন ও নিশ্চয়তা দিই।', 'Every order gets the same care and guarantee.'],
+        'promise_c1_tag' => ['নিশ্চয়তা', 'Guarantee'],
+        'promise_c1_t' => ['১০০% খাঁটি পণ্য', '100% Authentic Products'],
+        'promise_c1_d' => ['প্রতিটি পণ্য যাচাই করে তারপর ডেলিভারি করা হয়।', 'Every item is verified before it ships.'],
+        'promise_c2_tag' => ['পেমেন্ট', 'Payment'],
+        'promise_c2_t' => ['ক্যাশ অন ডেলিভারি', 'Cash on Delivery'],
+        'promise_c2_d' => ['পার্সেল হাতে পেয়ে চেক করে টাকা দিন।', 'Check the parcel first, then pay.'],
+        'promise_c3_tag' => ['ডেলিভারি', 'Delivery'],
+        'promise_c3_t' => ['দ্রুত হোম ডেলিভারি', 'Fast Home Delivery'],
+        'promise_c3_d' => ['সারা বাংলাদেশে দ্রুত ও নিরাপদ ডেলিভারি।', 'Fast and safe delivery across Bangladesh.'],
+        'promise_c4_tag' => ['সাপোর্ট', 'Support'],
+        'promise_c4_t' => ['২৪/৭ কাস্টমার সাপোর্ট', '24/7 Customer Support'],
+        'promise_c4_d' => ['যেকোনো সমস্যায় আমরা পাশে আছি।', 'We are here whenever you need us.'],
+        // how it works
+        'steps_eyebrow' => ['কীভাবে কাজ করে', 'How it works'],
+        'steps_h2a' => ['মাত্র ', 'Just '],
+        'steps_h2b' => ['৩ ধাপে অর্ডার', '3 steps to order'],
+        'steps_sub' => ['অর্ডার করা কখনো এত সহজ ছিল না।', 'Ordering has never been easier.'],
+        'step1_t' => ['পণ্য বাছাই করুন', 'Pick your product'],
+        'step1_d' => ['পছন্দের পণ্য কার্টে যোগ করুন।', 'Add your favourite items to the cart.'],
+        'step2_t' => ['ফর্ম পূরণ করুন', 'Fill in the form'],
+        'step2_d' => ['নাম, মোবাইল ও ঠিকানা দিন।', 'Give your name, mobile number and address.'],
+        'step3_t' => ['পার্সেল বুঝে নিন', 'Receive your parcel'],
+        'step3_d' => ['কল কনফার্মেশনের পর ডেলিভারি — দেখে টাকা দিন।', 'After a confirmation call, receive it and pay on the spot.'],
+        // why us
+        'why_eyebrow' => ['কেন আমরা', 'Why Us'],
+        'why_h2a' => ['আমরাই ', 'We are '],
+        'why_h2b' => ['আপনার ভরসা', 'your trusted choice'],
+        'why_sub' => ['হাজারো ক্রেতার আস্থার কারণগুলো।', 'The reasons thousands of buyers trust us.'],
+        'why_big_t' => ['আস্থার নাম, প্রতিদিন', 'A name you can trust, every day'],
+        'why_big_d' => ['নির্ভরযোগ্য সেবা, সৎ দাম আর গ্রাহকের প্রতি দায়িত্ব — এই তিনটিই আমাদের অগ্রাধিকার।', 'Reliable service, honest pricing and responsibility to our customers — these three come first for us.'],
+        'why_c1_t' => ['সৎ ও নির্ধারিত দাম', 'Honest, fixed pricing'],
+        'why_c1_d' => ['লুকানো চার্জ নেই — যা দেখাবে তাই দেবেন।', 'No hidden charges — you pay exactly what you see.'],
+        'why_c2_t' => ['দ্রুত ডেলিভারি নেটওয়ার্ক', 'Fast delivery network'],
+        'why_c2_d' => ['ঢাকায় ১-২ দিন, বাইরে ২-৪ দিনের মধ্যে পৌঁছে যায়।', '1-2 days in Dhaka, 2-4 days outside.'],
+        'why_c3_t' => ['সহজ রিটার্ন নীতি', 'Easy return policy'],
+        'why_c3_d' => ['ভাঙা বা ভুল পণ্য এলে ফ্রি রিপ্লেসমেন্ট।', 'Broken or wrong item? Free replacement.'],
+        'why_c4_t' => ['আসল পণ্যের নিশ্চয়তা', 'Genuine product guarantee'],
+        'why_c4_d' => ['সরাসরি সংগ্রহ করা, ১০০% অরিজিনাল।', 'Sourced directly, 100% original.'],
+        'why_verified' => ['ভেরিফাইড সেলার', 'Verified Seller'],
+        // faq
+        'faq_eyebrow' => ['প্রশ্ন-উত্তর', 'FAQ'],
+        'faq_h2a' => ['সাধারণ ', 'Common '],
+        'faq_h2b' => ['জিজ্ঞাসা', 'Questions'],
+        'faq_sub' => ['আপনার মনে থাকা সাধারণ প্রশ্নের উত্তর জেনে নিন', 'Find answers to the questions you have in mind'],
+        // reviews
+        'reviews_eyebrow' => ['ক্রেতাদের মতামত', 'Customer Reviews'],
+        'reviews_h2a' => ['যারা ', 'Those who '],
+        'reviews_h2b' => ['কিনেছেন, বলেছেন', 'bought, say'],
+        'reviews_sub' => ['ভেরিফাইড ক্রেতাদের সত্যিকারের অভিজ্ঞতা।', 'Real experiences from verified buyers.'],
+        'rating_score' => ['৪.৯/৫', '4.9/5'],
+        'rating_total' => ['২,৪০০+ রিভিউ', '2,400+ reviews'],
+        // bottom cta
+        'cta_sub' => ['এখনই অর্ডার করুন — ক্যাশ অন ডেলিভারিতে সারা দেশে ডেলিভারি।', 'Order now — nationwide delivery on Cash on Delivery.'],
+        'cta_btn' => ['অর্ডার করুন', 'Order Now'],
+        // footer
+        'footer_tag' => ['অনলাইনে অর্ডার করুন — ক্যাশ অন ডেলিভারিতে সারা বাংলাদেশে হোম ডেলিভারি।', 'Order online — home delivery across Bangladesh on Cash on Delivery.'],
+        'footer_col_links' => ['কুইক লিংক', 'Quick Links'],
+        'footer_col_contact' => ['যোগাযোগ ও সাপোর্ট', 'Contact & Support'],
+        'footer_fb' => ['ফেসবুক পেজ', 'Facebook Page'],
+        'footer_rights' => ['সর্বস্বত্ব সংরক্ষিত', 'All rights reserved'],
+        'footer_made' => ['Made with love by', 'Made with love by'],
+        // checkout form
+        'order_head_a' => ['ক্যাশ অন ডেলিভারিতে অর্ডার করতে ', 'Fill in the '],
+        'order_head_b' => ['ফর্মটি সঠিকভাবে', 'form correctly'],
+        'order_head_c' => [' পূরণ করুন', ' to order on Cash on Delivery'],
+        'order_head_sub' => ['আপনার তথ্য দেওয়ার পর আমাদের কল সেন্টার থেকে ফোন করে অর্ডার কনফার্ম করা হবে।', 'After you submit your details, our call centre will phone you to confirm the order.'],
+        'cart_title' => ['আপনার কার্ট', 'Your Cart'],
+        'cart_coupon_ph' => ['কুপন কোড লিখুন (যেমন: ACHAR10)', 'Enter coupon code (e.g. ACHAR10)'],
+        'cart_coupon_note' => ['কুপন থাকলে প্রয়োগ করুন, ডিসকাউন্ট অটো ক্যালকুলেট হবে।', 'If you have a coupon, apply it — discount is calculated automatically.'],
+        'cart_col_mark' => ['মার্ক', 'Mark'],
+        'cart_col_product' => ['প্রোডাক্ট', 'Product'],
+        'cart_col_qty' => ['পরিমাণ', 'Qty'],
+        'cart_col_price' => ['মূল্য', 'Price'],
+        'cart_total_sub' => ['মোট', 'Subtotal'],
+        'cart_total_delivery' => ['ডেলিভারি চার্জ', 'Delivery Charge'],
+        'cart_total_grand' => ['সর্বমোট', 'Grand Total'],
+        'cart_empty' => ['কার্ট এখন খালি — উপরের প্রোডাক্ট কার্ডের অর্ডার করুন বাটনে চাপ দিলে পছন্দের পণ্য এখানে যোগ হবে।', 'Cart is empty now — click the "Order Now" button on a product card above and your favourites will be added here.'],
+        'advance_title' => ['অগ্রিম পেমেন্ট প্রয়োজন', 'Advance Payment Required'],
+        'advance_payable' => ['এখনই পরিশোধ', 'Payable Now'],
+        'advance_due' => ['বাকি', 'Due'],
+        'checkout_title' => ['ডেলিভারি তথ্য দিন', 'Enter Delivery Info'],
+        'f_name_ph' => ['যেমন: মোঃ কামরুল হাসান', 'e.g. Md. Kamrul Hasan'],
+        'f_phone_ph' => ['০১xxxxxxxxx (১১ সংখ্যা)', '01xxxxxxxxx (11 digits)'],
+        'f_address_ph' => ['বাসা নং, রোড, এলাকা, থানা ও জেলা', 'House no., road, area, thana & district'],
+        'f_area' => ['ডেলিভারি এরিয়া', 'Delivery Area'],
+        'area_pick' => ['প্রোডাক্ট সিলেক্ট করুন', 'Select a product'],
+        'area_inside' => ['ঢাকার ভিতরে', 'Inside Dhaka'],
+        'area_outside' => ['ঢাকার বাহিরে', 'Outside Dhaka'],
+        'area_free' => ['ফ্রি ডেলিভারি - কোন চার্জ নেই', 'Free Delivery — No Charge'],
+        'pay_method' => ['পেমেন্ট মেথড', 'Payment Method'],
+        'pay_cod' => ['ক্যাশ অন ডেলিভারি', 'Cash On Delivery'],
+        'pay_cod_sub' => ['আগে পার্সেল দেখুন, তারপর টাকা দিন', 'Check the parcel first, then pay'],
+        'pay_online' => ['অনলাইন পেমেন্ট — বিকাশ / নগদ', 'Online Payment — bKash / Nagad'],
+        'pay_online_note_a' => ['অর্ডার কনফার্ম করলে সরাসরি ', 'After confirming you go straight '],
+        'pay_online_note_b' => [' পেমেন্ট পেজে নিয়ে যাওয়া হবে — সেখানে পেমেন্ট শেষ করুন।', ' to the payment page to complete the payment.'],
+        'confirm_order' => ['অর্ডার কনফার্ম করুন', 'Confirm Order'],
+        'trust_1' => ['নিরাপদ অর্ডার', 'Secure order'],
+        'trust_2' => ['দেখে টাকা দিন', 'Pay after checking'],
+        'trust_3' => ['ভাঙা পণ্যে ফ্রি রিপ্লেসমেন্ট', 'Broken item? Free replacement'],
+    ];
 }

@@ -12,16 +12,20 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // store orders only — landing-design orders (source='landing') belong
+        // to the super admin's /super/orders section, not the client dashboard
+        $store = Order::where('source', Order::SOURCE_STORE);
+
         $stats = [
-            'orders_today' => Order::whereDate('created_at', today())->count(),
-            'orders_total' => Order::count(),
-            'pending' => Order::where('status', 'pending')->count(),
-            'revenue' => Order::whereIn('status', ['processing', 'shipped', 'delivered'])->sum('total'),
+            'orders_today' => (clone $store)->whereDate('created_at', today())->count(),
+            'orders_total' => (clone $store)->count(),
+            'pending' => (clone $store)->where('status', 'pending')->count(),
+            'revenue' => (clone $store)->whereIn('status', ['processing', 'shipped', 'delivered'])->sum('total'),
             'products' => Product::where('is_active', true)->count(),
-            'customers' => Order::distinct('phone')->count('phone'),
+            'customers' => (clone $store)->distinct('phone')->count('phone'),
         ];
 
-        $recent = Order::latest()->take(6)->get();
+        $recent = (clone $store)->latest()->take(6)->get();
 
         return view('admin.dashboard', compact('stats', 'recent') + ['seoChecks' => $this->seoChecks()]);
     }

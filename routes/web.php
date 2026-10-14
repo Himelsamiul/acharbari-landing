@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Route;
 // Public landing
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Public landing-page showcase: design gallery (super admin sells designs)
+// + per-genre live demos (their product carts create normal store orders)
+Route::get('/showcase', [\App\Http\Controllers\ShowcaseController::class, 'index'])->name('showcase.index');
+Route::get('/showcase/{genre}', [\App\Http\Controllers\ShowcaseController::class, 'demo'])->name('showcase.demo');
+
 // Isolated single-section render — used by the admin Section Design Studio preview
 Route::get('/preview/section/{section}', [HomeController::class, 'previewSection'])->name('preview.section');
 Route::get('/products', [ProductController::class, 'index'])->name('products');
@@ -76,6 +81,13 @@ Route::post('/admin/logout', [Admin\AuthController::class, 'logout'])->name('adm
 
 Route::prefix('super')->middleware(['auth', 'super.admin'])->group(function () {
     Route::get('/', [\App\Http\Controllers\Super\SuperAdminController::class, 'overview'])->name('super.overview');
+
+    // landing-design orders (source='landing') from the public showcase cart —
+    // store/product orders stay in the client admin panel only
+    Route::get('/orders', [\App\Http\Controllers\Super\OrderController::class, 'index'])->name('super.orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Super\OrderController::class, 'show'])->name('super.orders.show');
+    Route::post('/orders/{order}/status', [\App\Http\Controllers\Super\OrderController::class, 'updateStatus'])->name('super.orders.status');
+    Route::post('/orders/{order}/payment', [\App\Http\Controllers\Super\OrderController::class, 'updatePaymentStatus'])->name('super.orders.payment');
 
     // admin (client) user management — create, permission matrix, activate/deactivate
     Route::get('/admins', [\App\Http\Controllers\Super\SuperAdminController::class, 'index'])->name('super.admins.index');

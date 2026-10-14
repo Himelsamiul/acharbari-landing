@@ -400,6 +400,7 @@
             <nav class="side-nav">
                 <div class="side-group-label">সুপার অ্যাডমিন</div>
                 <a class="side-link {{ request()->routeIs('super.overview') ? 'active' : '' }}" href="{{ route('super.overview') }}"><i class="fa-solid fa-chart-pie"></i> ওভারভিউ</a>
+                <a class="side-link {{ request()->routeIs('super.orders*') ? 'active' : '' }}" href="{{ route('super.orders.index') }}"><i class="fa-solid fa-palette"></i> ল্যান্ডিং অর্ডার</a>
                 <a class="side-link {{ request()->routeIs('super.admins*') ? 'active' : '' }}" href="{{ route('super.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন ইউজার্স</a>
 
                 <div class="side-group-label">কুইক লিংক</div>

@@ -17,7 +17,11 @@ Production e deploy korar age ei gulো confirm koro.
 ```bash
 php artisan migrate --force
 php artisan db:seed --force   # shudhu fresh DB hole (idempotent)
+php artisan showcase:sync     # showcase cart er lp-<genre> row + genre demo product gulo (idempotent)
 ```
+
+> `/showcase` ar `/showcase/{genre}` page gulo lazy sync chalay — tao deploy er somoy
+> ekbar `showcase:sync` chaliye dile cart prothom request ei ready thake.
 
 ## 3. Cache & Optimization
 

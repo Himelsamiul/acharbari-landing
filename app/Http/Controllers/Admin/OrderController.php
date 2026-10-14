@@ -36,7 +36,11 @@ class OrderController extends Controller
                 ->orWhere('order_code', 'like', "%{$q}%");
         });
 
-        $orders = Order::when($status && in_array($status, Order::statuses()),
+        // store orders only — the super admin's landing-design orders
+        // (/super/orders) never show up in the client admin panel
+
+        $orders = Order::where('source', Order::SOURCE_STORE)
+            ->when($status && in_array($status, Order::statuses()),
                 fn ($query) => $query->where('status', $status))
             ->when($q !== '', $searchFilter)
             ->when($from !== '' || $to !== '', $applyRange)
@@ -45,7 +49,8 @@ class OrderController extends Controller
             ->withQueryString();
 
         // summary: ei range er biki + order songkha
-        $summaryQuery = Order::when($from !== '' || $to !== '', $applyRange);
+        $summaryQuery = Order::where('source', Order::SOURCE_STORE)
+            ->when($from !== '' || $to !== '', $applyRange);
         $summary = [
             'total' => (clone $summaryQuery)->where('status', '!=', 'cancelled')->sum('total'),
             'count' => (clone $summaryQuery)->count(),
@@ -54,7 +59,8 @@ class OrderController extends Controller
         ];
 
         // status tab er count gulo o range+search er moddhei gonona hoy
-        $countsBase = Order::when($q !== '', $searchFilter)->when($from !== '' || $to !== '', $applyRange);
+        $countsBase = Order::where('source', Order::SOURCE_STORE)
+            ->when($q !== '', $searchFilter)->when($from !== '' || $to !== '', $applyRange);
         $counts = [];
         foreach (Order::statuses() as $s) {
             $counts[$s] = (clone $countsBase)->where('status', $s)->count();
@@ -65,12 +71,17 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
+        // landing-design orders are super-admin only — direct URL = 404 here
+        abort_unless($order->source === Order::SOURCE_STORE, 404);
+
         $order->load('items');
         return view('admin.orders.show', compact('order'));
     }
 
     public function updateStatus(Request $request, Order $order)
     {
+        abort_unless($order->source === Order::SOURCE_STORE, 404);
+
         $data = $request->validate([
             'status' => 'required|in:' . implode(',', Order::statuses()),
         ]);
@@ -90,6 +101,8 @@ class OrderController extends Controller
      */
     public function updatePaymentStatus(Request $request, Order $order)
     {
+        abort_unless($order->source === Order::SOURCE_STORE, 404);
+
         $data = $request->validate([
             'status' => 'required|in:paid,pending,failed,clear',
         ]);
@@ -107,6 +120,8 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
+        abort_unless($order->source === Order::SOURCE_STORE, 404);
+
         $order->delete();
         return redirect()->route('admin.orders.index')->with('success', 'অর্ডারটি মুছে ফেলা হয়েছে।');
     }

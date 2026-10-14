@@ -6,10 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
+    /** Admin (client) panel er product order — existing default behaviour. */
+    const SOURCE_STORE = 'store';
+
+    /** Super admin-er showcase theki becha landing-page design order. */
+    const SOURCE_LANDING = 'landing';
+
     protected $fillable = [
         'order_code', 'user_id', 'customer_name', 'phone', 'address', 'area', 'district',
         'payment_method', 'payment_status', 'payment_txn_id', 'subtotal', 'discount', 'coupon_code',
-        'vat_total', 'shipping_cost', 'total', 'status',
+        'vat_total', 'shipping_cost', 'total', 'status', 'source',
         'pathao_consignment_id', 'pathao_status',
     ];
 
@@ -24,6 +30,11 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function isLanding(): bool
+    {
+        return $this->source === self::SOURCE_LANDING;
     }
 
     public function notifications()

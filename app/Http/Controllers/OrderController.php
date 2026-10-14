@@ -72,8 +72,18 @@ class OrderController extends Controller
 
         $productIds = array_map(fn ($i) => (int) $i['id'], $items);
         // industry scoping: landing only sells the active industry's products —
-        // hidden (other-industry) ids must not be orderable either
-        $products = Product::whereIn('id', $productIds)->where('is_active', true)->forIndustry()->get()->keyBy('id');
+        // hidden (other-industry) ids must not be orderable either.
+        // Two showcase-only additions: any genre's managed demo rows (the
+        // /showcase/{genre} demo carts sell them) and the showcase's own
+        // lp-* landing-design rows — both stay invisible on / and /products
+        // via the same industry scope.
+        $products = Product::whereIn('id', $productIds)->where('is_active', true)
+            ->where(function ($q) {
+                $q->forIndustry()
+                    ->orWhereIn('slug', \App\Http\Controllers\Admin\IndustryPack::managedSlugs())
+                    ->orWhere('industry', 'showcase');
+            })
+            ->get()->keyBy('id');
 
         // variant map: valid, ACTIVE variants of the ordered products only
         $variantIds = array_values(array_filter(array_map(
@@ -142,6 +152,16 @@ class OrderController extends Controller
             return back()->withErrors(['items' => 'প্রোডাক্ট পাওয়া যায়নি — আবার চেষ্টা করুন।']);
         }
 
+        // order routing (server-side only, never trusted from the client):
+        // any showcase landing-design row in the cart => super admin's order
+        $source = Order::SOURCE_STORE;
+        foreach ($lines as $line) {
+            if (($products[$line['product_id']]->industry ?? '') === 'showcase') {
+                $source = Order::SOURCE_LANDING;
+                break;
+            }
+        }
+
         // Coupon: percent off subtotal, validated against the active coupons table
         $discount = 0;
         $couponCode = null;
@@ -185,7 +205,7 @@ class OrderController extends Controller
 
         $userId = ($user && $user->isCustomer()) ? $user->id : null;
 
-        $order = DB::transaction(function () use ($data, $lines, $subtotal, $discount, $couponCode, $vatTotal, $shipping, $total, $area, $districtName, $userId) {
+        $order = DB::transaction(function () use ($data, $lines, $subtotal, $discount, $couponCode, $vatTotal, $shipping, $total, $area, $districtName, $userId, $source) {
             $order = Order::create([
                 'order_code' => 'AB-' . strtoupper(uniqid()),
                 'user_id' => $userId,
@@ -208,6 +228,7 @@ class OrderController extends Controller
                 'shipping_cost' => $shipping,
                 'total' => $total,
                 'status' => 'pending',
+                'source' => $source,
             ]);
 
             // tracking timeline er prothom dhap — pending @ order time
@@ -224,8 +245,11 @@ class OrderController extends Controller
                 }
             }
 
-            // admin notification (bell in admin panel)
-            OrderNotification::create(['order_id' => $order->id]);
+            // admin notification (bell in admin panel) — store orders only;
+            // landing-design orders belong to the super admin panel instead
+            if ($source === Order::SOURCE_STORE) {
+                OrderNotification::create(['order_id' => $order->id]);
+            }
 
             // customer notification (visible on tracking page)
             CustomerNotification::create([

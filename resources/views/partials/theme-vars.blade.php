@@ -1,10 +1,16 @@
 {{-- theme variables from admin settings (DB) --}}
 @php
-    // base theme from DB — a festive schedule row (if active today) overrides it
-    $theme = json_decode(\App\Models\Setting::get('theme_json', ''), true);
-    $festive = \App\Http\Controllers\Admin\ThemeLibrary::activeFestive();
-    if ($festive) {
-        $theme = $festive['theme'];
+    if (isset($themeOverride) && is_array($themeOverride)) {
+        // showcase genre demo: tokens resolved per-request from ThemeLibrary —
+        // the store's saved theme/festive schedule is irrelevant here
+        $theme = $themeOverride;
+    } else {
+        // base theme from DB — a festive schedule row (if active today) overrides it
+        $theme = json_decode(\App\Models\Setting::get('theme_json', ''), true);
+        $festive = \App\Http\Controllers\Admin\ThemeLibrary::activeFestive();
+        if ($festive) {
+            $theme = $festive['theme'];
+        }
     }
 
     // SHURAKKHA: sarthok theme na hole (bhanga JSON / key missing) default herbal
@@ -14,14 +20,20 @@
         $theme = \App\Http\Controllers\Admin\ThemeLibrary::get('herbal');
     }
 
-    // fonts picked in admin (body font stack falls back to Hind Siliguri for Bengali glyphs)
-    $fontBody = \App\Http\Controllers\Admin\ThemeLibrary::font(\App\Models\Setting::get('font_body', 'jakarta'));
-    $fontHeadingId = \App\Models\Setting::get('font_heading', '');
-    $fontHeading = $fontHeadingId !== '' ? \App\Http\Controllers\Admin\ThemeLibrary::font($fontHeadingId) : null;
+    if (isset($fontOverride)) {
+        // demo pages pin their own font stack (or the default body font)
+        $fontBody = \App\Http\Controllers\Admin\ThemeLibrary::font($fontOverride ?: 'hind');
+        $fontHeading = null;
+    } else {
+        // fonts picked in admin (body font stack falls back to Hind Siliguri for Bengali glyphs)
+        $fontBody = \App\Http\Controllers\Admin\ThemeLibrary::font(\App\Models\Setting::get('font_body', 'jakarta'));
+        $fontHeadingId = \App\Models\Setting::get('font_heading', '');
+        $fontHeading = $fontHeadingId !== '' ? \App\Http\Controllers\Admin\ThemeLibrary::font($fontHeadingId) : null;
+    }
 
-    // style tokens (corner / shadow intensity)
-    $styleRadius = \App\Models\Setting::get('style_radius', 'default');
-    $styleShadow = \App\Models\Setting::get('style_shadow', 'default');
+    // style tokens (corner / shadow intensity) — demo keeps the store defaults
+    $styleRadius = $styleRadius ?? \App\Models\Setting::get('style_radius', 'default');
+    $styleShadow = $styleShadow ?? \App\Models\Setting::get('style_shadow', 'default');
 @endphp
 @if (is_array($theme))
 <style>

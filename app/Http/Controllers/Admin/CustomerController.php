@@ -24,7 +24,10 @@ class CustomerController extends Controller
     {
         [$from, $to] = $this->dateRange($request);
 
+        // store orders only — landing-design buyers are the super admin's
+        // customers, not the client's (customers here derive from orders)
         return Order::query()
+            ->where('source', Order::SOURCE_STORE)
             ->when($from !== '', fn ($query) => $query->where('created_at', '>=', $from . ' 00:00:00'))
             ->when($to !== '', fn ($query) => $query->where('created_at', '<=', $to . ' 23:59:59'));
     }
@@ -53,7 +56,7 @@ class CustomerController extends Controller
             'q' => $q,
             'from' => $from,
             'to' => $to,
-            'uniqueCount' => Order::distinct('phone')->count('phone'),
+            'uniqueCount' => Order::where('source', Order::SOURCE_STORE)->distinct('phone')->count('phone'),
             // registered storefront accounts (badge when the phone matches)
             'registeredPhones' => \App\Models\User::where('role', \App\Models\User::ROLE_CUSTOMER)
                 ->whereNotNull('phone')
@@ -144,7 +147,9 @@ class CustomerController extends Controller
             'name' => 'required|string|max:120',
         ]);
 
-        $updated = Order::where('phone', $data['phone'])->update(['customer_name' => $data['name']]);
+        $updated = Order::where('phone', $data['phone'])
+            ->where('source', Order::SOURCE_STORE)
+            ->update(['customer_name' => $data['name']]);
 
         return back()->with('success', "{$updated} টি অর্ডারে নাম আপডেট হয়েছে ({$data['name']})।");
     }
@@ -152,7 +157,9 @@ class CustomerController extends Controller
     /** Delete a customer: removes every order placed with this phone number. */
     public function destroy(string $phone)
     {
-        $deleted = Order::where('phone', $phone)->delete();
+        $deleted = Order::where('phone', $phone)
+            ->where('source', Order::SOURCE_STORE)
+            ->delete();
 
         return redirect()->route('admin.customers')
             ->with('success', "গ্রাহক ({$phone}) এবং তার {$deleted} টি অর্ডার মুছে ফেলা হয়েছে।");
