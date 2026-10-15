@@ -16,12 +16,16 @@ class DashboardController extends Controller
         // to the super admin's /super/orders section, not the client dashboard
         $store = Order::where('source', Order::SOURCE_STORE);
 
+        // genre-bound demo admin er dashboard: sudhu nijer genre er product count
+        $boundGenre = \App\Support\AdminGenre::active();
         $stats = [
             'orders_today' => (clone $store)->whereDate('created_at', today())->count(),
             'orders_total' => (clone $store)->count(),
             'pending' => (clone $store)->where('status', 'pending')->count(),
             'revenue' => (clone $store)->whereIn('status', ['processing', 'shipped', 'delivered'])->sum('total'),
-            'products' => Product::where('is_active', true)->count(),
+            'products' => $boundGenre
+                ? Product::where('is_active', true)->forIndustry($boundGenre)->count()
+                : Product::where('is_active', true)->count(),
             'customers' => (clone $store)->distinct('phone')->count('phone'),
         ];
 

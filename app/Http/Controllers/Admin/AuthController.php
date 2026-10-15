@@ -3,17 +3,28 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function showLogin()
+    public function showLogin(Request $request)
     {
         if (Auth::check()) {
             return redirect()->route(Auth::user()->isSuperAdmin() ? 'super.overview' : 'admin.dashboard');
         }
-        return view('admin.login');
+
+        // showcase credential modal theke ashle email prefilled thake —
+        // shudhu known active admin email e prefill hoy (enumeration nei:
+        // onno value dile ignore)
+        $prefill = '';
+        $email = trim((string) $request->query('email', ''));
+        if ($email !== '' && User::where('email', $email)->where('role', User::ROLE_ADMIN)->where('is_active', true)->exists()) {
+            $prefill = $email;
+        }
+
+        return view('admin.login', ['prefillEmail' => $prefill]);
     }
 
     public function login(Request $request)

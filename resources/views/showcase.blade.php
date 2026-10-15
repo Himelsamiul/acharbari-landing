@@ -101,7 +101,7 @@
                                     <i class="fa-solid fa-key"></i><code>{{ $d['demo_admin']['password'] }}</code>
                                     <button type="button" onclick="scCopyText('{{ $d['demo_admin']['password'] }}', this)"><span data-lang="bn">কপি</span><span data-lang="en">Copy</span></button>
                                 </span>
-                                <a class="sc-creds-login" href="{{ route('admin.login') }}" target="_blank" rel="noopener">
+                                <a class="sc-creds-login" href="{{ route('admin.login', ['email' => $d['demo_admin']['email']]) }}" target="_blank" rel="noopener">
                                     <span data-lang="bn">প্যানেলে লগইন করে দেখুন →</span>
                                     <span data-lang="en">Log in to the panel →</span>
                                 </a>

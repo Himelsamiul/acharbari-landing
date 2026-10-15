@@ -90,8 +90,10 @@ class ShowcaseSync
 
                 // the genre's showcase demo admin — created only when missing
                 // (password/email stay public on the showcase card by design;
-                // a changed password is NOT reset here, delete the user to re-issue)
-                User::firstOrCreate(
+                // a changed password is NOT reset here, delete the user to re-issue).
+                // industry binding = ei admin er panel oi genre er "store" dekhabe
+                // (AdminGenre context: pack defaults + nijer sandbox)
+                $admin = User::firstOrCreate(
                     ['email' => self::demoAdminEmail($key)],
                     [
                         'name' => $pack['name_bn'] . ' ডেমো অ্যাডমিন',
@@ -99,8 +101,12 @@ class ShowcaseSync
                         'role' => User::ROLE_ADMIN,
                         'permissions' => array_fill_keys(array_keys(config('permissions.modules', [])), ['*']),
                         'is_active' => true,
+                        'industry' => $key,
                     ]
                 );
+                if ($admin->industry !== $key) {
+                    $admin->update(['industry' => $key]);
+                }
             }
         });
     }

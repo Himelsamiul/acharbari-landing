@@ -26,8 +26,9 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // share site settings + pending order count with every view
+        // (demo admin context er khetre genre+sandbox overlay soho — allForContext)
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
-            $view->with('settings', \App\Models\Setting::allCached());
+            $view->with('settings', \App\Models\Setting::allForContext());
             try {
                 $view->with('pendingCount', \App\Models\Order::where('status', 'pending')->count());
             } catch (Throwable $e) {

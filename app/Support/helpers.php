@@ -125,14 +125,27 @@ if (!function_exists('ab_industry_active')) {
     }
 }
 
+if (!function_exists('ab_genre_shared')) {
+    /**
+     * Active genre context from EITHER source: the public demo route
+     * (GenreDemo — pack-only, guests) or a logged-in showcase demo admin
+     * (AdminGenre — pack defaults + sandbox). Landing helpers consult this
+     * FIRST so both surfaces render the genre instead of the global store.
+     */
+    function ab_genre_shared(): ?string
+    {
+        return \App\Support\GenreDemo::active() ?? \App\Support\AdminGenre::active();
+    }
+}
+
 if (!function_exists('ab_industry')) {
-    /** Active industry-preset key ('' = default AcharBari look). Preview override: ?industry=<key>. Showcase demo pages: the genre itself. */
+    /** Active industry-preset key ('' = default AcharBari look). Preview override: ?industry=<key>. Showcase demo pages: the genre itself. Genre-bound demo admins: their genre. */
     function ab_industry(): string
     {
-        // genre demo context (/showcase/{genre}) — resolved per request so a
-        // back-to-back request (e.g. tests) never inherits the previous genre
-        if (\App\Support\GenreDemo::active() !== null) {
-            return \App\Support\GenreDemo::active();
+        // genre context (/showcase/{genre} demo ba bound demo admin) —
+        // resolved per request so back-to-back requests never inherit
+        if (ab_genre_shared() !== null) {
+            return ab_genre_shared();
         }
 
         static $cached = null;
@@ -198,9 +211,9 @@ if (!function_exists('ab_pill_categories')) {
      *  Default -> everything except genre-managed leftovers (stale pills hidden). */
     function ab_pill_categories()
     {
-        // genre demo pages derive the pills straight from the pack — no DB
-        // categories table read/write, nothing of the store leaks in
-        $demoGenre = \App\Support\GenreDemo::active();
+        // genre context (public demo route ba bound demo admin): pills derive
+        // straight from the pack — no categories-table read, nothing leaks
+        $demoGenre = ab_genre_shared();
         if ($demoGenre !== null) {
             $seen = [];
             $pills = collect();

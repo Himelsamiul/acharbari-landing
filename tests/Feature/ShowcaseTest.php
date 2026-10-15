@@ -210,6 +210,89 @@ class ShowcaseTest extends TestCase
         $this->actingAs($super)->get(route('super.orders.show', $order))->assertNotFound();
     }
 
+    /* ================= Genre-bound demo admin panel ================= */
+
+    public function test_bound_demo_admin_logs_into_their_genres_panel(): void
+    {
+        (new ShowcaseSync)->run();
+
+        // fashion card er link: login page e email prefilled (known demo email only)
+        $this->get(route('admin.login', ['email' => \App\Services\ShowcaseSync::demoAdminEmail('fashion')]))
+            ->assertOk()->assertSee('value="demo.fashion@khorak.shop"', false);
+        $this->get(route('admin.login', ['email' => 'random@x.com']))
+            ->assertOk()->assertDontSee('value="random@x.com"', false);
+
+        $fashionAdmin = User::where('email', \App\Services\ShowcaseSync::demoAdminEmail('fashion'))->first();
+        $this->assertSame('fashion', $fashionAdmin->industry);
+
+        // guests keep the global store (checked BEFORE actingAs — actingAs sticks)
+        $this->get('/')->assertOk()->assertDontSee(IndustryPack::all()['fashion']['brand_bn']);
+        $super = $this->superAdmin();
+        $this->actingAs($super)->get(route('admin.dashboard'))->assertOk()
+            ->assertDontSee(IndustryPack::all()['fashion']['brand_bn']);
+
+        // dashboard renders as the fashion store (brand via sandbox overlay;
+        // the admin chrome itself stays theme-neutral by design)
+        $html = $this->actingAs($fashionAdmin)->get(route('admin.dashboard'))
+            ->assertOk()->getContent();
+        $this->assertStringContainsString(IndustryPack::all()['fashion']['brand_bn'], $html);
+
+        // product catalogue scoped to fashion only
+        $this->actingAs($fashionAdmin)->get(route('admin.products.index'))
+            ->assertOk()
+            ->assertSee('প্রিমিয়াম এমব্রয়ডারি পাঞ্জাবি')
+            ->assertDontSee('কাচ্চি বিরিয়ানি');
+
+        // the logged-in admin's own landing view is their genre's
+        $home = $this->actingAs($fashionAdmin)->get('/')->assertOk()->getContent();
+        $this->assertStringContainsString(IndustryPack::all()['fashion']['content']['hero_s1_main'][0], $home);
+        $this->assertStringContainsString('--ds-primary: ' . ThemeLibrary::get('fashion')['primary'], $home);
+    }
+
+    public function test_bound_admin_settings_writes_are_sandboxed_away_from_the_real_store(): void
+    {
+        (new ShowcaseSync)->run();
+        $fashionAdmin = User::where('email', \App\Services\ShowcaseSync::demoAdminEmail('fashion'))->first();
+        $travelAdmin = User::where('email', \App\Services\ShowcaseSync::demoAdminEmail('travel'))->first();
+
+        $settingsBefore = Setting::all()->pluck('value', 'key')->all();
+        $homeBefore = preg_replace('/csrf-token" content="[^"]+"/', 'csrf', $this->get('/')->getContent());
+
+        // demo admin "optimizes" the theme + hero copy — panel save flow
+        // (theme save contract: theme_id + theme_json, like the theme page)
+        $this->actingAs($fashionAdmin)->post(route('admin.settings.theme.save'), [
+            'theme_id' => 'jamun',
+            'theme_json' => json_encode(ThemeLibrary::get('jamun')),
+        ])->assertRedirect();
+
+        $fashionAdmin = $fashionAdmin->fresh();
+        $blob = json_decode((string) $fashionAdmin->demo_settings, true);
+        $this->assertSame('jamun', $blob['theme_id'] ?? null, 'sandbox blob carries the edit');
+
+        // real store untouched: settings table row-for-row (guest home is
+        // derived from settings + products, both untouched — snapshot is the
+        // proof; a mid-test guest fetch would still be actingAs'd, so we
+        // verify via the DB + the other demo admin's view instead)
+        $this->assertSame($settingsBefore, Setting::all()->pluck('value', 'key')->all());
+
+        // other demo admins unaffected — travel still renders travel
+        $travelHome = $this->actingAs($travelAdmin)->get('/')->assertOk()->getContent();
+        $this->assertStringContainsString('--ds-primary: ' . ThemeLibrary::get('travel')['primary'], $travelHome);
+        $this->assertStringNotContainsString('--ds-primary: ' . ThemeLibrary::get('jamun')['primary'], $travelHome);
+
+        // fashion admin er nijer view e sandbox edit live
+        $fashionHome = $this->actingAs($fashionAdmin->fresh())->get('/')->assertOk()->getContent();
+        $this->assertStringContainsString('--ds-primary: ' . ThemeLibrary::get('jamun')['primary'], $fashionHome);
+
+        // reset command restores pack defaults
+        $this->artisan('showcase:reset', ['genre' => 'fashion']);
+        $this->assertNull($fashionAdmin->fresh()->demo_settings);
+        $this->assertStringContainsString(
+            '--ds-primary: ' . ThemeLibrary::get('fashion')['primary'],
+            $this->actingAs($fashionAdmin->fresh())->get('/')->assertOk()->getContent()
+        );
+    }
+
     /* ================= Store independence ================= */
 
     public function test_visiting_showcase_and_demo_pages_changes_no_settings_and_no_home_render(): void

@@ -94,6 +94,8 @@ class User extends Authenticatable
         'role',
         'permissions',
         'is_active',
+        'industry',
+        'demo_settings',
     ];
 
     /**

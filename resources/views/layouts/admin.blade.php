@@ -482,7 +482,7 @@
                 </div>
                 <div>
                     <b style="color:inherit">{{ ab_brand('bn') }}</b>
-                    <span>ADMIN PANEL</span>
+                    <span>ADMIN PANEL @if (\App\Support\AdminGenre::active() !== null) • {{ \App\Http\Controllers\Admin\IndustryPack::all()[\App\Support\AdminGenre::active()]['name_bn'] ?? '' }} ডেমো @endif</span>
                 </div>
             </a>
 

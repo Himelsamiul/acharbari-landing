@@ -163,7 +163,7 @@
             @csrf
             <div class="a-field">
                 <label>ইমেইল</label>
-                <input class="a-input" type="email" name="email" value="{{ old('email') }}" placeholder="apnar@email.com" required autofocus>
+                <input class="a-input" type="email" name="email" value="{{ old('email', $prefillEmail ?? '') }}" placeholder="apnar@email.com" required autofocus>
             </div>
             <div class="a-field">
                 <label>পাসওয়ার্ড</label>
