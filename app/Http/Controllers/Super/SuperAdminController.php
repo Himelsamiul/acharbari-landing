@@ -71,6 +71,8 @@ class SuperAdminController extends Controller
             'role' => User::ROLE_ADMIN,
             'permissions' => $this->presetMap($data['preset'] ?? null),
             'is_active' => true,
+            // delete-lock: shudhu platform owner (khorak) e flag set korte pare
+            'is_protected' => $request->boolean('is_protected') && optional($request->user())->isPlatformOwner(),
         ]);
 
         return back()->with('success', 'অ্যাডমিন "'.$data['name'].'" তৈরি হয়েছে — এখন এই ইমেইল ও পাসওয়ার্ড দিয়ে /admin/login থেকে লগইন করতে পারবে।');
@@ -144,6 +146,23 @@ class SuperAdminController extends Controller
         return back()->with('success', '"'.$user->name.'" এখন '.($user->is_active ? 'সক্রিয়' : 'নিষ্ক্রিয়').'।');
     }
 
+    /** Toggle the delete-lock on an account — platform owner (khorak) only. */
+    public function toggleProtect(Request $request, User $user)
+    {
+        if ($user->isCustomer()) {
+            abort(404);
+        }
+
+        if (! optional($request->user())->isPlatformOwner()) {
+            return back()->withErrors(['admin' => 'শুধু প্ল্যাটফর্ম মালিক (khorak) ডিলিট-লক পরিবর্তন করতে পারবেন।']);
+        }
+
+        $user->is_protected = ! $user->is_protected;
+        $user->save();
+
+        return back()->with('success', '"'.$user->name.'" এখন '.($user->is_protected ? 'ডিলিট-প্রটেক্টেড (শুধু khorak মুছতে পারবে)' : 'সাধারণ (ডিলিট-লক সরানো হয়েছে)').'।');
+    }
+
     public function updatePassword(Request $request, User $user)
     {
         if ($user->isCustomer()) {
@@ -164,6 +183,11 @@ class SuperAdminController extends Controller
     {
         if ($user->id === auth()->id()) {
             return back()->withErrors(['admin' => 'আপনি নিজের অ্যাকাউন্ট মুছতে পারবেন না।']);
+        }
+
+        // delete-locked account: shudhu platform owner (khorak) muchte parbe
+        if ($user->is_protected && ! optional(auth()->user())->isPlatformOwner()) {
+            return back()->withErrors(['admin' => 'এই অ্যাকাউন্টটি সুরক্ষিত — শুধু প্ল্যাটফর্ম মালিক (khorak) মুছতে পারবেন।']);
         }
 
         $remaining = User::whereIn('role', [User::ROLE_ADMIN, User::ROLE_SUPER_ADMIN])

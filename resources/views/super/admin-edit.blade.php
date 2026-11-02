@@ -37,8 +37,17 @@
                     @csrf
                     <button type="submit" class="a-btn ghost">{{ $user->is_active ? 'নিষ্ক্রিয় করুন' : 'সক্রিয় করুন' }}</button>
                 </form>
+                @if (auth()->user()->isPlatformOwner())
+                    <form method="POST" action="{{ route('super.admins.protect', $user) }}" style="display:inline">
+                        @csrf
+                        <button type="submit" class="a-btn ghost"><i class="fa-solid {{ $user->is_protected ? 'fa-lock-open' : 'fa-lock' }}"></i> {{ $user->is_protected ? 'ডিলিট-লক সরান' : 'ডিলিট-লক করুন' }}</button>
+                    </form>
+                @endif
             @endif
             <span class="pill {{ $user->is_active ? 'ok' : 'red' }}">{{ $user->is_active ? 'সক্রিয়' : 'নিষ্ক্রিয়' }}</span>
+            @if ($user->is_protected)
+                <span class="pill" style="background:rgba(180,83,9,.12);color:#b45309"><i class="fa-solid fa-lock"></i> ডিলিট-প্রটেক্টেড (শুধু khorak)</span>
+            @endif
         </div>
     </div>
 
@@ -185,12 +194,16 @@
         <div class="card" style="border-color:rgba(220,38,38,.25)">
             <h3><i class="fa-solid fa-triangle-exclamation" style="color:#dc2626"></i> অ্যাকাউন্ট মুছে ফেলা</h3>
             <p class="desc">মুছে ফেললে এই অ্যাডমিন আর লগইন করতে পারবে না। নিজের অ্যাকাউন্ট বা শেষ অ্যাডমিন মুছে ফেলা যাবে না।</p>
-            <form method="POST" action="{{ route('super.admins.destroy', $user) }}"
-                onsubmit="return swConfirmSubmit(event, 'অ্যাডমিন "{{ $user->name }}" মুছে ফেলবেন?', 'এই কাজটি ফেরানো যাবে না।')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="a-btn red"><i class="fa-solid fa-trash"></i> মুছে ফেলুন</button>
-            </form>
+            @if ($user->is_protected && ! auth()->user()->isPlatformOwner())
+                <p class="desc" style="color:#b45309"><i class="fa-solid fa-lock"></i> এই অ্যাকাউন্টটি ডিলিট-প্রটেক্টেড — শুধু প্ল্যাটফর্ম মালিক (khorak) মুছতে পারবেন।</p>
+            @else
+                <form method="POST" action="{{ route('super.admins.destroy', $user) }}"
+                    onsubmit="return swConfirmSubmit(event, 'অ্যাডমিন "{{ $user->name }}" মুছে ফেলবেন?', 'এই কাজটি ফেরানো যাবে না।')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="a-btn red"><i class="fa-solid fa-trash"></i> মুছে ফেলুন</button>
+                </form>
+            @endif
         </div>
     @endif
 @endsection

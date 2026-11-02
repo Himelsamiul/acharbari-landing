@@ -39,6 +39,13 @@
                 </div>
                 <button class="a-btn"><i class="fa-solid fa-user-plus"></i> তৈরি করুন</button>
             </div>
+            @if (auth()->user()->isPlatformOwner())
+                <label style="display:inline-flex;align-items:center;gap:7px;margin-top:12px;font-size:13px;color:#4b4463;cursor:pointer">
+                    <input type="checkbox" name="is_protected" value="1" {{ old('is_protected') ? 'checked' : '' }}>
+                    <i class="fa-solid fa-lock" style="color:#b45309"></i>
+                    ডিলিট-প্রটেক্টেড — এই অ্যাকাউন্ট শুধু আপনি (khorak) মুছতে পারবেন
+                </label>
+            @endif
         </form>
     </div>
 
@@ -63,6 +70,9 @@
                             <b>{{ $admin->name }}</b>
                             @if ($admin->id === $currentId)
                                 <span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(22,163,74,.12);color:#16a34a;margin-left:6px">আপনি</span>
+                            @endif
+                            @if ($admin->is_protected)
+                                <span title="ডিলিট-প্রটেক্টেড — শুধু khorak মুছতে পারবে" style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(180,83,9,.12);color:#b45309;margin-left:6px"><i class="fa-solid fa-lock"></i> লকড</span>
                             @endif
                         </td>
                         <td>{{ $admin->email }}</td>
@@ -92,12 +102,24 @@
                                             <i class="fa-solid fa-power-off"></i> {{ $admin->is_active ? 'নিষ্ক্রিয় করুন' : 'সক্রিয় করুন' }}
                                         </button>
                                     </form>
-                                    <form method="POST" action="{{ route('super.admins.destroy', $admin) }}" style="display:inline"
-                                        onsubmit="return swConfirmSubmit(event, 'অ্যাডমিন "{{ $admin->name }}" মুছে ফেলবেন?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-mini red"><i class="fa-solid fa-trash"></i> মুছুন</button>
-                                    </form>
+                                    @if (auth()->user()->isPlatformOwner())
+                                        <form method="POST" action="{{ route('super.admins.protect', $admin) }}" style="display:inline">
+                                            @csrf
+                                            <button type="submit" class="btn-mini">
+                                                <i class="fa-solid {{ $admin->is_protected ? 'fa-lock-open' : 'fa-lock' }}"></i> {{ $admin->is_protected ? 'লক সরান' : 'ডিলিট-লক' }}
+                                            </button>
+                                        </form>
+                                    @endif
+                                    @if ($admin->is_protected && ! auth()->user()->isPlatformOwner())
+                                        <span class="btn-mini" style="opacity:.55;cursor:not-allowed" title="সুরক্ষিত — শুধু khorak মুছতে পারবে"><i class="fa-solid fa-lock"></i> মুছুন</span>
+                                    @else
+                                        <form method="POST" action="{{ route('super.admins.destroy', $admin) }}" style="display:inline"
+                                            onsubmit="return swConfirmSubmit(event, 'অ্যাডমিন "{{ $admin->name }}" মুছে ফেলবেন?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-mini red"><i class="fa-solid fa-trash"></i> মুছুন</button>
+                                        </form>
+                                    @endif
                                 @endif
                             </div>
                         </td>

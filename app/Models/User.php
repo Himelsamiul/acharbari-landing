@@ -19,6 +19,13 @@ class User extends Authenticatable
     public const ROLE_CUSTOMER = 'customer';
 
     /**
+     * The platform owner (khorak). A delete-protected account can only be
+     * removed by this account — not by any other super admin or admin.
+     * Same seeded owner the debug panel guards on.
+     */
+    public const PLATFORM_OWNER_EMAIL = 'admin@khorak.shop';
+
+    /**
      * Sidebar-section permissions — key => Bangla label (checkbox UI + middleware).
      * Dashboard sob admin er jonno khola, tai ekhane nai.
      */
@@ -94,6 +101,7 @@ class User extends Authenticatable
         'role',
         'permissions',
         'is_active',
+        'is_protected',
         'industry',
         'demo_settings',
     ];
@@ -120,6 +128,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'permissions' => 'array',
             'is_active' => 'boolean',
+            'is_protected' => 'boolean',
         ];
     }
 
@@ -149,6 +158,12 @@ class User extends Authenticatable
     public function isCustomer(): bool
     {
         return $this->role === self::ROLE_CUSTOMER;
+    }
+
+    /** The one platform owner (khorak) — only account allowed to delete protected users. */
+    public function isPlatformOwner(): bool
+    {
+        return $this->isSuperAdmin() && $this->email === self::PLATFORM_OWNER_EMAIL;
     }
 
     /**

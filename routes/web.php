@@ -95,6 +95,7 @@ Route::prefix('super')->middleware(['auth', 'super.admin'])->group(function () {
     Route::get('/admins/{user}/edit', [\App\Http\Controllers\Super\SuperAdminController::class, 'edit'])->name('super.admins.edit');
     Route::put('/admins/{user}', [\App\Http\Controllers\Super\SuperAdminController::class, 'update'])->name('super.admins.update');
     Route::post('/admins/{user}/toggle', [\App\Http\Controllers\Super\SuperAdminController::class, 'toggle'])->name('super.admins.toggle');
+    Route::post('/admins/{user}/protect', [\App\Http\Controllers\Super\SuperAdminController::class, 'toggleProtect'])->name('super.admins.protect');
     Route::post('/admins/{user}/password', [\App\Http\Controllers\Super\SuperAdminController::class, 'updatePassword'])->name('super.admins.password');
     Route::post('/admins/{user}/industry', [\App\Http\Controllers\Super\SuperAdminController::class, 'applyIndustry'])->name('super.admins.industry');
     Route::delete('/admins/{user}', [\App\Http\Controllers\Super\SuperAdminController::class, 'destroy'])->name('super.admins.destroy');
