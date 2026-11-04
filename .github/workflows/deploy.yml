@@ -1,8 +1,8 @@
 name: Deploy to Live (cPanel)
 
-# main e push = shudhu KHORAK auto deploy
-# amrongbd.com e pathate chaile: Actions tab → Deploy to Live (cPanel)
-#   → Run workflow → "amrongbd.com" tick (khorak-o lagle o tick) → Run workflow
+# main e push = 3 TA DOMAIN-I EK SATHE auto deploy (khorak + amrong + ayra)
+# nirdishto 1-2 ta domain e manual pathate: Actions tab → Deploy to Live (cPanel)
+#   → Run workflow → domain tick → Run workflow
 on:
   push:
     branches: [main]
@@ -14,6 +14,10 @@ on:
         default: false
       amrong:
         description: 'amrongbd.com e deploy'
+        type: boolean
+        default: false
+      ayra:
+        description: 'ayratraders.com e deploy'
         type: boolean
         default: false
 
@@ -84,11 +88,10 @@ jobs:
           echo "== LIVE MIGRATIONS OK =="
 
   # ---------------------------------------------------------------
-  # AMRONG (amrongbd.com): shudhu Actions tab er button theke chole —
-  # push e KONO DIN auto deploy hobe na
+  # AMRONG (amrongbd.com): push e o auto deploy (3 domain ek sathe)
   # ---------------------------------------------------------------
   deploy-amrong:
-    if: github.event_name == 'workflow_dispatch' && inputs.amrong == true
+    if: github.event_name == 'push' || inputs.amrong == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -141,5 +144,60 @@ jobs:
           sleep 15
           curl -fsS --max-time 90 --retry 2 --retry-delay 10 \
             "https://amrongbd.com/public/setup.php?key=${{ secrets.AMRONG_SETUP_KEY }}" \
+            || { echo "::error::Live migration FAILED — site will 500 if new columns are missing"; exit 1; }
+          echo "== LIVE MIGRATIONS OK =="
+
+  # ---------------------------------------------------------------
+  # AYRA (ayratraders.com): push e o auto deploy (3 domain ek sathe)
+  # ---------------------------------------------------------------
+  deploy-ayra:
+    if: github.event_name == 'push' || inputs.ayra == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stamp deploy version
+        run: git rev-parse --short HEAD > public/version.txt
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_mysql, bcmath, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Install composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
+
+      - name: FTP upload (full overwrite, never deletes)
+        env:
+          FTP_USER: ${{ secrets.AYRA_FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.AYRA_FTP_PASSWORD }}
+        run: |
+          command -v lftp >/dev/null || sudo apt-get install -y -qq lftp
+          lftp -u "$FTP_USER","$FTP_PASS" ftp://ayratraders.com << 'SCRIPT'
+            set ftp:ssl-allow yes
+            set ftp:ssl-protect-data yes
+            set ssl:verify-certificate no
+            set net:max-retries 3
+            set net:timeout 30
+            mirror -R --verbose --overwrite \
+              --exclude-glob .git* \
+              --exclude-glob .github \
+              --exclude .env \
+              --exclude .env.example \
+              --exclude-glob node_modules \
+              --exclude-glob tests \
+              --exclude DEPLOYMENT.md \
+              . /public_html
+            bye
+          SCRIPT
+
+      - name: Run live migrations
+        run: |
+          sleep 15
+          curl -fsS --max-time 90 --retry 2 --retry-delay 10 \
+            "https://ayratraders.com/public/setup.php?key=${{ secrets.AYRA_SETUP_KEY }}" \
             || { echo "::error::Live migration FAILED — site will 500 if new columns are missing"; exit 1; }
           echo "== LIVE MIGRATIONS OK =="
