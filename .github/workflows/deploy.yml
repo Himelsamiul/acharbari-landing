@@ -54,7 +54,7 @@ jobs:
           FTP_PASS: ${{ secrets.FTP_PASSWORD }}
         run: |
           command -v lftp >/dev/null || sudo apt-get install -y -qq lftp
-          lftp -u "$FTP_USER","$FTP_PASS" ftp://khorak.shop << 'SCRIPT'
+          lftp -u "$FTP_USER","$FTP_PASS" ftp://${{ secrets.FTP_SERVER }} << 'SCRIPT'
             set ftp:ssl-allow yes
             set ftp:ssl-protect-data yes
             # shared hosting er FTP cert hostname match kore na —
