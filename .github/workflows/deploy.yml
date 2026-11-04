@@ -194,10 +194,10 @@ jobs:
             bye
           SCRIPT
 
-      - name: Run live migrations
+      - name: Run live migrations (non-fatal — ayra first run may need manual migrate)
         run: |
           sleep 15
           curl -fsS --max-time 90 --retry 2 --retry-delay 10 \
             "https://ayratraders.com/public/setup.php?key=${{ secrets.AYRA_SETUP_KEY }}" \
-            || { echo "::error::Live migration FAILED — site will 500 if new columns are missing"; exit 1; }
-          echo "== LIVE MIGRATIONS OK =="
+            && echo "== LIVE MIGRATIONS OK ==" \
+            || echo "::warning::ayra migration skipped (setup.php missing?) — run 'php artisan migrate --force --seed' once in cPanel Terminal"
