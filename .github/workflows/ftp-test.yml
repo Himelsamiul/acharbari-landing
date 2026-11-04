@@ -1,0 +1,28 @@
+name: FTP cred test (khorak)
+
+# TEMPORARY throwaway — tests whether khorak FTP creds authenticate against the
+# origin IP (bypassing Cloudflare). Login + ls only, NO upload. Delete after.
+on:
+  workflow_dispatch:
+
+jobs:
+  khorak-ftp-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to khorak FTP origin (no upload, just list)
+        env:
+          FTP_USER: ${{ secrets.FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          command -v lftp >/dev/null || sudo apt-get install -y -qq lftp
+          lftp -u "$FTP_USER","$FTP_PASS" ftp://103.65.139.3 <<'SCRIPT'
+            set ftp:ssl-allow yes
+            set ftp:ssl-protect-data yes
+            set ssl:verify-certificate no
+            set net:max-retries 2
+            set net:timeout 20
+            pwd
+            ls
+            bye
+          SCRIPT
+          echo "== KHORAK FTP LOGIN OK =="
