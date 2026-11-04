@@ -1,8 +1,8 @@
 name: Deploy to Live (cPanel)
 
-# main e push = 3 TA DOMAIN-I EK SATHE auto deploy (khorak + amrong + ayra)
-# nirdishto 1-2 ta domain e manual pathate: Actions tab → Deploy to Live (cPanel)
-#   → Run workflow → domain tick → Run workflow
+# main e push = SHUDHU KHORAK auto deploy. amrong + ayra = MANUAL (button only) —
+# FTP boro vendor upload e file fele dey, tai working site accidental redeploy theke rokkha.
+# amrong/ayra pathate: Actions tab → Deploy to Live (cPanel) → Run workflow → domain tick
 on:
   push:
     branches: [main]
@@ -91,7 +91,7 @@ jobs:
   # AMRONG (amrongbd.com): push e o auto deploy (3 domain ek sathe)
   # ---------------------------------------------------------------
   deploy-amrong:
-    if: github.event_name == 'push' || inputs.amrong == true
+    if: github.event_name == 'workflow_dispatch' && inputs.amrong == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -151,7 +151,7 @@ jobs:
   # AYRA (ayratraders.com): push e o auto deploy (3 domain ek sathe)
   # ---------------------------------------------------------------
   deploy-ayra:
-    if: github.event_name == 'push' || inputs.ayra == true
+    if: github.event_name == 'workflow_dispatch' && inputs.ayra == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
