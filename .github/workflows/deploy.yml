@@ -75,8 +75,6 @@ jobs:
               --exclude .env.example \
               --exclude-glob node_modules \
               --exclude-glob tests \
-              --exclude '^vendor/' \
-              --exclude '^public/assets/' \
               --exclude DEPLOYMENT.md \
               . /public_html
             bye
@@ -140,8 +138,6 @@ jobs:
               --exclude .env.example \
               --exclude-glob node_modules \
               --exclude-glob tests \
-              --exclude '^vendor/' \
-              --exclude '^public/assets/' \
               --exclude DEPLOYMENT.md \
               . /public_html
             bye
@@ -197,8 +193,6 @@ jobs:
               --exclude .env.example \
               --exclude-glob node_modules \
               --exclude-glob tests \
-              --exclude '^vendor/' \
-              --exclude '^public/assets/' \
               --exclude DEPLOYMENT.md \
               . /public_html
             bye
