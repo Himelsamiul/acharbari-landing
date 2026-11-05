@@ -791,13 +791,13 @@ class SettingController extends Controller
             'theme_json' => json_encode($theme, JSON_UNESCAPED_UNICODE),
         ]);
 
-        // 2) hero images come from the genre pack (explicit settings — visible/editable later)
-        $heroPairs = [];
-        foreach (\App\Http\Controllers\Admin\IndustryPack::slots() as $slotKey => $file) {
-            $heroPairs[$slotKey] = 'assets/img/genres/' . $key . '/' . $file;
-        }
+        // 2) demo content — FILL ONLY EMPTY fields. The admin's own text is NEVER
+        //    overwritten (data-loss fix: age preset apply korle nijer lekha muche jeto).
+        //    Hero images intentionally NOT written here: ab_img_setting() already
+        //    prefers an admin upload and falls back to the genre pack for empty slots,
+        //    so a preset switch can't wipe an uploaded photo, and clear reverts cleanly.
+        $blank = fn (string $settingKey) => trim((string) Setting::get($settingKey, '')) === '';
 
-        // 3) demo content (full mode only — visual mode preserves admin text)
         $contentPairs = [];
         if ($data['mode'] === 'full') {
             $slides = \App\Http\Controllers\Admin\IndustryPack::heroSlides($key);
@@ -805,19 +805,25 @@ class SettingController extends Controller
                 if ($sv !== null) $pack['content'][$sk] = $sv;
             }
             foreach ($pack['content'] as $k => $v) {
-                $contentPairs[$k . '_bn'] = $v[0];
-                $contentPairs[$k . '_en'] = $v[1];
+                if ($blank($k . '_bn')) $contentPairs[$k . '_bn'] = $v[0];
+                if ($blank($k . '_en')) $contentPairs[$k . '_en'] = $v[1];
             }
-            $contentPairs['marquee_items'] = json_encode(array_map(
-                fn ($m) => ['bn' => $m[0], 'en' => $m[1]],
-                \App\Http\Controllers\Admin\IndustryPack::marquee($key)
-            ), JSON_UNESCAPED_UNICODE);
-            $contentPairs['reviews_items'] = json_encode(\App\Http\Controllers\Admin\IndustryPack::reviews($key), JSON_UNESCAPED_UNICODE);
+            if ($blank('marquee_items')) {
+                $contentPairs['marquee_items'] = json_encode(array_map(
+                    fn ($m) => ['bn' => $m[0], 'en' => $m[1]],
+                    \App\Http\Controllers\Admin\IndustryPack::marquee($key)
+                ), JSON_UNESCAPED_UNICODE);
+            }
+            if ($blank('reviews_items')) {
+                $contentPairs['reviews_items'] = json_encode(\App\Http\Controllers\Admin\IndustryPack::reviews($key), JSON_UNESCAPED_UNICODE);
+            }
         }
 
-        Setting::setMany($contentPairs + $heroPairs);
+        if ($contentPairs) {
+            Setting::setMany($contentPairs);
+        }
 
-        // 4) demo products + their categories (managed `demo-` slugs only — real products untouched)
+        // 3) demo products + their categories (managed `demo-` slugs only — real products untouched)
         try {
             \Illuminate\Support\Facades\DB::transaction(function () use ($key, $pack) {
                 $active = [];
@@ -874,19 +880,22 @@ class SettingController extends Controller
             return response()->json(['ok' => false, 'message' => 'ডেমো প্রোডাক্ট সিঙ্ক ব্যর্থ: ' . $e->getMessage()], 500);
         }
 
-        return response()->json(['ok' => true, 'message' => $pack['name_bn'] . ' প্রিসেট প্রয়োগ হয়েছে — ল্যান্ডিং পেজে দেখুন।']);
+        return response()->json(['ok' => true, 'message' => $pack['name_bn'] . ' প্রিসেট প্রয়োগ হয়েছে — আপনার দেওয়া লেখা/ছবি অক্ষত আছে, শুধু খালি ঘর ভরেছে।']);
     }
 
     /** Clear the industry preset — back to the default AcharBari look. */
     public function clearIndustry()
     {
-        Setting::setMany(array_merge([
-            'industry'      => '',
-            'theme_id'      => 'herbal',
-            'theme_json'    => json_encode(\App\Http\Controllers\Admin\ThemeLibrary::get('herbal'), JSON_UNESCAPED_UNICODE),
-            'reviews_items' => '',
-            'marquee_items' => '',
-        ], array_fill_keys(array_keys(\App\Http\Controllers\Admin\IndustryPack::slots()), '')));
+        // industry flag off + theme back to herbal only. The admin's own content,
+        // reviews, marquee and hero images are LEFT UNTOUCHED — clearing them here
+        // used to wipe the admin's data. Empty hero slots revert to the AcharBari
+        // defaults on their own once `industry` is '' (ab_img_setting fallback).
+        \App\Http\Controllers\Admin\ThemeLibrary::pushHistory();
+        Setting::setMany([
+            'industry'   => '',
+            'theme_id'   => 'herbal',
+            'theme_json' => json_encode(\App\Http\Controllers\Admin\ThemeLibrary::get('herbal'), JSON_UNESCAPED_UNICODE),
+        ]);
 
         // hide genre demo products; the default AcharBari products come back on top
         \App\Models\Product::where('slug', 'like', 'demo-%')->update(['is_active' => false]);

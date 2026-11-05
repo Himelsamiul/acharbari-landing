@@ -23,7 +23,7 @@
     @if ($can('industry_preset'))
     <div class="card">
         <h3><i class="fa-solid fa-store"></i> ইন্ডাস্ট্রি প্রিসেট</h3>
-        <p class="desc">এক ক্লিকে পুরো ওয়েবসাইট ওই ব্যবসার লুকে বদলে যাবে — থিমের রঙ, সব ছবি আর ডেমো কনটেন্টসহ। নিজে কাস্টমাইজ করা টেক্সট/ছবি থাকলে সিস্টেম আপনাকে জিজ্ঞেস করবে।</p>
+        <p class="desc">এক ক্লিকে ওই ব্যবসার থিমের রঙ ও লুক বসে যাবে। <b>আপনার নিজের দেওয়া লেখা ও আপলোড করা ছবি অক্ষত থাকবে</b> — প্রিসেট শুধু খালি ঘরগুলোতে ডেমো কনটেন্ট বসায়।</p>
         <div class="industry-grid" id="industryGrid">
             @foreach (\App\Http\Controllers\Admin\IndustryPack::all() as $key => $g)
                 <button type="button"
@@ -42,14 +42,14 @@
 
         {{-- confirm panel --}}
         <div class="ind-confirm" id="indConfirm" hidden>
-            <p><i class="fa-solid fa-triangle-exclamation"></i> <b id="indConfirmTitle"></b></p>
-            <p class="ind-confirm-note">আপনার বর্তমান কাস্টমাইজ করা কনটেন্ট (লেখা/ছবি) পরিবর্তিত হতে পারে।</p>
+            <p><i class="fa-solid fa-circle-info"></i> <b id="indConfirmTitle"></b></p>
+            <p class="ind-confirm-note">আপনার দেওয়া লেখা ও আপলোড করা ছবি <b>অক্ষত থাকবে</b> — প্রিসেট শুধু খালি ঘর ডেমো দিয়ে ভরবে আর থিমের রঙ বদলাবে।</p>
             <div class="ind-confirm-actions">
                 <button type="button" class="a-btn" onclick="applyIndustry('full')" id="indApplyFull">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> প্রিসেট প্রয়োগ (থিম+ছবি+কনটেন্ট)
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> প্রিসেট প্রয়োগ (রঙ + খালি ঘরে ডেমো)
                 </button>
                 <button type="button" class="a-btn ghost" onclick="applyIndustry('visual')" id="indApplyVisual">
-                    <i class="fa-solid fa-palette"></i> শুধু লুক (থিম+ছবি)
+                    <i class="fa-solid fa-palette"></i> শুধু রঙ বদলান (লেখা-ছবি অক্ষত)
                 </button>
                 <button type="button" class="a-btn ghost" onclick="cancelIndustry()">বাতিল</button>
             </div>
