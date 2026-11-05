@@ -20,6 +20,10 @@ on:
         description: 'ayratraders.com e deploy'
         type: boolean
         default: false
+      shabib:
+        description: 'mshabibtraders.com e deploy'
+        type: boolean
+        default: false
 
 jobs:
   # ---------------------------------------------------------------
@@ -201,3 +205,75 @@ jobs:
             "https://ayratraders.com/public/setup.php?key=${{ secrets.AYRA_SETUP_KEY }}" \
             && echo "== LIVE MIGRATIONS OK ==" \
             || echo "::warning::ayra migration skipped (setup.php missing?) — run 'php artisan migrate --force --seed' once in cPanel Terminal"
+
+  # ---------------------------------------------------------------
+  # SHABIB (mshabibtraders.com): MANUAL only (button). Fresh/empty server —
+  # vendor ke ekTA archive (vendor.tar.gz) hisebe pathai, karon FTP fresh
+  # 8869-file vendor upload e file fele dey. Server-e ab-bootstrap.php
+  # archive extract + migrate + seed kore. Domain Cloudflare-proxied, tai
+  # FTP host = ORIGIN IP (SHABIB_FTP_SERVER secret), domain name noy.
+  # ---------------------------------------------------------------
+  deploy-shabib:
+    if: github.event_name == 'workflow_dispatch' && inputs.shabib == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stamp deploy version
+        run: git rev-parse --short HEAD > public/version.txt
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_mysql, bcmath, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Install composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
+
+      - name: Archive vendor (single-file transfer — FTP boro vendor fele dey)
+        run: tar -czf vendor.tar.gz vendor
+
+      # vendor/ dir mirror theke bad, kintu vendor.tar.gz (ekTA file) upload hoy.
+      # ab-bootstrap.php (public/ e committed) server-e extract kore.
+      - name: FTP upload (app without vendor/ dir, + vendor.tar.gz)
+        env:
+          FTP_USER: ${{ secrets.SHABIB_FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.SHABIB_FTP_PASSWORD }}
+        run: |
+          command -v lftp >/dev/null || sudo apt-get install -y -qq lftp
+          lftp -u "$FTP_USER","$FTP_PASS" ftp://${{ secrets.SHABIB_FTP_SERVER }} << 'SCRIPT'
+            set ftp:ssl-allow yes
+            set ftp:ssl-protect-data yes
+            set ssl:verify-certificate no
+            set net:max-retries 3
+            set net:timeout 30
+            mirror -R --verbose --overwrite \
+              --exclude-glob .git* \
+              --exclude-glob .github \
+              --exclude .env \
+              --exclude .env.example \
+              --exclude-glob node_modules \
+              --exclude-glob tests \
+              --exclude '^vendor/' \
+              --exclude DEPLOYMENT.md \
+              . /public_html
+            bye
+          SCRIPT
+
+      # ekTA GET: extract (Cloudflare 524 dile-o server-e cholte thake), tarpor
+      # migrate+seed (vendor tokhon present). Non-fatal — proyojone browser e manually.
+      - name: Server-side vendor extract + migrate + seed (non-fatal first run)
+        run: |
+          sleep 10
+          echo "-- extract vendor.tar.gz --"
+          curl -fsS --max-time 240 --retry 1 --retry-delay 20 \
+            "https://mshabibtraders.com/public/ab-bootstrap.php?key=${{ secrets.SHABIB_SETUP_KEY }}&extract=1" || true
+          sleep 20
+          echo "-- migrate + seed --"
+          curl -fsS --max-time 180 --retry 2 --retry-delay 15 \
+            "https://mshabibtraders.com/public/ab-bootstrap.php?key=${{ secrets.SHABIB_SETUP_KEY }}&seed=1" \
+            && echo "== LIVE MIGRATIONS OK ==" \
+            || echo "::warning::browser e /public/ab-bootstrap.php?key=...&seed=1 ekbar chalan"
