@@ -38,6 +38,15 @@ echo "\n== MIGRATE ==\n";
 \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
 echo \Illuminate\Support\Facades\Artisan::output();
 
+// the served robots.txt is a file — rewrite it from the admin's setting so an
+// old copy on the server never outlives a deploy
+echo "\n== ROBOTS.TXT ==\n";
+$robots = \App\Http\Controllers\Admin\SeoController::syncRobotsFile();
+echo ($robots ?? 'WARNING: public/robots.txt could not be written') . "\n";
+if (str_contains((string) $robots, '//localhost')) {
+    echo "WARNING: robots.txt points to localhost — fix the Sitemap line in Admin → SEO → robots.txt (and APP_URL in .env)\n";
+}
+
 echo "\n== STORAGE LINK ==\n";
 \Illuminate\Support\Facades\Artisan::call('storage:link');
 echo \Illuminate\Support\Facades\Artisan::output();

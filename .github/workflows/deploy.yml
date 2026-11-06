@@ -58,7 +58,7 @@ jobs:
           FTP_PASS: ${{ secrets.FTP_PASSWORD }}
         run: |
           command -v lftp >/dev/null || sudo apt-get install -y -qq lftp
-          sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' -e 's#^#rm -f /public_html/#' deploy/retired-files.txt > /tmp/retired.lftp
+          sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' -e 's#^\(tests\|\.git\|\.github\)/$#rm -r -f /public_html/\1#;t' -e 's#^#rm -f /public_html/#' deploy/retired-files.txt > /tmp/retired.lftp
           lftp -u "$FTP_USER","$FTP_PASS" ftp://${{ secrets.FTP_SERVER }} << 'SCRIPT'
             set ftp:ssl-allow yes
             set ftp:ssl-protect-data yes
@@ -67,18 +67,20 @@ jobs:
             set ssl:verify-certificate no
             set net:max-retries 3
             set net:timeout 30
+            # a failed mirror must fail the job (else the rm lines below set the exit code)
+            set cmd:fail-exit yes
             # main cPanel FTP account (khorak) chroot home = /home/khorak —
             # tai absolute /public_html e upload korlei exactly doc root e pore
             mirror -R --verbose --overwrite \
               --exclude-glob .git* \
-              --exclude-glob .github \
-              --exclude .env \
-              --exclude .env.example \
-              --exclude-glob node_modules \
-              --exclude-glob tests \
+              --exclude '^\.git/' \
+              --exclude '^\.github/' \
+              --exclude '^\.env' \
+              --exclude '^node_modules/' \
+              --exclude '^tests/' \
               --exclude '^vendor/' \
               --exclude '^public/assets/' \
-              --exclude DEPLOYMENT.md \
+              --exclude '^DEPLOYMENT\.md$' \
               --exclude '^deploy/' \
               --exclude '^public/robots\.txt$' \
               . /public_html
@@ -130,25 +132,27 @@ jobs:
           FTP_PASS: ${{ secrets.AMRONG_FTP_PASSWORD }}
         run: |
           command -v lftp >/dev/null || sudo apt-get install -y -qq lftp
-          sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' -e 's#^#rm -f /public_html/#' deploy/retired-files.txt > /tmp/retired.lftp
+          sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' -e 's#^\(tests\|\.git\|\.github\)/$#rm -r -f /public_html/\1#;t' -e 's#^#rm -f /public_html/#' deploy/retired-files.txt > /tmp/retired.lftp
           lftp -u "$FTP_USER","$FTP_PASS" ftp://amrongbd.com << 'SCRIPT'
             set ftp:ssl-allow yes
             set ftp:ssl-protect-data yes
             set ssl:verify-certificate no
             set net:max-retries 3
             set net:timeout 30
+            # a failed mirror must fail the job (else the rm lines below set the exit code)
+            set cmd:fail-exit yes
             # main cPanel FTP account (amrong) chroot home = /home/amrong —
             # /public_html e upload korlei doc root e pore
             mirror -R --verbose --overwrite \
               --exclude-glob .git* \
-              --exclude-glob .github \
-              --exclude .env \
-              --exclude .env.example \
-              --exclude-glob node_modules \
-              --exclude-glob tests \
+              --exclude '^\.git/' \
+              --exclude '^\.github/' \
+              --exclude '^\.env' \
+              --exclude '^node_modules/' \
+              --exclude '^tests/' \
               --exclude '^vendor/' \
               --exclude '^public/assets/' \
-              --exclude DEPLOYMENT.md \
+              --exclude '^DEPLOYMENT\.md$' \
               --exclude '^deploy/' \
               --exclude '^public/robots\.txt$' \
               . /public_html
@@ -194,23 +198,25 @@ jobs:
           FTP_PASS: ${{ secrets.AYRA_FTP_PASSWORD }}
         run: |
           command -v lftp >/dev/null || sudo apt-get install -y -qq lftp
-          sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' -e 's#^#rm -f /public_html/#' deploy/retired-files.txt > /tmp/retired.lftp
+          sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' -e 's#^\(tests\|\.git\|\.github\)/$#rm -r -f /public_html/\1#;t' -e 's#^#rm -f /public_html/#' deploy/retired-files.txt > /tmp/retired.lftp
           lftp -u "$FTP_USER","$FTP_PASS" ftp://ayratraders.com << 'SCRIPT'
             set ftp:ssl-allow yes
             set ftp:ssl-protect-data yes
             set ssl:verify-certificate no
             set net:max-retries 3
             set net:timeout 30
+            # a failed mirror must fail the job (else the rm lines below set the exit code)
+            set cmd:fail-exit yes
             mirror -R --verbose --overwrite \
               --exclude-glob .git* \
-              --exclude-glob .github \
-              --exclude .env \
-              --exclude .env.example \
-              --exclude-glob node_modules \
-              --exclude-glob tests \
+              --exclude '^\.git/' \
+              --exclude '^\.github/' \
+              --exclude '^\.env' \
+              --exclude '^node_modules/' \
+              --exclude '^tests/' \
               --exclude '^vendor/' \
               --exclude '^public/assets/' \
-              --exclude DEPLOYMENT.md \
+              --exclude '^DEPLOYMENT\.md$' \
               --exclude '^deploy/' \
               --exclude '^public/robots\.txt$' \
               . /public_html
@@ -265,22 +271,24 @@ jobs:
           FTP_PASS: ${{ secrets.SHABIB_FTP_PASSWORD }}
         run: |
           command -v lftp >/dev/null || sudo apt-get install -y -qq lftp
-          sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' -e 's#^#rm -f /public_html/#' deploy/retired-files.txt > /tmp/retired.lftp
+          sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' -e 's#^\(tests\|\.git\|\.github\)/$#rm -r -f /public_html/\1#;t' -e 's#^#rm -f /public_html/#' deploy/retired-files.txt > /tmp/retired.lftp
           lftp -u "$FTP_USER","$FTP_PASS" ftp://${{ secrets.SHABIB_FTP_SERVER }} << 'SCRIPT'
             set ftp:ssl-allow yes
             set ftp:ssl-protect-data yes
             set ssl:verify-certificate no
             set net:max-retries 3
             set net:timeout 30
+            # a failed mirror must fail the job (else the rm lines below set the exit code)
+            set cmd:fail-exit yes
             mirror -R --verbose --overwrite \
               --exclude-glob .git* \
-              --exclude-glob .github \
-              --exclude .env \
-              --exclude .env.example \
-              --exclude-glob node_modules \
-              --exclude-glob tests \
+              --exclude '^\.git/' \
+              --exclude '^\.github/' \
+              --exclude '^\.env' \
+              --exclude '^node_modules/' \
+              --exclude '^tests/' \
               --exclude '^vendor/' \
-              --exclude DEPLOYMENT.md \
+              --exclude '^DEPLOYMENT\.md$' \
               --exclude '^deploy/' \
               --exclude '^public/robots\.txt$' \
               . /public_html

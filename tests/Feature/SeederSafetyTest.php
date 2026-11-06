@@ -75,12 +75,30 @@ class SeederSafetyTest extends TestCase
         $this->assertSame(1, User::count());
     }
 
-    public function test_the_retired_migrate_helper_does_nothing(): void
+    public function test_the_retired_migrate_helper_is_gone_and_removed_from_servers(): void
     {
-        $source = file_get_contents(public_path('_migrate.php'));
+        $this->assertFileDoesNotExist(public_path('_migrate.php'));
+        $this->assertContains('public/_migrate.php', $this->retiredPaths());
+    }
 
-        $this->assertStringNotContainsString('db:seed', $source);
-        $this->assertStringNotContainsString('migrate', strtolower(preg_replace('/\/\*.*?\*\//s', '', $source)));
-        $this->assertStringContainsString('http_response_code(404)', $source);
+    public function test_the_server_cleanup_list_never_names_a_live_app_file(): void
+    {
+        foreach ($this->retiredPaths() as $path) {
+            if (str_ends_with($path, '/')) {
+                // a folder goes with everything in it — only the server-only ones the
+                // mirror never uploads (they stay in the repo)
+                $this->assertContains($path, ['tests/', '.git/', '.github/'], "$path is not a server-only folder");
+            } else {
+                $this->assertFileDoesNotExist(base_path($path), "$path is still part of the app — a deploy would delete it from the servers");
+            }
+        }
+    }
+
+    /** Paths in deploy/retired-files.txt (comments and blank lines skipped). */
+    private function retiredPaths(): array
+    {
+        $lines = file(base_path('deploy/retired-files.txt'), FILE_IGNORE_NEW_LINES);
+
+        return array_values(array_filter(array_map('trim', $lines), fn ($line) => $line !== '' && $line[0] !== '#'));
     }
 }

@@ -1,6 +1,21 @@
 # Files removed from the app that still sit on the servers — the FTP mirror
 # never deletes, so every deploy job removes these by name (rm -f, missing is fine).
-# One path per line, relative to the project root.
+# One path per line, relative to the project root. A trailing "/" removes a whole
+# folder, but only for the server-only tests/, .git/ and .github/ (deploy.yml's sed).
+
+# never meant for the servers — older deploys uploaded them (the excludes now hold)
+tests/
+.git/
+.github/
+
+# one-off dev scripts and an old status note
+deploy_status.txt
+fetch_genre_photos.php
+make_genre_assets.php
+splice_theme.php
+
+# retired deploy helper — every server got the 404 stub in the 2026-11-06 deploy
+public/_migrate.php
 
 # showcase / demo-admin feature (retired)
 app/Console/Commands/ShowcaseResetCommand.php

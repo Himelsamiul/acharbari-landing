@@ -104,17 +104,21 @@ class SeoController extends Controller
      * robots.txt er content ta physical public/robots.txt file-eo lekhi —
      * karon kono jaygay static file thakle sheita route ke hashiye fele,
      * ar FTP deploy kokhono server theke file delete kore na.
+     * Ja lekha holo seta ferot dey (deploy log e dekhay); lekha na gele null.
      */
-    public static function syncRobotsFile(): void
+    public static function syncRobotsFile(): ?string
     {
         try {
             $content = (string) Setting::get('robots_txt', '');
             if (trim($content) === '') {
                 $content = self::defaultRobots();
             }
-            file_put_contents(public_path('robots.txt'), $content);
+
+            return file_put_contents(public_path('robots.txt'), $content) === false ? null : $content;
         } catch (\Throwable $e) {
             report($e); // unwritable public/ hole route-i serve korbe
+
+            return null;
         }
     }
 }

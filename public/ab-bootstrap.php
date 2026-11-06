@@ -74,6 +74,19 @@ foreach ($steps as [$name, $opts]) {
     }
 }
 
+// the served robots.txt is a file — rewrite it from the admin's setting so an
+// old copy on the server never outlives a deploy
+echo "\n== robots.txt ==\n";
+try {
+    $robots = \App\Http\Controllers\Admin\SeoController::syncRobotsFile();
+    echo ($robots ?? 'WARNING: public/robots.txt could not be written') . "\n";
+    if (str_contains((string) $robots, '//localhost')) {
+        echo "WARNING: robots.txt points to localhost — fix the Sitemap line in Admin → SEO → robots.txt (and APP_URL in .env)\n";
+    }
+} catch (\Throwable $e) {
+    echo 'ERROR: ' . $e->getMessage() . "\n";
+}
+
 if (($_GET['seed'] ?? '') === '1') {
     echo "\n== php artisan db:seed ==\n";
     try {
