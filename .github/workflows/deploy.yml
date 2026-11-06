@@ -78,8 +78,6 @@ jobs:
               --exclude '^\.env' \
               --exclude '^node_modules/' \
               --exclude '^tests/' \
-              --exclude '^vendor/' \
-              --exclude '^public/assets/' \
               --exclude '^DEPLOYMENT\.md$' \
               --exclude '^deploy/' \
               --exclude '^public/robots\.txt$' \
@@ -150,8 +148,6 @@ jobs:
               --exclude '^\.env' \
               --exclude '^node_modules/' \
               --exclude '^tests/' \
-              --exclude '^vendor/' \
-              --exclude '^public/assets/' \
               --exclude '^DEPLOYMENT\.md$' \
               --exclude '^deploy/' \
               --exclude '^public/robots\.txt$' \
@@ -214,8 +210,6 @@ jobs:
               --exclude '^\.env' \
               --exclude '^node_modules/' \
               --exclude '^tests/' \
-              --exclude '^vendor/' \
-              --exclude '^public/assets/' \
               --exclude '^DEPLOYMENT\.md$' \
               --exclude '^deploy/' \
               --exclude '^public/robots\.txt$' \
