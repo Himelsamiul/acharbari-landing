@@ -1,0 +1,30 @@
+# Files removed from the app that still sit on the servers — the FTP mirror
+# never deletes, so every deploy job removes these by name (rm -f, missing is fine).
+# One path per line, relative to the project root.
+
+# showcase / demo-admin feature (retired)
+app/Console/Commands/ShowcaseResetCommand.php
+app/Console/Commands/ShowcaseSyncCommand.php
+app/Http/Controllers/ShowcaseController.php
+app/Services/ShowcaseSync.php
+app/Support/AdminGenre.php
+app/Support/GenreDemo.php
+config/showcase.php
+public/assets/showcase.css
+public/assets/showcase.js
+resources/views/layouts/demo.blade.php
+resources/views/layouts/showcase.blade.php
+resources/views/showcase.blade.php
+resources/views/showcase/demo.blade.php
+
+# purple /super panel (retired — everything lives in /admin now)
+app/Http/Controllers/Super/OrderController.php
+app/Http/Controllers/Super/SuperAdminController.php
+app/Http/Middleware/EnsureSuperAdmin.php
+resources/views/layouts/super.blade.php
+resources/views/super/admin-edit.blade.php
+resources/views/super/admins.blade.php
+resources/views/super/orders/index.blade.php
+resources/views/super/orders/show.blade.php
+resources/views/super/overview.blade.php
+resources/views/admin/admins.blade.php

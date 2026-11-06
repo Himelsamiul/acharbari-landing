@@ -25,14 +25,19 @@ class EnsureAdminRole
             abort(403, 'এই পেজটি শুধু অ্যাডমিনদের জন্য। আপনি কাস্টমার অ্যাকাউন্টে লগইন করেছেন।');
         }
 
-        if (! $user->is_active) {
+        // retired showcase demo logins (public password, genre-tagged) never get
+        // in — this also covers the minutes between a code upload and the
+        // migration that deletes them
+        $retiredDemo = $user->industry !== null && preg_match('/^demo\..+@khorak\.shop$/i', (string) $user->email);
+
+        if (! $user->is_active || $retiredDemo) {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
             return redirect()
                 ->route('admin.login')
-                ->withErrors(['email' => 'আপনার অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে — সুপার অ্যাডমিনের সাথে যোগাযোগ করুন।']);
+                ->withErrors(['email' => 'আপনার অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে — আপনার অ্যাডমিনের সাথে যোগাযোগ করুন।']);
         }
 
         return $next($request);

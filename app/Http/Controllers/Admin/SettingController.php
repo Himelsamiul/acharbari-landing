@@ -736,7 +736,7 @@ class SettingController extends Controller
      */
     public function saveTracking(Request $request, string $key)
     {
-        if (! isset(self::TRACKERS[$key]) || ! auth()->user()?->hasPermission('tracking.' . $key)) {
+        if (! isset(self::TRACKERS[$key]) || ! $request->user()?->hasPermission('tracking.' . $key)) {
             abort(403, 'এই পেজ বা অ্যাকশনের অনুমতি আপনার নেই।');
         }
 
@@ -823,14 +823,17 @@ class SettingController extends Controller
             Setting::setMany($contentPairs);
         }
 
-        // 3) demo products + their categories (managed `demo-` slugs only — real products untouched)
+        // 3) demo products + their categories — FILL ONLY: a product or category
+        //    that already exists keeps everything the admin gave it (name, price,
+        //    stock, photo). The pack only creates what is missing and shows the
+        //    genre's own demo items again after a switch away and back.
         try {
             \Illuminate\Support\Facades\DB::transaction(function () use ($key, $pack) {
                 $active = [];
                 foreach (\App\Http\Controllers\Admin\IndustryPack::products($key) as $i => $p) {
                     $slug = $p['slug'];
                     $active[] = $slug;
-                    \App\Models\Product::updateOrCreate(['slug' => $slug], [
+                    $product = \App\Models\Product::firstOrCreate(['slug' => $slug], [
                         'name' => $p['name'], 'name_en' => $p['name_en'],
                         'category' => $p['category'], 'category_en' => $p['category_en'], 'category_key' => $p['category_key'],
                         'industry' => $key,
@@ -845,6 +848,19 @@ class SettingController extends Controller
                         'is_active' => true, 'is_featured' => $i === 0,
                         'image' => $p['image'], 'image_alt' => $p['name'],
                     ]);
+
+                    if (! $product->wasRecentlyCreated) {
+                        $tag = [];
+                        if ($product->industry === null) {
+                            $tag['industry'] = $key; // untagged → part of this genre's catalogue
+                        }
+                        if (str_starts_with($slug, 'demo-') && ! $product->is_active) {
+                            $tag['is_active'] = true; // hidden by an earlier genre switch
+                        }
+                        if ($tag) {
+                            $product->update($tag);
+                        }
+                    }
                 }
 
                 // managed demo slugs of OTHER genres get deactivated (stale state clean-up)
@@ -860,7 +876,11 @@ class SettingController extends Controller
                     $cats[$p['category_key']] = [$p['category'], $p['category_en']];
                 }
                 foreach ($cats as $ck => [$bn, $en]) {
-                    \App\Models\Category::updateOrCreate(['key' => $ck], ['name' => $bn, 'name_en' => $en, 'industry' => $key, 'is_active' => true]);
+                    $category = \App\Models\Category::firstOrCreate(['key' => $ck], ['name' => $bn, 'name_en' => $en, 'industry' => $key, 'is_active' => true]);
+                    if (! $category->wasRecentlyCreated) {
+                        // shown for this genre again; the admin's own name stays
+                        $category->update(['industry' => $key, 'is_active' => true]);
+                    }
                 }
 
                 // hide other genres' managed categories (only the active genre's stay visible)

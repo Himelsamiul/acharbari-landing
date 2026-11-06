@@ -16,12 +16,13 @@ Production e deploy korar age ei gulো confirm koro.
 
 ```bash
 php artisan migrate --force
-php artisan db:seed --force   # shudhu fresh DB hole (idempotent)
-php artisan showcase:sync     # showcase cart er lp-<genre> row + genre demo product gulo (idempotent)
+php artisan db:seed --force   # SHUDHU notun/khali DB te — live store e production guard seed skip kore
 ```
 
-> `/showcase` ar `/showcase/{genre}` page gulo lazy sync chalay — tao deploy er somoy
-> ekbar `showcase:sync` chaliye dile cart prothom request ei ready thake.
+> Deploy workflow nije `public/setup.php` (mshabib e `public/ab-bootstrap.php`) diye cache clear +
+> migrate kore — seed kore na. Live store e kokhono `--seed` diye migrate korben na.
+> Showcase/demo feature retired — `showcase:sync` ar nei; purono file gulo deploy
+> `deploy/retired-files.txt` dekhe server theke muche dey.
 
 ## 3. Cache & Optimization
 
@@ -32,6 +33,8 @@ php artisan view:cache
 ```
 
 > `config:cache` korar por `.env` change korle abar `php artisan config:clear` korte hobe.
+> Prottek deploy e `setup.php` / `ab-bootstrap.php` config/route/view cache clear kore dey,
+> tai purono code er cache notun deploy e theke jay na.
 
 ## 4. Settings (admin panel e)
 

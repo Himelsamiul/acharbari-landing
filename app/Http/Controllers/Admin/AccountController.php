@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Hash;
 class AccountController extends Controller
 {
     /** আমার অ্যাকাউন্ট — sob admin er nijer account page. */
-    public function index()
+    public function index(Request $request)
     {
         return view('admin.account', [
-            'user' => auth()->user(),
+            'user' => $request->user(),
         ]);
     }
 

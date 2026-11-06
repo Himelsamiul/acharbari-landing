@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\Admin\IndustryPack;
+use App\Models\Product;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -50,6 +51,43 @@ class IndustryPresetTest extends TestCase
         $this->assertDatabaseHas('settings', ['key' => 'hero_lead_bn', 'value' => $organic['content']['hero_lead'][0]]);
         $this->assertSame('organic', Setting::get('industry'));
         $this->assertSame($organic['theme'], Setting::get('theme_id'));
+    }
+
+    public function test_presets_never_rewrite_the_stores_products(): void
+    {
+        $admin = $this->presetAdmin();
+        $apply = fn (string $industry) => $this->actingAs($admin)
+            ->post(route('admin.settings.industry.apply'), ['industry' => $industry, 'mode' => 'visual'])
+            ->assertOk();
+
+        // the store's own version of a product the organic pack also lists
+        $jalpai = Product::create([
+            'slug' => 'jalpai-achar', 'name' => 'আমার জলপাই আচার', 'name_en' => 'My Jalpai',
+            'category' => 'আচার', 'category_en' => 'Pickles', 'category_key' => 'pickle',
+            'industry' => 'organic', 'brand' => 'আচারবাড়ি', 'unit' => 'pcs', 'stock' => 7,
+            'barcode' => 'ABP-0002', 'price' => 999, 'old_price' => 1200,
+            'image' => 'storage/products/my-jalpai.jpg', 'sort_order' => 1, 'vat_percent' => 0, 'is_active' => true,
+        ]);
+
+        $apply('organic');
+
+        $jalpai->refresh();
+        $this->assertSame('আমার জলপাই আচার', $jalpai->name);
+        $this->assertEquals(999, $jalpai->price);
+        $this->assertEquals(7, $jalpai->stock);
+        $this->assertSame('storage/products/my-jalpai.jpg', $jalpai->image);
+
+        // a demo item the admin made their own keeps its edits through genre switches
+        $apply('fashion');
+        Product::where('slug', 'demo-fashion-1')->update(['name' => 'আমার পাঞ্জাবি', 'price' => 2500]);
+        $apply('organic');
+        $this->assertFalse((bool) Product::where('slug', 'demo-fashion-1')->value('is_active'));
+        $apply('fashion');
+
+        $mine = Product::where('slug', 'demo-fashion-1')->firstOrFail();
+        $this->assertTrue((bool) $mine->is_active);
+        $this->assertSame('আমার পাঞ্জাবি', $mine->name);
+        $this->assertEquals(2500, $mine->price);
     }
 
     public function test_visual_preset_touches_no_content_or_images(): void

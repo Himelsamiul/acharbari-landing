@@ -146,17 +146,29 @@
         .avatar-chip {
             display: flex; align-items: center; gap: 9px;
             background: #fff; border: 1px solid rgba(5,150,105,.2);
-            padding: 6px 14px 6px 7px; border-radius: 999px;
-            font-size: 12.5px; font-weight: 700; color: #1f4234;
+            padding: 6px 12px 6px 7px; border-radius: 999px;
+            font-family: inherit; font-size: 12.5px; font-weight: 700; color: #1f4234;
             box-shadow: 0 6px 16px -8px rgba(6,78,59,.3);
+            cursor: pointer;
             transition: box-shadow .2s, border-color .2s;
         }
-        .avatar-chip:hover { box-shadow: 0 10px 22px -10px rgba(6,78,59,.4); border-color: rgba(5,150,105,.4); }
-        .avatar-chip .av {
+        .avatar-chip:hover, .avatar-chip[aria-expanded="true"] { box-shadow: 0 10px 22px -10px rgba(6,78,59,.4); border-color: rgba(5,150,105,.4); }
+        .avatar-chip:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
+        .avatar-chip .chip-name { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .avatar-chip .chip-caret { font-size: 10px; color: #5f7a6d; transition: transform .2s; }
+        .avatar-chip[aria-expanded="true"] .chip-caret { transform: rotate(180deg); }
+        .avatar-chip .av, .user-head .av {
+            position: relative; flex-shrink: 0;
             width: 30px; height: 30px; border-radius: 50%;
             background: linear-gradient(135deg, #059669, #10b981);
             color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px;
             box-shadow: 0 0 0 2.5px #fff, 0 0 0 4px rgba(16,185,129,.35);
+        }
+        /* online dot */
+        .avatar-chip .av::after {
+            content: ""; position: absolute; right: -2px; bottom: -2px;
+            width: 9px; height: 9px; border-radius: 50%;
+            background: #16a34a; border: 2px solid #fff;
         }
 
         .card {
@@ -482,7 +494,7 @@
                 </div>
                 <div>
                     <b style="color:inherit">{{ ab_brand('bn') }}</b>
-                    <span>ADMIN PANEL @if (\App\Support\AdminGenre::active() !== null) • {{ \App\Http\Controllers\Admin\IndustryPack::all()[\App\Support\AdminGenre::active()]['name_bn'] ?? '' }} ডেমো @endif</span>
+                    <span>ADMIN PANEL</span>
                 </div>
             </a>
 
@@ -617,8 +629,8 @@
                 <div class="side-group-label">অ্যাকাউন্ট</div>
 
                 <a class="side-link {{ request()->routeIs('admin.account*') ? 'active' : '' }}" href="{{ route('admin.account') }}"><i class="fa-solid fa-user"></i> আমার অ্যাকাউন্ট</a>
-                @if ($isSuper)
-                    <a class="side-link {{ request()->routeIs('super.*') || request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('super.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন ম্যানেজমেন্ট</a>
+                @if ($u->hasPermission('team.view'))
+                    <a class="side-link {{ request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন ম্যানেজমেন্ট</a>
                 @endif
             </nav>
 
@@ -674,7 +686,39 @@
                             @endforelse
                         </div>
                     </div>
-                    <div class="avatar-chip"><span class="av">{{ $isSuper ? 'SA' : 'AD' }}</span> {{ $u->name ?? 'Admin' }} <i class="fa-solid fa-circle" style="font-size:7px;color:#16a34a"></i></div>
+                    @php
+                        // name initials for the avatar — "Samiul Alam Himel" → "SA"
+                        $initials = collect(preg_split('/\s+/u', trim((string) $u->name)))->filter()->take(2)
+                            ->map(fn ($word) => mb_strtoupper(mb_substr($word, 0, 1)))->implode('') ?: 'A';
+                    @endphp
+                    <div class="user-wrap">
+                        <button type="button" class="avatar-chip" id="userBtn" onclick="toggleUserMenu(event)"
+                            aria-haspopup="true" aria-expanded="false" aria-controls="userDrop">
+                            <span class="av">{{ $initials }}</span>
+                            <span class="chip-name">{{ $u->name }}</span>
+                            <i class="fa-solid fa-chevron-down chip-caret" aria-hidden="true"></i>
+                        </button>
+                        <div class="user-drop" id="userDrop">
+                            <div class="user-head">
+                                <span class="av">{{ $initials }}</span>
+                                <div>
+                                    <b>{{ $u->name }}</b>
+                                    <small>{{ $u->email }}</small>
+                                    <span class="role-pill">{{ $isSuper ? 'সুপার অ্যাডমিন' : 'অ্যাডমিন' }}</span>
+                                </div>
+                            </div>
+                            <a class="user-item" href="{{ route('admin.account') }}"><i class="fa-solid fa-user"></i> আমার অ্যাকাউন্ট</a>
+                            <a class="user-item" href="{{ route('admin.account') }}#password"><i class="fa-solid fa-key"></i> পাসওয়ার্ড বদলান</a>
+                            @if ($u->hasPermission('team.view'))
+                                <a class="user-item" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন ম্যানেজমেন্ট</a>
+                            @endif
+                            <a class="user-item" href="{{ route('home') }}" target="_blank" rel="noopener"><i class="fa-solid fa-store"></i> স্টোর দেখুন <i class="fa-solid fa-arrow-up-right-from-square ext"></i></a>
+                            <form method="POST" action="{{ route('admin.logout') }}" class="user-logout">
+                                @csrf
+                                <button type="submit" class="user-item danger"><i class="fa-solid fa-right-from-bracket"></i> লগআউট</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -698,8 +742,8 @@
                 @if ($canModule('payment'))
                     <a class="side-link {{ request()->routeIs('admin.settings.payment') ? 'active' : '' }}" href="{{ route('admin.settings.payment') }}"><i class="fa-solid fa-credit-card"></i> পেমেন্ট</a>
                 @endif
-                @if ($isSuper)
-                    <a class="side-link {{ request()->routeIs('super.*') ? 'active' : '' }}" href="{{ route('super.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন</a>
+                @if ($u->hasPermission('team.view'))
+                    <a class="side-link {{ request()->routeIs('admin.admins*') ? 'active' : '' }}" href="{{ route('admin.admins.index') }}"><i class="fa-solid fa-user-shield"></i> অ্যাডমিন</a>
                 @endif
             </nav>
 
@@ -752,15 +796,77 @@
         .notif-item span { display: block; font-size: 12px; color: #5f7a6d; margin-top: 2px; }
         .notif-item small { display: block; font-size: 11px; color: #8b7355; margin-top: 2px; }
         .notif-empty { padding: 18px 14px; text-align: center; color: #8b7355; font-size: 12.5px; margin: 0; }
+
+        /* ===== Profile menu (top-right chip) ===== */
+        .user-wrap { position: relative; }
+        .user-drop {
+            display: none; position: absolute; right: 0; top: 50px; width: 270px; max-width: 88vw;
+            background: #fff; border: 1px solid rgba(5, 150, 105, .15); border-radius: 16px;
+            box-shadow: 0 24px 50px -18px rgba(6, 78, 59, .35); overflow: hidden; z-index: 60;
+            padding-bottom: 6px;
+        }
+        .user-drop.open { display: block; animation: userDropIn .16s ease-out; }
+        @keyframes userDropIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+        .user-head {
+            display: flex; gap: 12px; align-items: center;
+            padding: 16px; margin-bottom: 6px;
+            background: linear-gradient(135deg, rgba(5, 150, 105, .08), rgba(163, 230, 53, .06));
+            border-bottom: 1px solid rgba(5, 150, 105, .1);
+        }
+        .user-head .av { width: 42px; height: 42px; font-size: 15px; font-weight: 800; }
+        .user-head > div { min-width: 0; }
+        .user-head b { display: block; font-size: 14px; color: #12261d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .user-head small { display: block; font-size: 12px; color: #5f7a6d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .role-pill {
+            display: inline-block; margin-top: 6px; padding: 2px 9px; border-radius: 999px;
+            background: rgba(5, 150, 105, .12); color: #047857; font-size: 10.5px; font-weight: 800;
+        }
+        .user-item {
+            display: flex; align-items: center; gap: 11px; width: 100%;
+            padding: 10px 16px; border: 0; background: none; cursor: pointer;
+            font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f4234;
+            text-decoration: none; text-align: left;
+            transition: background .15s, color .15s;
+        }
+        .user-item > i:first-child { width: 18px; text-align: center; color: #059669; }
+        .user-item .ext { margin-left: auto; font-size: 10.5px; color: #8aa197; }
+        .user-item:hover, .user-item:focus-visible { background: rgba(5, 150, 105, .07); outline: none; }
+        .user-logout { margin: 6px 0 0; padding-top: 6px; border-top: 1px solid rgba(5, 150, 105, .1); }
+        .user-item.danger, .user-item.danger > i:first-child { color: #dc2626; }
+        .user-item.danger:hover { background: rgba(220, 38, 38, .07); }
     </style>
     <script>
+        /* top-bar dropdowns: one open at a time, close on outside click / Esc */
+        function setUserMenu(open) {
+            var drop = document.getElementById('userDrop');
+            var btn = document.getElementById('userBtn');
+            if (!drop || !btn) return;
+            drop.classList.toggle('open', open);
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        function toggleUserMenu(e) {
+            e.stopPropagation();
+            document.getElementById('notifDrop').classList.remove('open');
+            setUserMenu(!document.getElementById('userDrop').classList.contains('open'));
+        }
         function toggleNotif(e) {
             e.stopPropagation();
+            setUserMenu(false);
             document.getElementById('notifDrop').classList.toggle('open');
         }
         document.addEventListener('click', function (e) {
             var drop = document.getElementById('notifDrop');
             if (drop && !e.target.closest('.notif-wrap')) drop.classList.remove('open');
+            if (!e.target.closest('.user-wrap')) setUserMenu(false);
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            var drop = document.getElementById('userDrop');
+            if (drop && drop.classList.contains('open')) {
+                setUserMenu(false);
+                document.getElementById('userBtn').focus();
+            }
+            document.getElementById('notifDrop').classList.remove('open');
         });
     </script>
     <script src="{{ asset('assets/vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
@@ -770,13 +876,15 @@
         function showToast(msg, icon) {
             Swal.fire({
                 toast: true, position: 'bottom-end', icon: icon || 'success',
-                title: msg, showConfirmButton: false, timer: 2600, timerProgressBar: true
+                titleText: msg, showConfirmButton: false, timer: 2600, timerProgressBar: true
             });
         }
         function swConfirm(opts) {
             var o = typeof opts === 'string' ? { title: opts } : (opts || {});
             return Swal.fire({
-                title: o.title || 'আপনি নিশ্চিত?',
+                // titleText, not title: Swal renders `title` as HTML, and confirm
+                // titles can carry user-supplied names
+                titleText: o.title || 'আপনি নিশ্চিত?',
                 text: o.text || '',
                 icon: o.icon || 'warning',
                 showCancelButton: true,

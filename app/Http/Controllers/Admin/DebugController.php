@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\DB;
  */
 class DebugController extends Controller
 {
-    private const SUPER_EMAIL = 'admin@khorak.shop';
-
     public function page(Request $request)
     {
         abort_unless($this->isSuperAdmin($request), 404);
@@ -68,9 +66,10 @@ class DebugController extends Controller
             : 'Debug mode OFF।');
     }
 
+    /** The platform owner only — the owner's email on a non-super account is not enough. */
     private function isSuperAdmin(Request $request): bool
     {
-        return strtolower((string) ($request->user()?->email ?? '')) === self::SUPER_EMAIL;
+        return $request->user()?->isPlatformOwner() === true;
     }
 
     /** storage/logs er sobceye notun laravel*.log file. */

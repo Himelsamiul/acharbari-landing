@@ -53,6 +53,15 @@ class User extends Authenticatable
     ];
 
     /**
+     * Flat-list keys (above) that were renamed when permissions became
+     * module.feature maps — a legacy "all sections" admin keeps all of them.
+     */
+    public const LEGACY_MODULE_KEYS = [
+        'brand' => 'brand_settings',
+        'admins' => 'team',
+    ];
+
+    /**
      * Role presets — dropdown theke select korlei checkbox gulo auto-fill hoy.
      * DB te sudhu permissions save hoy (role = preset er sathe match kore dekhao).
      */
@@ -102,8 +111,7 @@ class User extends Authenticatable
         'permissions',
         'is_active',
         'is_protected',
-        'industry',
-        'demo_settings',
+        'created_by',
     ];
 
     /**
@@ -129,6 +137,7 @@ class User extends Authenticatable
             'permissions' => 'array',
             'is_active' => 'boolean',
             'is_protected' => 'boolean',
+            'created_by' => 'integer',
         ];
     }
 
@@ -164,6 +173,157 @@ class User extends Authenticatable
     public function isPlatformOwner(): bool
     {
         return $this->isSuperAdmin() && $this->email === self::PLATFORM_OWNER_EMAIL;
+    }
+
+    /* ================= Team hierarchy (who created whom) ================= */
+
+    public function creator()
+    {
+        return $this->belongsTo(self::class, 'created_by');
+    }
+
+    /**
+     * IDs of every staff account this user created — and, recursively, the
+     * accounts their team created. Customers are never part of a team.
+     */
+    public function teamIds(): array
+    {
+        $ids = [];
+        $frontier = [$this->id];
+
+        while ($frontier !== []) {
+            $children = static::whereIn('created_by', $frontier)
+                ->where('role', '!=', self::ROLE_CUSTOMER)
+                ->pluck('id')->all();
+
+            // cycle guard — created_by is set once at creation, but stay safe
+            $frontier = array_values(array_diff($children, $ids, [$this->id]));
+            $ids = array_merge($ids, $frontier);
+        }
+
+        return $ids;
+    }
+
+    /**
+     * The head of this user's team: follow the creators up to the account the
+     * platform provisioned. Never climbs past a non-admin, so the owner stays out.
+     */
+    public function teamRoot(): self
+    {
+        $root = $this;
+        $seen = [$this->id];
+
+        while ($root->created_by && ! in_array($root->created_by, $seen, true)) {
+            $parent = static::find($root->created_by);
+            if (! $parent || ! $parent->isAdmin()) {
+                break;
+            }
+
+            $seen[] = $parent->id;
+            $root = $parent;
+        }
+
+        return $root;
+    }
+
+    /**
+     * Everyone in this user's team — its head and the whole tree under it,
+     * themselves included. Teammates see each other; managing an account still
+     * goes through canManageUser() (only the ones you or your team created).
+     */
+    public function visibleTeamIds(): array
+    {
+        $root = $this->teamRoot();
+
+        return [$root->id, ...$root->teamIds()];
+    }
+
+    /**
+     * Whether this user may open/edit/delete another account in admin
+     * management. Super admin: any staff account. Client admin: only their own
+     * team — never themselves (no self-escalation), never a super admin.
+     */
+    public function canManageUser(self $target): bool
+    {
+        if ($target->isCustomer()) {
+            return false;
+        }
+
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        if (! $this->isAdmin() || $target->isSuperAdmin()) {
+            return false;
+        }
+
+        return in_array($target->id, $this->teamIds(), true);
+    }
+
+    /**
+     * module => feature list this user may hand out. Super admin: everything;
+     * client admin: only what they hold themselves.
+     */
+    public function grantableMap(): array
+    {
+        $map = [];
+
+        foreach (config('permissions.modules', []) as $module => $info) {
+            $features = array_keys($info['features']);
+            $map[$module] = $this->isSuperAdmin()
+                ? $features
+                : array_values(array_filter($features, fn ($f) => $this->hasPermission("$module.$f")));
+        }
+
+        return $map;
+    }
+
+    /**
+     * Cap a permission map (module => ['*'] | features) to what the granter
+     * may give. Capped modules get explicit feature lists, so a grant never
+     * silently widens when a module gains new features later.
+     */
+    public static function capPermissions(array $perms, array $grantable): array
+    {
+        $capped = [];
+
+        foreach ($perms as $module => $features) {
+            $allowed = $grantable[$module] ?? [];
+            $features = (array) $features;
+            $chosen = in_array('*', $features, true)
+                ? $allowed
+                : array_values(array_intersect($allowed, $features));
+
+            if ($chosen !== []) {
+                $capped[$module] = $chosen;
+            }
+        }
+
+        return $capped;
+    }
+
+    /**
+     * After this user's permissions change, shrink their team to match:
+     * nobody may ever hold more than the account that created them.
+     */
+    public function trimTeamPermissions(array $seen = []): void
+    {
+        $seen[] = $this->id;
+        $grantable = $this->grantableMap();
+
+        foreach (static::where('created_by', $this->id)->where('role', self::ROLE_ADMIN)->get() as $member) {
+            if (in_array($member->id, $seen, true)) {
+                continue;
+            }
+
+            $capped = self::capPermissions($member->permissionMap(), $grantable);
+            if ($capped != ($member->permissions ?? [])) {
+                $member->permissions = $capped;
+                $member->save();
+            }
+
+            $member->trimTeamPermissions($seen);
+        }
     }
 
     /**
@@ -226,8 +386,16 @@ class User extends Authenticatable
     private function permissionMap(): array
     {
         $perms = $this->permissions ?? [];
+        if (! array_is_list($perms)) {
+            return $perms;
+        }
 
-        return array_is_list($perms) ? array_fill_keys($perms, '*') : $perms;
+        $map = [];
+        foreach ($perms as $module) {
+            $map[self::LEGACY_MODULE_KEYS[$module] ?? $module] = '*';
+        }
+
+        return $map;
     }
 
     /** Ei admin er ei module/module.feature er access ase kina — flat section key o chole. */

@@ -100,11 +100,6 @@ if (!function_exists('ab_made_by')) {
      */
     function ab_made_by(): string
     {
-        // genre demo pages: always the demo brand (no store settings)
-        if (\App\Support\GenreDemo::active() !== null) {
-            return ab_brand('bn');
-        }
-
         $name = trim((string) \App\Models\Setting::get('made_by_name', ''));
 
         return $name !== '' ? $name : ab_brand('bn');
@@ -125,29 +120,10 @@ if (!function_exists('ab_industry_active')) {
     }
 }
 
-if (!function_exists('ab_genre_shared')) {
-    /**
-     * Active genre context from EITHER source: the public demo route
-     * (GenreDemo — pack-only, guests) or a logged-in showcase demo admin
-     * (AdminGenre — pack defaults + sandbox). Landing helpers consult this
-     * FIRST so both surfaces render the genre instead of the global store.
-     */
-    function ab_genre_shared(): ?string
-    {
-        return \App\Support\GenreDemo::active() ?? \App\Support\AdminGenre::active();
-    }
-}
-
 if (!function_exists('ab_industry')) {
     /** Active industry-preset key ('' = default AcharBari look). Preview override: ?industry=<key>. Showcase demo pages: the genre itself. Genre-bound demo admins: their genre. */
     function ab_industry(): string
     {
-        // genre context (/showcase/{genre} demo ba bound demo admin) —
-        // resolved per request so back-to-back requests never inherit
-        if (ab_genre_shared() !== null) {
-            return ab_genre_shared();
-        }
-
         static $cached = null;
         static $cachedFor = null;
         $req = request();
@@ -179,21 +155,6 @@ if (!function_exists('ab_t')) {
     /** Admin-editable bilingual landing text. Empty stored value falls back to the default, so the landing never renders blank. */
     function ab_t(string $key, string $bnDefault, string $enDefault = ''): array
     {
-        // genre demo pages resolve copy from the IndustryPack only — global
-        // settings (store copy) must never leak into a showcase demo
-        $genre = \App\Support\GenreDemo::active();
-        if ($genre !== null) {
-            $demo = \App\Http\Controllers\Admin\IndustryPack::demoText($key, $genre);
-            if ($demo !== null) {
-                return ['bn' => $demo[0], 'en' => $demo[1] !== '' ? $demo[1] : $demo[0]];
-            }
-
-            return [
-                'bn' => $bnDefault,
-                'en' => $enDefault !== '' ? $enDefault : $bnDefault,
-            ];
-        }
-
         $bn = trim((string) \App\Models\Setting::get($key . '_bn', ''));
         $en = trim((string) \App\Models\Setting::get($key . '_en', ''));
 
@@ -211,25 +172,6 @@ if (!function_exists('ab_pill_categories')) {
      *  Default -> everything except genre-managed leftovers (stale pills hidden). */
     function ab_pill_categories()
     {
-        // genre context (public demo route ba bound demo admin): pills derive
-        // straight from the pack — no categories-table read, nothing leaks
-        $demoGenre = ab_genre_shared();
-        if ($demoGenre !== null) {
-            $seen = [];
-            $pills = collect();
-            foreach (\App\Http\Controllers\Admin\IndustryPack::products($demoGenre) as $p) {
-                if (isset($seen[$p['category_key']])) continue;
-                $seen[$p['category_key']] = true;
-                $pills->push((object) [
-                    'key' => $p['category_key'],
-                    'name' => $p['category'],
-                    'name_en' => $p['category_en'],
-                ]);
-            }
-
-            return $pills;
-        }
-
         $managed = [];
         foreach (\App\Http\Controllers\Admin\IndustryPack::all() as $gKey => $pack) {
             foreach (\App\Http\Controllers\Admin\IndustryPack::products($gKey) as $p) {
@@ -256,21 +198,6 @@ if (!function_exists('ab_img_setting')) {
     /** Admin-uploaded image URL for a content slot; falls back to the bundled default (webp preferred). */
     function ab_img_setting(string $key, string $defaultPath): string
     {
-        // genre demo pages use the genre image pack only — admin uploads never leak in
-        $genre = \App\Support\GenreDemo::active();
-        if ($genre !== null) {
-            $candidates = [\App\Http\Controllers\Admin\IndustryPack::slotFor($genre, $key)];
-            $candidates[] = preg_replace('/\.(jpe?g|png|webp)$/i', '.jpg', basename($defaultPath));
-            $candidates[] = preg_replace('/\.(jpe?g|png|webp)$/i', '.svg', basename($defaultPath));
-            foreach ($candidates as $slot) {
-                if ($slot === null) continue;
-                $candidate = 'assets/img/genres/' . $genre . '/' . $slot;
-                if (is_file(public_path($candidate))) return asset($candidate);
-            }
-
-            return asset(ab_img($defaultPath));
-        }
-
         $v = trim((string) \App\Models\Setting::get($key, ''));
         if ($v !== '') return asset($v);
 
@@ -341,23 +268,6 @@ if (!function_exists('ab_json')) {
     /** JSON-list setting (FAQ items, reviews, marquee) with default. */
     function ab_json(string $key, array $default): array
     {
-        // genre demo pages: marquee/reviews/FAQ come from the pack, not settings
-        $genre = \App\Support\GenreDemo::active();
-        if ($genre !== null) {
-            $pack = \App\Http\Controllers\Admin\IndustryPack::class;
-            if ($key === 'marquee_items') {
-                return array_map(fn ($m) => ['bn' => $m[0], 'en' => $m[1]], $pack::marquee($genre));
-            }
-            if ($key === 'reviews_items') {
-                return $pack::reviews($genre);
-            }
-            if ($key === 'faq_items') {
-                return $pack::demoFaqs($genre);
-            }
-
-            return $default;
-        }
-
         $arr = json_decode((string) \App\Models\Setting::get($key, ''), true);
 
         return is_array($arr) && count($arr) ? $arr : $default;
@@ -371,11 +281,6 @@ if (!function_exists('ab_contact')) {
      */
     function ab_contact(string $key): string
     {
-        // genre demo pages carry no store contact info — elements stay hidden
-        if (\App\Support\GenreDemo::active() !== null) {
-            return '';
-        }
-
         return trim((string) \App\Models\Setting::get('contact_' . $key, ''));
     }
 }
@@ -398,12 +303,6 @@ if (!function_exists('ab_brand')) {
     /** Brand name assembled from admin brand settings ("Achar"+"Bari"). */
     function ab_brand(string $lang = 'bn'): string
     {
-        // genre demo pages show the pack's fictional demo brand
-        $pack = \App\Support\GenreDemo::pack();
-        if ($pack !== null) {
-            return $lang === 'en' ? $pack['brand_en'] : $pack['brand_bn'];
-        }
-
         if ($lang === 'en') {
             return trim(\App\Models\Setting::get('brand_en1', 'Achar') . \App\Models\Setting::get('brand_en2', 'Bari'));
         }

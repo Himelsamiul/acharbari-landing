@@ -10,10 +10,7 @@ use Illuminate\Support\Facades\Route;
 // Public landing
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Public landing-page showcase: design gallery (super admin sells designs)
-// + per-genre live demos (their product carts create normal store orders)
-Route::get('/showcase', [\App\Http\Controllers\ShowcaseController::class, 'index'])->name('showcase.index');
-Route::get('/showcase/{genre}', [\App\Http\Controllers\ShowcaseController::class, 'demo'])->name('showcase.demo');
+// (public showcase design-gallery + per-genre live demos removed — feature retired)
 
 // Isolated single-section render — used by the admin Section Design Studio preview
 Route::get('/preview/section/{section}', [HomeController::class, 'previewSection'])->name('preview.section');
@@ -77,29 +74,6 @@ Route::get('/admin/login', [Admin\AuthController::class, 'showLogin'])->name('ad
 Route::post('/admin/login', [Admin\AuthController::class, 'login'])->name('admin.login.attempt');
 Route::post('/admin/logout', [Admin\AuthController::class, 'logout'])->name('admin.logout');
 
-/* ================= Super Admin panel (platform owner) ================= */
-
-Route::prefix('super')->middleware(['auth', 'super.admin'])->group(function () {
-    Route::get('/', [\App\Http\Controllers\Super\SuperAdminController::class, 'overview'])->name('super.overview');
-
-    // landing-design orders (source='landing') from the public showcase cart —
-    // store/product orders stay in the client admin panel only
-    Route::get('/orders', [\App\Http\Controllers\Super\OrderController::class, 'index'])->name('super.orders.index');
-    Route::get('/orders/{order}', [\App\Http\Controllers\Super\OrderController::class, 'show'])->name('super.orders.show');
-    Route::post('/orders/{order}/status', [\App\Http\Controllers\Super\OrderController::class, 'updateStatus'])->name('super.orders.status');
-    Route::post('/orders/{order}/payment', [\App\Http\Controllers\Super\OrderController::class, 'updatePaymentStatus'])->name('super.orders.payment');
-
-    // admin (client) user management — create, permission matrix, activate/deactivate
-    Route::get('/admins', [\App\Http\Controllers\Super\SuperAdminController::class, 'index'])->name('super.admins.index');
-    Route::post('/admins', [\App\Http\Controllers\Super\SuperAdminController::class, 'store'])->name('super.admins.store');
-    Route::get('/admins/{user}/edit', [\App\Http\Controllers\Super\SuperAdminController::class, 'edit'])->name('super.admins.edit');
-    Route::put('/admins/{user}', [\App\Http\Controllers\Super\SuperAdminController::class, 'update'])->name('super.admins.update');
-    Route::post('/admins/{user}/toggle', [\App\Http\Controllers\Super\SuperAdminController::class, 'toggle'])->name('super.admins.toggle');
-    Route::post('/admins/{user}/protect', [\App\Http\Controllers\Super\SuperAdminController::class, 'toggleProtect'])->name('super.admins.protect');
-    Route::post('/admins/{user}/password', [\App\Http\Controllers\Super\SuperAdminController::class, 'updatePassword'])->name('super.admins.password');
-    Route::post('/admins/{user}/industry', [\App\Http\Controllers\Super\SuperAdminController::class, 'applyIndustry'])->name('super.admins.industry');
-    Route::delete('/admins/{user}', [\App\Http\Controllers\Super\SuperAdminController::class, 'destroy'])->name('super.admins.destroy');
-});
 
 /* ================= Admin panel (permission-scoped) =================
  * Dashboard + the notification bell are always available to every admin.
@@ -225,13 +199,18 @@ Route::prefix('admin')->middleware(['auth', 'admin.role'])->group(function () {
     Route::post('/sitemap/urls/{url}/toggle', [Admin\SitemapController::class, 'toggle'])->middleware('perm:sitemap.manage')->name('admin.sitemap.toggle');
     Route::delete('/sitemap/urls/{url}', [Admin\SitemapController::class, 'destroy'])->middleware('perm:sitemap.manage')->name('admin.sitemap.destroy');
 
-    // admin user management moved to /super/admins — legacy URIs stay alive,
-    // but only for the super admin (GET simply forwards to the new panel)
-    Route::get('/admin-management', [Admin\AdminManagerController::class, 'index'])->middleware('super.admin')->name('admin.admins.index');
-    Route::post('/admin-management', [Admin\AdminManagerController::class, 'store'])->middleware('super.admin')->name('admin.admins.store');
-    Route::delete('/admin-management/{user}', [Admin\AdminManagerController::class, 'destroy'])
-        ->middleware('super.admin')->name('admin.admins.destroy');
-    Route::put('/admin-management/{user}', [Admin\AdminManagerController::class, 'update'])->middleware('super.admin')->name('admin.admins.update');
+    // admin & team management — the platform owner sees every account; a client
+    // admin needs team.* grants and only ever reaches their own team (rest 404s)
+    Route::get('/admin-management', [Admin\AdminManagerController::class, 'index'])->middleware('perm:team.view')->name('admin.admins.index');
+    Route::post('/admin-management', [Admin\AdminManagerController::class, 'store'])->middleware('perm:team.create')->name('admin.admins.store');
+    // a missing account answers exactly like one outside your team (plain 404)
+    $hidden = fn () => abort(404);
+    Route::get('/admin-management/{user}/edit', [Admin\AdminManagerController::class, 'edit'])->middleware('perm:team.edit')->missing($hidden)->name('admin.admins.edit');
+    Route::put('/admin-management/{user}', [Admin\AdminManagerController::class, 'update'])->middleware('perm:team.edit')->missing($hidden)->name('admin.admins.update');
+    Route::post('/admin-management/{user}/toggle', [Admin\AdminManagerController::class, 'toggle'])->middleware('perm:team.edit')->missing($hidden)->name('admin.admins.toggle');
+    Route::post('/admin-management/{user}/password', [Admin\AdminManagerController::class, 'updatePassword'])->middleware('perm:team.edit')->missing($hidden)->name('admin.admins.password');
+    Route::post('/admin-management/{user}/protect', [Admin\AdminManagerController::class, 'toggleProtect'])->middleware('perm:team.edit')->missing($hidden)->name('admin.admins.protect');
+    Route::delete('/admin-management/{user}', [Admin\AdminManagerController::class, 'destroy'])->middleware('perm:team.delete')->missing($hidden)->name('admin.admins.destroy');
 
     // আমার অ্যাকাউন্ট — self service (nijer password change), sob admin er jonno
     Route::get('/account', [Admin\AccountController::class, 'index'])->name('admin.account');

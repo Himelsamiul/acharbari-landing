@@ -39,8 +39,9 @@ class RolePermissionTest extends TestCase
         $this->actingAs($super)->get(route('admin.orders.index'))->assertOk();
         $this->actingAs($super)->get(route('admin.coupons'))->assertOk();
         $this->actingAs($super)->get(route('admin.products.index'))->assertOk();
-        $this->actingAs($super)->get(route('super.overview'))->assertOk();
-        $this->actingAs($super)->get(route('super.admins.index'))->assertOk();
+        // the separate super panel is gone — everything lives in /admin
+        $this->actingAs($super)->get('/super')->assertNotFound();
+        $this->actingAs($super)->get(route('admin.admins.index'))->assertOk();
     }
 
     public function test_admin_without_permissions_sees_dashboard_but_nothing_else(): void
@@ -68,15 +69,15 @@ class RolePermissionTest extends TestCase
         $this->actingAs($customer)->get(route('admin.dashboard'))->assertForbidden();
         $this->actingAs($customer)->get(route('admin.orders.index'))->assertForbidden();
         $this->actingAs($customer)->get(route('admin.coupons'))->assertForbidden();
-        $this->actingAs($customer)->get(route('super.overview'))->assertForbidden();
+        $this->actingAs($customer)->get(route('admin.admins.index'))->assertForbidden();
     }
 
     public function test_super_area_rejects_plain_admin(): void
     {
         $admin = $this->admin(['orders' => '*']);
 
-        $this->actingAs($admin)->get(route('super.overview'))->assertForbidden();
-        $this->actingAs($admin)->get(route('super.admins.index'))->assertForbidden();
+        $this->actingAs($admin)->get('/super')->assertNotFound();
+        $this->actingAs($admin)->get(route('admin.admins.index'))->assertForbidden();
     }
 
     /* ================= guest redirects ================= */
@@ -136,7 +137,7 @@ class RolePermissionTest extends TestCase
         $response->assertRedirect(route('admin.dashboard'));
     }
 
-    public function test_super_admin_lands_in_super_overview_after_admin_login(): void
+    public function test_super_admin_lands_on_store_dashboard_after_admin_login(): void
     {
         $super = $this->superAdmin();
 
@@ -146,7 +147,7 @@ class RolePermissionTest extends TestCase
         ]);
 
         $this->assertAuthenticatedAs($super);
-        $response->assertRedirect(route('super.overview'));
+        $response->assertRedirect(route('admin.dashboard'));
     }
 
     public function test_customer_can_register_and_login_with_phone(): void
@@ -224,7 +225,7 @@ class RolePermissionTest extends TestCase
     {
         $super = $this->superAdmin();
 
-        $this->actingAs($super)->post(route('super.admins.store'), [
+        $this->actingAs($super)->post(route('admin.admins.store'), [
             'name' => 'ক্লায়েন্ট অ্যাডমিন',
             'email' => 'client@example.com',
             'password' => 'secret123',
@@ -245,20 +246,20 @@ class RolePermissionTest extends TestCase
         $client = $this->admin();
 
         // edit page renders the matrix (all modules × features + presets)
-        $this->actingAs($super)->get(route('super.admins.edit', $client))
+        $this->actingAs($super)->get(route('admin.admins.edit', $client))
             ->assertOk()
             ->assertSee('অনুমতি ম্যাট্রিক্স', false)
             ->assertSee('স্টোর ম্যানেজার', false);
 
         // grant ONLY orders.view + products.view via the matrix form
-        $this->actingAs($super)->put(route('super.admins.update', $client), [
+        $this->actingAs($super)->put(route('admin.admins.update', $client), [
             'name' => $client->name,
             'email' => $client->email,
             'permissions' => [
                 'orders' => ['view'],
                 'products' => ['view'],
             ],
-        ])->assertRedirect(route('super.admins.index'));
+        ])->assertRedirect(route('admin.admins.index'));
 
         $client->refresh();
         $this->assertEquals(['view'], $client->permissions['orders']);
@@ -266,14 +267,14 @@ class RolePermissionTest extends TestCase
         $this->assertFalse($client->hasPermission('products.delete'));
 
         // unknown modules/features are stripped by the whitelist
-        $this->actingAs($super)->put(route('super.admins.update', $client), [
+        $this->actingAs($super)->put(route('admin.admins.update', $client), [
             'name' => $client->name,
             'email' => $client->email,
             'permissions' => [
                 'orders' => ['view', 'made_up_feature'],
                 'not_a_module' => ['view'],
             ],
-        ])->assertRedirect(route('super.admins.index'));
+        ])->assertRedirect(route('admin.admins.index'));
 
         $client->refresh();
         $this->assertEquals(['view'], $client->permissions['orders']);
@@ -284,7 +285,7 @@ class RolePermissionTest extends TestCase
     {
         $super = $this->superAdmin();
 
-        $this->actingAs($super)->delete(route('super.admins.destroy', $super))
+        $this->actingAs($super)->delete(route('admin.admins.destroy', $super))
             ->assertSessionHasErrors();
 
         $this->assertDatabaseHas('users', ['id' => $super->id]);
@@ -401,7 +402,7 @@ class RolePermissionTest extends TestCase
     {
         $super = $this->superAdmin();
 
-        $this->actingAs($super)->post(route('super.admins.store'), [
+        $this->actingAs($super)->post(route('admin.admins.store'), [
             'name' => 'স্টোর ম্যানেজার',
             'email' => 'store@example.com',
             'password' => 'secret123',
@@ -436,11 +437,11 @@ class RolePermissionTest extends TestCase
 
         $allFeatures = array_keys(config('permissions.modules.theme.features'));
 
-        $this->actingAs($super)->put(route('super.admins.update', $client), [
+        $this->actingAs($super)->put(route('admin.admins.update', $client), [
             'name' => $client->name,
             'email' => $client->email,
             'permissions' => ['theme' => $allFeatures],
-        ])->assertRedirect(route('super.admins.index'));
+        ])->assertRedirect(route('admin.admins.index'));
 
         $client->refresh();
         $this->assertEquals(['*'], $client->permissions['theme']);
@@ -448,11 +449,11 @@ class RolePermissionTest extends TestCase
         $this->assertTrue($client->hasPermission('theme.live_preview'));
 
         // partial grant keeps exactly the ticked features
-        $this->actingAs($super)->put(route('super.admins.update', $client), [
+        $this->actingAs($super)->put(route('admin.admins.update', $client), [
             'name' => $client->name,
             'email' => $client->email,
             'permissions' => ['theme' => ['view', 'fonts']],
-        ])->assertRedirect(route('super.admins.index'));
+        ])->assertRedirect(route('admin.admins.index'));
 
         $client->refresh();
         $this->assertEquals(['view', 'fonts'], $client->permissions['theme']);

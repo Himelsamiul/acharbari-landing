@@ -17,7 +17,7 @@
             <span style="display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;letter-spacing:1.2px;padding:5px 13px;border-radius:999px;background:rgba(163,230,53,.18);border:1px solid rgba(163,230,53,.45);color:#a3e635">
                 <span style="width:7px;height:7px;border-radius:50%;background:#a3e635"></span> LIVE STORE
             </span>
-            <h3 style="margin:10px 0 6px;font-size:20px">স্বাগতম, Admin 👋</h3>
+            <h3 style="margin:10px 0 6px;font-size:20px">স্বাগতম, {{ auth()->user()->name }} 👋</h3>
             <p style="margin:0;font-size:13px;color:rgba(255,255,255,.85)">আজ <b style="color:#a3e635">{{ $stats['orders_today'] }}টি</b> নতুন অর্ডার এসেছে — মোট {{ $stats['orders_total'] }}টি অর্ডারের মধ্যে {{ $stats['pending'] }}টি পেন্ডিং আছে।</p>
         </div>
     </div>

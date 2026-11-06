@@ -65,6 +65,7 @@ class AuthController extends Controller
         $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
 
         if (Auth::attempt([$field => $login, 'password' => $data['password']], $request->boolean('remember'))) {
+            /** @var User $user */
             $user = Auth::user();
 
             if (! $user->is_active) {

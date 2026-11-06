@@ -12,17 +12,13 @@ class AuthController extends Controller
     public function showLogin(Request $request)
     {
         if (Auth::check()) {
-            return redirect()->route(Auth::user()->isSuperAdmin() ? 'super.overview' : 'admin.dashboard');
+            return redirect()->route('admin.dashboard');
         }
 
-        // showcase credential modal theke ashle email prefilled thake —
-        // shudhu known active admin email e prefill hoy (enumeration nei:
-        // onno value dile ignore)
-        $prefill = '';
+        // ?email= prefills the login field — any well-formed address, with no
+        // lookup, so the page never tells whether an account exists
         $email = trim((string) $request->query('email', ''));
-        if ($email !== '' && User::where('email', $email)->where('role', User::ROLE_ADMIN)->where('is_active', true)->exists()) {
-            $prefill = $email;
-        }
+        $prefill = strlen($email) <= 120 && filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : '';
 
         return view('admin.login', ['prefillEmail' => $prefill]);
     }
@@ -37,6 +33,7 @@ class AuthController extends Controller
         $remember = $request->boolean('remember');
 
         if (Auth::attempt($credentials, $remember)) {
+            /** @var User $user */
             $user = Auth::user();
 
             // the admin panel is not for storefront customers
@@ -50,16 +47,14 @@ class AuthController extends Controller
             if (! $user->is_active) {
                 Auth::guard('web')->logout();
                 return back()->withErrors([
-                    'email' => 'আপনার অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে — সুপার অ্যাডমিনের সাথে যোগাযোগ করুন।',
+                    'email' => 'আপনার অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে — আপনার অ্যাডমিনের সাথে যোগাযোগ করুন।',
                 ])->onlyInput('email');
             }
 
             $request->session()->regenerate();
 
-            // the platform owner lands in their own panel
-            return redirect()->intended(
-                $user->isSuperAdmin() ? route('super.overview') : route('admin.dashboard')
-            );
+            // everyone (platform owner included) lands on the store dashboard
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         return back()->withErrors([

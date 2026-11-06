@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class ModuleController extends Controller
 {
@@ -47,14 +48,14 @@ class ModuleController extends Controller
         ],
     ];
 
-    public function show(string $module)
+    public function show(Request $request, string $module)
     {
         abort_unless(isset(self::$modules[$module]), 404);
 
         // draft pages ride on the module they belong to (coupons page → coupons.view,
         // pixels/analytics → tracking.view) so a scoped admin can't see others' tools
         $permission = $module === 'coupons' ? 'coupons.view' : 'tracking.view';
-        if (! auth()->user()?->hasPermission($permission)) {
+        if (! $request->user()?->hasPermission($permission)) {
             abort(403, 'এই পেজ বা অ্যাকশনের অনুমতি আপনার নেই।');
         }
 

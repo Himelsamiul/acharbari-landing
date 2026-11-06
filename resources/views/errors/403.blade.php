@@ -89,7 +89,7 @@
         <div class="e403-code">403 — Forbidden</div>
         <h1>অনুমতি নেই</h1>
         <p class="msg">{{ $exception->getMessage() ?: 'এই পেজটি দেখার বা এই কাজটি করার অনুমতি আপনার অ্যাকাউন্টে নেই।' }}</p>
-        <p class="hint">অনুমতি পেতে সুপার অ্যাডমিনের সাথে যোগাযোগ করুন।</p>
+        <p class="hint">অনুমতি পেতে আপনার অ্যাডমিনের সাথে যোগাযোগ করুন।</p>
         <div class="e403-actions">
             @auth
                 <a class="a-btn" href="{{ url(auth()->user()->isCustomer() ? '/account' : '/admin') }}"><i class="fa-solid fa-gauge-high"></i> ড্যাশবোর্ডে ফিরে যান</a>

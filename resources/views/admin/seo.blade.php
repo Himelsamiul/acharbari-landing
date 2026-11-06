@@ -28,8 +28,8 @@
                     <div class="char-counter" id="cntKeywords"></div>
 
                     <h3 style="margin-top:18px"><i class="fa-solid fa-link"></i> Canonical URL</h3>
-                    <p class="desc">হোমপেজের ক্যানোনিকাল — www ছাড়া/সহ এক ঠিকানা ঠিক করতে (খালি রাখলে অটো)। যেমন: <code>https://khorak.shop</code></p>
-                    <input class="a-input" type="url" name="seo_canonical" value="{{ $canonical }}" placeholder="https://khorak.shop" maxlength="300">
+                    <p class="desc">হোমপেজের ক্যানোনিকাল — www ছাড়া/সহ এক ঠিকানা ঠিক করতে (খালি রাখলে অটো)। যেমন: <code>{{ url('/') }}</code></p>
+                    <input class="a-input" type="url" name="seo_canonical" value="{{ $canonical }}" placeholder="{{ url('/') }}" maxlength="300">
 
                     <h3 style="margin-top:18px"><i class="fa-brands fa-google"></i> Google Search Console</h3>
                     <p class="desc">Search Console → Settings → Ownership verification → HTML tag থেকে <code>content="..."</code>-এর ভ্যালুটা পেস্ট করুন। শুধু কোডটা, পুরো ট্যাগ নয়।</p>

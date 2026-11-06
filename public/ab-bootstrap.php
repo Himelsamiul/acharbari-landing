@@ -8,8 +8,8 @@
  * transfers cleanly, and this script rebuilds vendor/ server-side via PharData.
  *
  * Flow: verify key (last 16 chars of APP_KEY, read from .env) -> extract
- * vendor.tar.gz if vendor/ is missing (or ?extract=1) -> migrate --force ->
- * storage:link -> optional ?seed=1.
+ * vendor.tar.gz if vendor/ is missing (or ?extract=1) -> clear caches -> migrate --force ->
+ * storage:link -> optional ?seed=1 (fresh, empty database only).
  *
  * URL: https://domain.com/public/ab-bootstrap.php?key=<last 16 of APP_KEY>[&extract=1][&seed=1]
  * Kaj sesh hole EI FILE + public_html/vendor.tar.gz DELETE kore din.
@@ -58,16 +58,32 @@ require $base . '/vendor/autoload.php';
 $app = require $base . '/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 
-$steps = [['migrate', ['--force' => true]], ['storage:link', []]];
-if (($_GET['seed'] ?? '') === '1') {
-    $steps[] = ['db:seed', ['--force' => true]];
-}
-
+// stale caches from the previous code (routes, config, compiled views) must not
+// outlive a deploy; then migrate
+$steps = [
+    ['config:clear', []], ['route:clear', []], ['view:clear', []], ['event:clear', []],
+    ['migrate', ['--force' => true]], ['storage:link', []],
+];
 foreach ($steps as [$name, $opts]) {
     echo "\n== php artisan {$name} ==\n";
     try {
         $kernel->call($name, $opts);
         echo $kernel->output();
+    } catch (\Throwable $e) {
+        echo 'ERROR: ' . $e->getMessage() . "\n";
+    }
+}
+
+if (($_GET['seed'] ?? '') === '1') {
+    echo "\n== php artisan db:seed ==\n";
+    try {
+        // starter data is for a fresh install only — a live store keeps its own
+        if (\Illuminate\Support\Facades\DB::table('users')->exists()) {
+            echo "skipped — database already has accounts (seed only runs on a fresh install)\n";
+        } else {
+            $kernel->call('db:seed', ['--force' => true]);
+            echo $kernel->output();
+        }
     } catch (\Throwable $e) {
         echo 'ERROR: ' . $e->getMessage() . "\n";
     }

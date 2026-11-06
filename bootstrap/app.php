@@ -31,9 +31,19 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'perm' => \App\Http\Middleware\CheckPermission::class,
             'admin.role' => \App\Http\Middleware\EnsureAdminRole::class,
-            'super.admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
             'customer' => \App\Http\Middleware\EnsureCustomer::class,
         ]);
+
+        // role/permission gates run before route-model binding, so someone
+        // without access gets the same 403 whether a record exists or not
+        $middleware->prependToPriorityList(
+            before: \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            prepend: \App\Http\Middleware\EnsureAdminRole::class,
+        );
+        $middleware->prependToPriorityList(
+            before: \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            prepend: \App\Http\Middleware\CheckPermission::class,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -12,9 +12,9 @@ use Illuminate\Validation\Rule;
  */
 class AccountController extends Controller
 {
-    public function profile()
+    public function profile(Request $request)
     {
-        $orders = auth()->user()->orders()->with('items')->latest()->take(5)->get();
+        $orders = $request->user()->orders()->with('items')->latest()->take(5)->get();
 
         return view('account.profile', compact('orders'));
     }
@@ -59,9 +59,9 @@ class AccountController extends Controller
     }
 
     /** আমার অর্ডারসমূহ — orders linked via user_id, newest first. */
-    public function orders()
+    public function orders(Request $request)
     {
-        $orders = auth()->user()->orders()->with('items')->latest()->paginate(10);
+        $orders = $request->user()->orders()->with('items')->latest()->paginate(10);
 
         return view('account.orders', compact('orders'));
     }

@@ -66,11 +66,11 @@ class AdminPermissionTest extends TestCase
         $this->assertStringNotContainsString('অ্যাডমিন ম্যানেজমেন্ট', $html);
     }
 
-    public function test_plain_admin_cannot_open_super_panel(): void
+    public function test_plain_admin_without_team_grant_cannot_open_admin_management(): void
     {
         $staff = $this->staff(['orders']);
         $this->actingAs($staff)
-            ->get(route('super.admins.index'))
+            ->get(route('admin.admins.index'))
             ->assertForbidden();
     }
 
@@ -80,7 +80,7 @@ class AdminPermissionTest extends TestCase
         $staff = $this->staff(['orders']);
 
         $html = $this->actingAs($boss)
-            ->get(route('super.admins.index'))
+            ->get(route('admin.admins.index'))
             ->assertOk()
             ->getContent();
 
@@ -95,7 +95,7 @@ class AdminPermissionTest extends TestCase
         $staff = $this->staff(['orders']);
 
         $this->actingAs($boss)
-            ->put(route('super.admins.update', $staff), [
+            ->put(route('admin.admins.update', $staff), [
                 'name' => 'Staff',
                 'email' => 'staff@test.bd',
                 'permissions' => [
@@ -118,7 +118,7 @@ class AdminPermissionTest extends TestCase
         $staff = $this->staff(['orders']);
 
         $this->actingAs($boss)
-            ->post(route('super.admins.password', $staff), ['password' => 'newpass99'])
+            ->post(route('admin.admins.password', $staff), ['password' => 'newpass99'])
             ->assertRedirect();
 
         $this->assertTrue(Hash::check('newpass99', $staff->fresh()->password));
@@ -129,11 +129,11 @@ class AdminPermissionTest extends TestCase
         $boss = $this->superAdmin();
 
         $this->actingAs($boss)
-            ->post(route('super.admins.toggle', $boss))
+            ->post(route('admin.admins.toggle', $boss))
             ->assertSessionHasErrors('admin');
 
         $this->actingAs($boss)
-            ->delete(route('super.admins.destroy', $boss))
+            ->delete(route('admin.admins.destroy', $boss))
             ->assertSessionHasErrors('admin');
 
         $this->assertDatabaseHas('users', ['id' => $boss->id]);
@@ -146,7 +146,7 @@ class AdminPermissionTest extends TestCase
         $staff = $this->staff(['orders']);
 
         $this->actingAs($boss)
-            ->delete(route('super.admins.destroy', $staff))
+            ->delete(route('admin.admins.destroy', $staff))
             ->assertRedirect();
 
         $this->assertDatabaseMissing('users', ['id' => $staff->id]);
@@ -158,7 +158,7 @@ class AdminPermissionTest extends TestCase
         $staff = $this->staff(['orders']);
 
         $this->actingAs($boss)
-            ->post(route('super.admins.toggle', $staff))
+            ->post(route('admin.admins.toggle', $staff))
             ->assertRedirect();
         $this->assertFalse($staff->fresh()->is_active);
 

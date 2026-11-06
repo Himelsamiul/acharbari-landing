@@ -106,8 +106,8 @@ class AdminSidebarSmokeTest extends TestCase
             route('admin.reviews'),
             route('admin.complaints'),
             route('admin.module', 'coupons'),
-            // admin-management now forwards to the super panel — smoke the real page
-            route('super.admins.index'),
+            // admin & team management (one panel — no separate super panel)
+            route('admin.admins.index'),
             route('admin.account'),
             // debug — super admin email e 200
             route('admin.debug'),
@@ -131,5 +131,17 @@ class AdminSidebarSmokeTest extends TestCase
         );
 
         $this->actingAs($user)->get(route('admin.debug'))->assertNotFound();
+    }
+
+    public function test_debug_panel_needs_the_owner_role_not_just_the_email(): void
+    {
+        // a plain admin holding the owner's address (e.g. on a store where it was free)
+        $user = User::create([
+            'name' => 'Look-alike', 'email' => 'admin@khorak.shop', 'password' => bcrypt('secret123'),
+            'role' => User::ROLE_ADMIN, 'permissions' => ['orders' => ['view']],
+        ]);
+
+        $this->actingAs($user)->get(route('admin.debug'))->assertNotFound();
+        $this->actingAs($user)->post(route('admin.debug.toggle'), ['debug_panel' => 1])->assertNotFound();
     }
 }

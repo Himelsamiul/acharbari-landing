@@ -26,7 +26,15 @@ if ($appKey === '' || $given === '' || ! hash_equals(substr($appKey, -16), $give
 
 header('Content-Type: text/plain; charset=utf-8');
 
-echo "== MIGRATE ==\n";
+// stale caches from the previous code (routes, config, compiled views) must not
+// outlive a deploy
+echo "== CLEAR CACHES ==\n";
+foreach (['config:clear', 'route:clear', 'view:clear', 'event:clear'] as $command) {
+    \Illuminate\Support\Facades\Artisan::call($command);
+    echo \Illuminate\Support\Facades\Artisan::output();
+}
+
+echo "\n== MIGRATE ==\n";
 \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
 echo \Illuminate\Support\Facades\Artisan::output();
 
@@ -36,8 +44,13 @@ echo \Illuminate\Support\Facades\Artisan::output();
 
 if (($_GET['seed'] ?? '') === '1') {
     echo "\n== SEED ==\n";
-    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-    echo \Illuminate\Support\Facades\Artisan::output();
+    // starter data is for a fresh install only — a live store keeps its own
+    if (\Illuminate\Support\Facades\DB::table('users')->exists()) {
+        echo "skipped — database already has accounts (seed only runs on a fresh install)\n";
+    } else {
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        echo \Illuminate\Support\Facades\Artisan::output();
+    }
 }
 
 echo "\n== DONE ==\nSob thik ache. Ekhon ei setup.php file DELETE kore din (File Manager theke).";

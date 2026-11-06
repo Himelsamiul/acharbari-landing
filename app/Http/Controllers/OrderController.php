@@ -71,18 +71,10 @@ class OrderController extends Controller
         $data['phone'] = $phone;
 
         $productIds = array_map(fn ($i) => (int) $i['id'], $items);
-        // industry scoping: landing only sells the active industry's products —
+        // industry scoping: only the active industry's products are orderable —
         // hidden (other-industry) ids must not be orderable either.
-        // Two showcase-only additions: any genre's managed demo rows (the
-        // /showcase/{genre} demo carts sell them) and the showcase's own
-        // lp-* landing-design rows — both stay invisible on / and /products
-        // via the same industry scope.
         $products = Product::whereIn('id', $productIds)->where('is_active', true)
-            ->where(function ($q) {
-                $q->forIndustry()
-                    ->orWhereIn('slug', \App\Http\Controllers\Admin\IndustryPack::managedSlugs())
-                    ->orWhere('industry', 'showcase');
-            })
+            ->forIndustry()
             ->get()->keyBy('id');
 
         // variant map: valid, ACTIVE variants of the ordered products only
@@ -152,15 +144,8 @@ class OrderController extends Controller
             return back()->withErrors(['items' => 'প্রোডাক্ট পাওয়া যায়নি — আবার চেষ্টা করুন।']);
         }
 
-        // order routing (server-side only, never trusted from the client):
-        // any showcase landing-design row in the cart => super admin's order
+        // all orders are store orders (landing-design sales feature retired)
         $source = Order::SOURCE_STORE;
-        foreach ($lines as $line) {
-            if (($products[$line['product_id']]->industry ?? '') === 'showcase') {
-                $source = Order::SOURCE_LANDING;
-                break;
-            }
-        }
 
         // Coupon: percent off subtotal, validated against the active coupons table
         $discount = 0;

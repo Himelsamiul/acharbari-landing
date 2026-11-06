@@ -70,8 +70,10 @@
                                     onclick="renameCustomer(@js($c->phone), @js($c->name))"><i class="fa-solid fa-pen"></i></button>
                                 @endif
                                 @if ($canDelete)
+                                {{-- the phone is customer-typed — it travels as data, never as code --}}
                                 <form method="POST" action="{{ route('admin.customers.destroy', $c->phone) }}"
-                                    onsubmit="return swConfirmSubmit(event, 'গ্রাহক ({{ $c->phone }}) এর {{ $c->orders_count }} টি অর্ডার সহ সব ডেটা মুছে যাবে — নিশ্চিত?')">
+                                    data-confirm="গ্রাহক ({{ $c->phone }}) এর {{ $c->orders_count }} টি অর্ডার সহ সব ডেটা মুছে যাবে — নিশ্চিত?"
+                                    onsubmit="return swConfirmSubmit(event, this.dataset.confirm)">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn-icon" type="submit"><i class="fa-solid fa-trash"></i></button>

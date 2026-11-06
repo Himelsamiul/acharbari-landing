@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="password">
         <h3>পাসওয়ার্ড বদলান</h3>
         <p class="desc">নতুন পাসওয়ার্ড দিতে বর্তমান পাসওয়ার্ড জানতে হবে</p>
         <form method="POST" action="{{ route('admin.account.password') }}">

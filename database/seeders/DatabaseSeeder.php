@@ -2,64 +2,68 @@
 
 namespace Database\Seeders;
 
-use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Starter data for a fresh install. Only fills what is missing — a re-run on a
+ * live store never resets a password, a setting, a coupon or a product the
+ * admin has changed.
+ */
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // a live store already has its own data — re-seeding production would
+        // only bring back starter rows the admin deleted
+        if (app()->isProduction() && \App\Models\User::query()->exists()) {
+            $this->command?->warn('Skipped: this production database already has accounts.');
+
+            return;
+        }
+
         // Categories
         foreach ([
             ['আচার', 'Pickles', 'pickle'],
             ['মধু ও ঘি', 'Honey & Ghee', 'pure'],
             ['চাটনি', 'Chutney', 'chaatni'],
         ] as [$name, $nameEn, $key]) {
-            \App\Models\Category::updateOrCreate(['key' => $key], ['name' => $name, 'name_en' => $nameEn]);
+            \App\Models\Category::firstOrCreate(['key' => $key], ['name' => $name, 'name_en' => $nameEn]);
         }
 
         // Brands
-        \App\Models\Brand::updateOrCreate(['name' => 'আচারবাড়ি']);
-        \App\Models\Brand::updateOrCreate(['name' => 'গ্রাম ভাণ্ডার']);
+        \App\Models\Brand::firstOrCreate(['name' => 'আচারবাড়ি']);
+        \App\Models\Brand::firstOrCreate(['name' => 'গ্রাম ভাণ্ডার']);
 
-        // Site settings defaults
-        \App\Models\Setting::setMany([
+        // Site settings defaults — only keys the store has never set
+        $defaults = [
             'brand_bn1' => 'আচার', 'brand_bn2' => 'বাড়ি',
             'brand_en1' => 'Achar', 'brand_en2' => 'Bari',
             'logo_path' => '',
             'theme_id' => 'spice',
-        ]);
+        ];
+        \App\Models\Setting::setMany(array_filter(
+            $defaults,
+            fn (string $key) => ! \App\Models\Setting::has($key),
+            ARRAY_FILTER_USE_KEY
+        ));
 
         // Demo coupon
-        \App\Models\Coupon::updateOrCreate(
+        \App\Models\Coupon::firstOrCreate(
             ['code' => 'ACHAR10'],
             ['percent' => 10, 'is_active' => true, 'expires_at' => null]
         );
 
-        // Platform owner (super admin) — full access to /admin + /super
-        \App\Models\User::updateOrCreate(
+        // Platform owner (super admin). Created once; an existing account keeps
+        // its password. ADMIN_SEED_PASSWORD in .env keeps a fresh install off
+        // the public default.
+        \App\Models\User::firstOrCreate(
             ['email' => 'admin@khorak.shop'],
             [
                 'name' => 'Admin',
-                'password' => Hash::make('admin123'),
+                'password' => Hash::make(env('ADMIN_SEED_PASSWORD') ?: 'admin123'),
                 'role' => \App\Models\User::ROLE_SUPER_ADMIN,
                 'permissions' => null,
-                'is_active' => true,
-            ]
-        );
-
-        // Demo client admin (a sellable package example) — only orders + products.
-        \App\Models\User::updateOrCreate(
-            ['email' => 'manager@khorak.shop'],
-            [
-                'name' => 'Store Manager',
-                'password' => Hash::make('manager123'),
-                'role' => \App\Models\User::ROLE_ADMIN,
-                'permissions' => [
-                    'orders' => ['view', 'status_update'],
-                    'products' => ['view', 'edit'],
-                ],
                 'is_active' => true,
             ]
         );
@@ -151,20 +155,17 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        \App\Models\Product::upsert(
-            array_map(function ($i, $p) {
-                $p['brand'] = 'আচারবাড়ি';
-                $p['unit'] = in_array($p['category_key'], ['pickle', 'chaatni']) ? 'gm' : 'ml';
-                $p['stock'] = 60 + $i * 15;
-                $p['barcode'] = 'ABP-' . str_pad((string)($i + 1), 4, '0', STR_PAD_LEFT);
-                return $p;
-            }, array_keys($products), $products),
-            ['slug'],
-            ['name', 'name_en', 'category', 'category_en', 'category_key', 'brand', 'unit', 'stock', 'barcode', 'price', 'old_price', 'discount_bn', 'discount_en', 'image', 'rating', 'reviews_count', 'stock_badge', 'stock_badge_en', 'description', 'description_en', 'sort_order']
-        );
+        foreach ($products as $i => $p) {
+            \App\Models\Product::firstOrCreate(['slug' => $p['slug']], $p + [
+                'brand' => 'আচারবাড়ি',
+                'unit' => in_array($p['category_key'], ['pickle', 'chaatni']) ? 'gm' : 'ml',
+                'stock' => 60 + $i * 15,
+                'barcode' => 'ABP-' . str_pad((string) ($i + 1), 4, '0', STR_PAD_LEFT),
+            ]);
+        }
 
         // নতুন ভ্যারিয়েন্ট ফিচারের ডেমো — কিছু প্রোডাক্টে সাইজ-ভিত্তিক ভ্যারিয়েন্ট
-        // (idempotent: product_id + size দিয়ে updateOrCreate, বারবার চালানো নিরাপদ)
+        // (idempotent: product_id + size দিয়ে firstOrCreate — আগে থেকে থাকলে হাত দেয় না)
         $variantSeed = [
             'mango-kuchi-achar' => [
                 ['size' => '২৫০ গ্রাম', 'price' => 180, 'old_price' => 220, 'stock' => 60, 'vat_percent' => 0, 'discount_bn' => '-১৮% ছাড়', 'discount_en' => '-18% Off', 'sort_order' => 1],
@@ -190,7 +191,7 @@ class DatabaseSeeder extends Seeder
             if (! $sp) continue;
 
             foreach ($rows as $row) {
-                \App\Models\ProductVariant::updateOrCreate(
+                \App\Models\ProductVariant::firstOrCreate(
                     ['product_id' => $sp->id, 'size' => $row['size']],
                     $row + ['is_active' => true]
                 );

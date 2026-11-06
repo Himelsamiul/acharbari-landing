@@ -10,7 +10,8 @@ use Illuminate\Database\Seeder;
 /**
  * Per-industry demo catalogue: every genre gets its own demo products +
  * categories, tagged with the `industry` column so the landing page and the
- * admin panel can scope by the active preset. Idempotent — safe to re-run.
+ * admin panel can scope by the active preset. Idempotent and fill-only — a
+ * re-run never renames, re-prices or re-activates what the store changed.
  */
 class IndustryDemoSeeder extends Seeder
 {
@@ -29,7 +30,7 @@ class IndustryDemoSeeder extends Seeder
                     continue;
                 }
                 $claimedCategoryKeys[] = $ck;
-                Category::updateOrCreate(
+                Category::firstOrCreate(
                     ['key' => $ck],
                     ['name' => $bn, 'name_en' => $en, 'industry' => $genre, 'is_active' => true]
                 );
@@ -53,12 +54,15 @@ class IndustryDemoSeeder extends Seeder
                 ];
 
                 if (str_starts_with($p['slug'], 'demo-')) {
-                    Product::updateOrCreate(['slug' => $p['slug']], $payload);
+                    Product::firstOrCreate(['slug' => $p['slug']], $payload);
                 } else {
-                    // legacy organic slugs already carry the richer DatabaseSeeder copy — only tag them
+                    // legacy organic slugs already carry the richer DatabaseSeeder copy — only tag them,
+                    // once (fresh install); a re-run leaves an already-tagged product alone
                     $existing = Product::where('slug', $p['slug'])->first();
                     if ($existing) {
-                        $existing->update(['industry' => $genre, 'is_active' => true]);
+                        if ($existing->industry === null) {
+                            $existing->update(['industry' => $genre, 'is_active' => true]);
+                        }
                     } else {
                         Product::create($payload + ['slug' => $p['slug']]);
                     }

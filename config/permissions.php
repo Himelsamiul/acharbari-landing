@@ -5,7 +5,7 @@
  *
  * super_admin (platform owner) → everything, no grants needed.
  * admin (client/merchant)      → only the module.feature pairs granted via the
- *                                super-admin permission matrix (/super/admins).
+ *                                permission matrix (/admin/admin-management).
  * customer (end buyer)         → storefront only, never the admin panel.
  *
  * The matrix UI, the `perm:` route middleware strings and the sidebar gating
@@ -53,6 +53,18 @@ return [
             'features' => [
                 'view' => 'দেখা',
                 'rename' => 'নাম পরিবর্তন',
+                'delete' => 'মুছে ফেলা',
+            ],
+        ],
+        // the admin's own staff accounts (/admin/admin-management): a client
+        // admin only ever sees + manages accounts they created, and can hand
+        // out at most the permissions they hold themselves
+        'team' => [
+            'label' => 'টিম / এমপ্লয়ি অ্যাকাউন্ট',
+            'features' => [
+                'view' => 'দেখা',
+                'create' => 'নতুন অ্যাকাউন্ট তৈরি',
+                'edit' => 'অনুমতি, পাসওয়ার্ড ও স্ট্যাটাস এডিট',
                 'delete' => 'মুছে ফেলা',
             ],
         ],
